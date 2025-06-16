@@ -1,0 +1,176 @@
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Menu,
+  MenuItem,
+  IconButton,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+import { MoreVert, FilterList, Visibility, Search } from "@mui/icons-material";
+import { styled } from "@mui/system";
+
+const data = new Array(10).fill({
+  name: "akur",
+  employeeId: "1234567",
+  amount: "₹25000",
+  requestId: "DSB-LN0001-01",
+  verification: true,
+  date: "15/06/24",
+  status: "Approved",
+  location: "Gurgaon",
+});
+
+const statusStyles = {
+  Approved: "bg-green-100 text-green-600",
+  Pending: "bg-blue-100 text-blue-600",
+  Rejected: "bg-red-100 text-red-500",
+};
+
+const ScrollableTableContainer = styled(TableContainer)({
+  maxHeight: 520,
+  overflowY: "auto",
+  scrollbarColor: "#3b82f6 #f1f1f1",
+  scrollbarWidth: "thin",
+  '&::-webkit-scrollbar': {
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#3b82f6',
+    borderRadius: '3px',
+  },
+});
+
+export default function DisbursementLoansTable() {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div className="p-6">
+      <div className="rounded-xl shadow-md border p-6 bg-white">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Disbursement Loans</h2>
+          <div className="flex gap-2">
+            <Button
+              variant="outlined"
+              startIcon={<FilterList />}
+              sx={{ textTransform: "none", borderRadius: "12px" }}
+            >
+              Filter
+            </Button>
+            <TextField
+              placeholder="Search"
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: "12px" },
+              }}
+            />
+          </div>
+        </div>
+
+        <ScrollableTableContainer component={Paper} className="rounded-lg">
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow className="bg-white">
+                {["Name", "Employee ID", "Requested Amount", "Request ID", "Earnings Verification", "Request Date", "Status", "Work Location", "Action"].map((head) => (
+                  <TableCell key={head} className="text-sm text-gray-500 font-medium">
+                    {head}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.employeeId}</TableCell>
+                  <TableCell>{row.amount}</TableCell>
+                  <TableCell>{row.requestId}</TableCell>
+                  <TableCell>
+                    <Visibility className="text-blue-500 cursor-pointer" />
+                  </TableCell>
+                  <TableCell>{row.date}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[row.status]}`}
+                    >
+                      {row.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>{row.location}</TableCell>
+                  <TableCell>
+                    <Button
+                      size="small"
+                      endIcon={<MoreVert />}
+                      onClick={handleMenuClick}
+                      sx={{ textTransform: "none", borderRadius: "12px", border: "1px solid #d1d5db" }}
+                    >
+                      Select
+                    </Button>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleMenuClose}
+                    >
+                      <MenuItem onClick={handleMenuClose}>Action 1</MenuItem>
+                      <MenuItem onClick={handleMenuClose}>Action 2</MenuItem>
+                    </Menu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollableTableContainer>
+
+        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <span>Showing</span>
+            <TextField
+              select
+              size="small"
+              defaultValue="10"
+              SelectProps={{ native: true }}
+              sx={{ width: 70 }}
+            >
+              {[10, 20, 30].map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+            </TextField>
+          </div>
+          <span>Showing 1 to 10 out of 60 records</span>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4].map((page, idx) => (
+              <button
+                key={idx}
+                className={`w-8 h-8 rounded-full border text-sm ${page === 1 ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

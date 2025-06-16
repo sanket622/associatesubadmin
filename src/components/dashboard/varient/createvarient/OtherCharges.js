@@ -1,0 +1,207 @@
+import React from 'react';
+import {
+    Grid,
+    Box,
+    Button,
+    Typography,
+    Checkbox,
+} from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+import FormProvider from '../../../subcompotents/FormProvider';
+import RHFTextField from '../../../subcompotents/RHFTextField';
+import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
+import Label from '../../../subcompotents/Label';
+import { submitVariantOtherCharges } from '../../../../redux/varient/submitslice/variantProductOtherChargesSubmitSlice';
+import { useDispatch } from 'react-redux';
+
+const OtherCharges = ({ setTabIndex, tabIndex }) => {
+    const dispatch = useDispatch();
+
+    const requiredNumber = () =>
+        Yup.number().typeError('Must be a number').required('Required');
+
+    const OtherChargesSchema = Yup.object().shape({
+        chequeBounceCharges: requiredNumber(),
+        duplicateNocCharges: requiredNumber(),
+        statementCharges: requiredNumber(),
+        chequeSwappingCharges: requiredNumber(),
+        ecsCharges: requiredNumber(),
+        documentCopyCharges: requiredNumber(),
+        stampDutyCharges: requiredNumber(),
+        nocIssuanceCharges: requiredNumber(),
+        legalCharges: requiredNumber(),
+        // subscriptionGst: requiredNumber(),
+        // gstOnTransactionFee: requiredNumber(),
+    });
+
+    const defaultValues = {
+        chequeBounceCharges: '',
+        duplicateNocCharges: '',
+        statementCharges: '',
+        chequeSwappingCharges: '',
+        ecsCharges: '',
+        documentCopyCharges: '',
+        stampDutyCharges: '',
+        nocIssuanceCharges: '',
+        legalCharges: '',
+        subscriptionGst: '',
+        gstOnTransactionFee: '',
+    };
+
+    const methods = useForm({
+        resolver: yupResolver(OtherChargesSchema),
+        defaultValues,
+    });
+
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+    } = methods;
+
+    const onSubmit = (data) => {
+        dispatch(submitVariantOtherCharges(data, () => {
+            setTabIndex(prev => prev + 1);
+        }));
+    };
+
+    const onError = (err) => {
+        console.log('Validation Errors:', err);
+    };
+
+    return (
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
+            <Box>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="chequeBounceCharges">Cheque Bounce Charges</Label>
+                        <RHFTextField name="chequeBounceCharges" id="chequeBounceCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="duplicateNocCharges">Charges for Duplicate NOC</Label>
+                        <RHFTextField name="duplicateNocCharges" id="duplicateNocCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="statementCharges">Statement Charges - 2nd Time</Label>
+                        <RHFTextField name="statementCharges" id="statementCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="chequeSwappingCharges">Cheque Swapping Charges</Label>
+                        <RHFTextField name="chequeSwappingCharges" id="chequeSwappingCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="ecsCharges">Revocation of ECS/ACH Charges</Label>
+                        <RHFTextField name="ecsCharges" id="ecsCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="documentCopyCharges">Document Copy Charges</Label>
+                        <RHFTextField name="documentCopyCharges" id="documentCopyCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="stampDutyCharges">Stamp Duty Charges</Label>
+                        <RHFTextField name="stampDutyCharges" id="stampDutyCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="nocIssuanceCharges">NOC Issuance Charges</Label>
+                        <RHFTextField name="nocIssuanceCharges" id="nocIssuanceCharges" />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Label htmlFor="legalCharges">Legal / Repossession Charges</Label>
+                        <RHFTextField name="legalCharges" id="legalCharges" />
+                    </Grid>
+                </Grid>
+
+                {/* Additional Charges */}
+                <Box mt={4}>
+                    <Typography variant="h6" fontWeight="bold" mb={2}>
+                        Additional Charges
+                    </Typography>
+                    {/* Subscription Fee Box */}
+                    <Box
+                        p={3}
+                        mb={2}
+                        border="1px solid #ccc"
+                        borderRadius="16px"
+                        display="flex"
+                        flexDirection="column"
+                    >
+                        {/* Header row with checkbox aligned right */}
+                        <Box display="flex" justifyContent="flex-end">
+                            <Checkbox
+                                sx={{
+                                    color: '#0000FF',
+                                    '&.Mui-checked': {
+                                        color: '#0000FF',
+                                    },
+                                }}
+                            />
+                        </Box>
+
+                        {/* Grid form content */}
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={6}>
+                                <Label htmlFor="subscriptionFee">Subscription Period & Fee</Label>
+                                <RHFTextField name="subscriptionFee" id="subscriptionFee" />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Label htmlFor="subscriptionGst">Subscription GST</Label>
+                                <RHFTextField name="subscriptionGst" id="subscriptionGst" />
+                            </Grid>
+                        </Grid>
+                    </Box>
+
+                    {/* Transaction Fee Box */}
+                    <Box
+                        p={3}
+                        border="1px solid #ccc"
+                        borderRadius="16px"
+                        display="flex"
+                        flexDirection="column"
+                    >
+                        {/* Header row with checkbox aligned right */}
+                        <Box display="flex" justifyContent="flex-end">
+                            <Checkbox
+                                sx={{
+                                    color: '#0000FF',
+                                    '&.Mui-checked': {
+                                        color: '#0000FF',
+                                    },
+                                }}
+                            />
+                        </Box>
+
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={3}>
+                                <Label htmlFor="perTransactionFee">Per Transaction Fee</Label>
+                                <RHFAutocomplete
+                                    name="perTransactionFee"
+                                    options={[]}
+                                    getOptionLabel={(option) => option.name || ''}
+                                    id="perTransactionFee"
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={3}>
+                                <Label htmlFor="perTransactionAmount">Per Transaction Amount</Label>
+                                <RHFTextField name="perTransactionAmount" id="perTransactionAmount" />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Label htmlFor="gstOnTransactionFee">GST on Per Transaction Fee</Label>
+                                <RHFTextField name="gstOnTransactionFee" id="gstOnTransactionFee" />
+                            </Grid>
+                        </Grid>
+                    </Box>
+
+                </Box>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
+                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 4</Box>
+                <Button sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
+                <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Next</Button>
+            </Box>
+        </FormProvider>
+    )
+}
+
+export default OtherCharges
