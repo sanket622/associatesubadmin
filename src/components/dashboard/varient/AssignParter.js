@@ -79,14 +79,14 @@ const AssignPartner = () => {
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">👤</span>
                     </div>
-                    <h1 className="text-2xl font-semibold text-blue-600">Assign Employer</h1>
+                    <h1 className="text-2xl font-semibold text-blue-600">Assign Partner</h1>
                 </div>
 
                 {/* Employer Selection Panel */}
                 <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-blue-600 mb-6">Employer Selection Panel</h2>
+                    <h2 className="text-xl font-semibold text-blue-600 mb-6">Partner Selection Panel</h2>
                     <div className="mb-6">
-                        <Label>Search Employer</Label>
+                        <Label>Search Partner</Label>
                         <RHFAutocomplete
                             name="selectedEmployer"
                             placeholder="Type to search employers..."
@@ -109,13 +109,13 @@ const AssignPartner = () => {
                     {/* Selected Employer Details */}
                     {selectedEmployer && (
                         <div className="mb-6">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Selected Employer Details</h3>
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Selected Partner Details</h3>
                             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                                 <TableContainer component={Paper}>
                                     <Table>
                                         <TableHead sx={{ background: '#F5F5FF' }}>
                                             <TableRow>
-                                                {['Name', 'Email', 'Mobile', 'Employer ID', 'Status'].map((header) => (
+                                                {['Name', 'Email', 'Mobile', 'Partner ID', 'Status'].map((header) => (
                                                     <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>
                                                         {header}
                                                     </TableCell>
@@ -159,7 +159,7 @@ const AssignPartner = () => {
                         </div>
                     </div>
                     <div className="mb-6">
-                        <Label>Add Employer Notes</Label>
+                        <Label>Add Partner Notes</Label>
                         <RHFTextField name="notes" multiline rows={4} />
                     </div>
                 </div>

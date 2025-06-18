@@ -22,6 +22,9 @@ import variantProductRepaymentSubmitReducer from './varient/submitslice/variantP
 import variantProductsReducer from './varient/variantProductsSlice';
 import variantSingleReducer from './varient/variantSingleSlice';
 import employerAssignmentReducer from './varient/employerAssignmentSlice';
+import archiveVariantReducer from './varient/archiveVariantSlice';
+import employerOnboardingReducer from '../components/dashboard/ERM/redux/employeronboarding/employerOnboardingSlice';
+import paymentCycleReducer from '../components/dashboard/ERM/redux/employeronboarding/paymentCycleSlice';
 
 
 
@@ -48,7 +51,10 @@ export const store = configureStore({
         variantProductOtherChargesSubmit: variantProductOtherChargesSubmitReducer,
         variantProductRepaymentSubmit: variantProductRepaymentSubmitReducer,
         variantProducts: variantProductsReducer,
-         variantSingle: variantSingleReducer,
-          employerAssignment: employerAssignmentReducer,
+        variantSingle: variantSingleReducer,
+        employerAssignment: employerAssignmentReducer,
+        archiveVariant: archiveVariantReducer,
+        employerOnboarding: employerOnboardingReducer,
+        paymentCycle: paymentCycleReducer,
     },
 });

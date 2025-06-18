@@ -60,11 +60,11 @@ const AssignPartnerTable = () => {
                             <TableRow>
                                 {[
                                     'Sno.', 
-                                    'Employer Name', 
-                                    'Employer ID', 
+                                    'Partner Name', 
+                                    'Partner ID', 
                                     'Assignment Date', 
                                     'End Date', 
-                                    'Actions'
+                                   
                                 ].map((header) => (
                                     <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>
                                         {header}
@@ -107,7 +107,7 @@ const AssignPartnerTable = () => {
                                         <TableCell>
                                             {formatDate(assignment.endDate)}
                                         </TableCell>
-                                        <TableCell>
+                                        {/* <TableCell>
                                             <div className="flex gap-1">
                                                 <IconButton
                                                     size="small"
@@ -116,7 +116,7 @@ const AssignPartnerTable = () => {
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
                                             </div>
-                                        </TableCell>
+                                        </TableCell> */}
                                     </TableRow>
                                 ))
                             )}
@@ -125,8 +125,8 @@ const AssignPartnerTable = () => {
                 </TableContainer>
             </div>
 
-            {/* Summary */}
-            {assignedPartners && assignedPartners.length > 0 && (
+           
+            {/* {assignedPartners && assignedPartners.length > 0 && (
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                     <div className="text-sm text-blue-700">
                         <strong>Total Assigned Partners:</strong> {assignedPartners.length}
@@ -135,7 +135,7 @@ const AssignPartnerTable = () => {
                         <strong>Active Assignments:</strong> {assignedPartners.filter(a => a.isActive !== false).length}
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };

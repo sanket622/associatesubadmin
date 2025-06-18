@@ -29,6 +29,10 @@ import VarientTable from '../varient/VarientTable';
 import ViewSingleVarient from '../varient/ViewSingleVarient';
 import AssignPartner from '../varient/AssignParter';
 import AssignPartnerTable from '../varient/AssignPartnerTable';
+import EmployerOnboarding from '../ERM/employeronboarding/EmployerOnboarding';
+import PartnerTable from '../ERM/employeronboarding/PartnerTable';
+import AddPaymentCycle from '../ERM/employeronboarding/AddPaymentCycle';
+import PaymentCycleList from '../ERM/employeronboarding/PaymentCycleList';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -43,6 +47,8 @@ const DashboardLayout = () => {
     { label: "Master product", path: 'masterproduct', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
     { label: "Approval Queue", path: 'approvalqueue', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
     { label: "Product Master List", path: 'productmasterlist', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
+    { label: "Employer Onboarding", path: 'employeronboarding',  },
+    { label: "Partner List", path: 'partnerlist',  },
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -104,6 +110,14 @@ const DashboardLayout = () => {
               <Route path="/varient-details-single/:id" element={<ViewSingleVarient />} />
               <Route path="/assign-partner/:variantId" element={<AssignPartner />} />
               <Route path="/assigned-partners/:variantId" element={<AssignPartnerTable />} />
+
+              {/* ++++++++++++++++++++++++++++ ERM +++++++++++++++++++++++++++++++++ */}
+
+               <Route path="/employeronboarding" element={<EmployerOnboarding />} />
+               <Route path="/partnerlist" element={<PartnerTable />} />
+               <Route path="/payment-cycle-list/:id" element={<PaymentCycleList />} />
+               <Route path="/payment" element={<AddPaymentCycle />} />
+
 
             </Routes>
           </div>
