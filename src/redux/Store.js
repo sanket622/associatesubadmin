@@ -25,6 +25,7 @@ import employerAssignmentReducer from './varient/employerAssignmentSlice';
 import archiveVariantReducer from './varient/archiveVariantSlice';
 import employerOnboardingReducer from '../components/dashboard/ERM/redux/employeronboarding/employerOnboardingSlice';
 import paymentCycleReducer from '../components/dashboard/ERM/redux/employeronboarding/paymentCycleSlice';
+import contractRuleReducer from '../components/dashboard/ERM/redux/employeronboarding/contractRuleSlice';
 
 
 
@@ -56,5 +57,6 @@ export const store = configureStore({
         archiveVariant: archiveVariantReducer,
         employerOnboarding: employerOnboardingReducer,
         paymentCycle: paymentCycleReducer,
+        contractRule: contractRuleReducer,
     },
 });

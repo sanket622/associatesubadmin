@@ -1,158 +1,168 @@
-import React, { useState } from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { RadioGroup, FormControlLabel, Radio, FormControl, FormLabel, Button, IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { RadioGroup, FormControlLabel, Radio, Button } from '@mui/material';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
-import { useDispatch } from 'react-redux';
-import { submitPaymentCycle } from '../redux/employeronboarding/paymentCycleSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { submitPaymentCycle, fetchContractTypes } from '../redux/employeronboarding/paymentCycleSlice';
+import { useParams } from 'react-router-dom';
+import FormProvider from '../../../subcompotents/FormProvider';
+import Label from '../../../subcompotents/Label';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate } from 'react-router-dom';
+
+
+// ✅ Yup Schema
+const schema = yup.object().shape({
+    contractType: yup.object().required('Contract Type is required'),
+    startDate_1: yup.string().required('Start date is required'),
+    endDate_1: yup.string().required('End date is required'),
+    paymentTrigger_1: yup.string().required('Payment trigger is required'),
+    payoutDate_1: yup.string().required('Payout date is required'),
+});
 
 export default function AddPaymentCycle() {
-    const [paymentCycles, setPaymentCycles] = useState([{ id: 1 }]);
-
     const dispatch = useDispatch();
+    const { employerId } = useParams();
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        if (employerId) {
+            dispatch(fetchContractTypes(employerId));
+        }
+    }, [employerId, dispatch]);
+
+    const contractTypeOptions = useSelector(
+        (state) => state.paymentCycle.contractTypes || []
+    );
 
     const methods = useForm({
+        resolver: yupResolver(schema),
         defaultValues: {
             contractType: null,
-            // Initialize form values for each cycle
-            ...paymentCycles.reduce((acc, cycle) => ({
-                ...acc,
-                [`startDate_${cycle.id}`]: '',
-                [`endDate_${cycle.id}`]: '',
-                [`paymentTrigger_${cycle.id}`]: '',
-                [`payoutDate_${cycle.id}`]: ''
-            }), {})
+            startDate_1: '',
+            endDate_1: '',
+            paymentTrigger_1: '',
+            payoutDate_1: ''
         }
     });
 
-    const contractTypeOptions = [
-        { label: 'Monthly Contract', value: 'monthly' },
-        { label: 'Quarterly Contract', value: 'quarterly' },
-        { label: 'Yearly Contract', value: 'yearly' },
-        { label: 'Project Based', value: 'project' }
-    ];
+    const { handleSubmit } = methods;
 
-    const addPaymentCycle = () => {
-        const newCycle = { id: Date.now() };
-        setPaymentCycles([...paymentCycles, newCycle]);
-    };
-
-    const handleSubmit = (data) => {
-        console.log('Form Data:', data);
-        // Handle form submission here
-    };
-
-    const handleCancel = () => {
-        console.log('Form cancelled');
-        methods.reset();
-    };
     const onSubmit = (data) => {
         const contractTypeId = data.contractType?.value;
-        const employerId = '941f60bf-c896-4f7c-8be5-a5d41fad3132'; // Ideally get from route or props
 
-        const cycleDataList = paymentCycles.map((cycle) => ({
-            startDate: data[`startDate_${cycle.id}`],
-            endDate: data[`endDate_${cycle.id}`],
-            payoutDate: data[`payoutDate_${cycle.id}`],
-            triggerNextMonth: data[`paymentTrigger_${cycle.id}`] === 'nextMonth',
-        }));
+        const cycleDataList = [
+            {
+                startDate: data[`startDate_1`],
+                endDate: data[`endDate_1`],
+                payoutDate: data[`payoutDate_1`],
+                triggerNextMonth: data[`paymentTrigger_1`] === 'nextMonth',
+            }
+        ];
 
         dispatch(submitPaymentCycle(employerId, contractTypeId, cycleDataList, () => {
             methods.reset();
-            // Optionally navigate or show custom success UI
         }));
     };
 
-    const onError = (e) => console.log(e)
+    const onError = (errors) => {
+        console.log("Validation Errors:", errors);
+    };
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', backgroundColor: 'white' }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#0000FF', textAlign: 'center', marginBottom: '32px' }}>Add Payment Cycle</h1>
-                {/* Contract Type - Only appears once at the top */}
-                <div style={{ marginBottom: '32px' }}>
-                    <div style={{ maxWidth: '400px' }}>
-                        <RHFAutocomplete name="contractType" label="Select Contract Type" placeholder="Choose contract type..." options={contractTypeOptions} getOptionLabel={(option) => option.label || ''} isOptionEqualToValue={(option, value) => option.value === value?.value} />
+            <div className="max-w-[1200px] mx-auto p-6 bg-white">
+                <h1 className="text-2xl font-semibold text-[#0000FF] text-center mb-8">Add Payment Cycle</h1>
+
+                {/* Contract Type Dropdown */}
+                <div className="mb-8">
+                    <div className="max-w-md">
+                        <Label>Select Contract Type</Label>
+                        <RHFAutocomplete
+                            name="contractType"
+                            placeholder="Choose contract type..."
+                            options={contractTypeOptions}
+                            getOptionLabel={(option) => option?.label || ''}
+                            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+                        />
                     </div>
                 </div>
 
-                {/* Payment Cycles */}
-                {paymentCycles.map((cycle, index) => (
-                    <div key={cycle.id} style={{ marginBottom: '32px' }}>
-                        {index > 0 && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h2 style={{ fontSize: '1.125rem', fontWeight: 500, color: '#374151' }}>Payment Cycle {index + 1}</h2><IconButton onClick={() => (cycle.id)} sx={{ color: '#dc2626', '&:hover': { backgroundColor: '#fef2f2' } }}><DeleteIcon /></IconButton></div>
-                        )}
+                {/* Static Payment Cycle */}
+                <div className="mb-8 border border-gray-200 rounded-lg p-6">
+                    <h2 className="text-lg font-medium text-gray-700 mb-4">Payment Cycle</h2>
 
-                        <div style={{ marginBottom: '24px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
-                                {/* Accrual Date */}
-                                <div>
-                                    <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '16px' }}>Accrual Date</h3>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        <RHFTextField
-                                            name={`startDate_${cycle.id}`}
-                                            label="Start Date"
-                                            type="date"
-                                        />
-                                        <RHFTextField
-                                            name={`endDate_${cycle.id}`}
-                                            label="End Date"
-                                            type="date"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Payment Trigger */}
-                                <div>
-                                    <Controller
-                                        name={`paymentTrigger_${cycle.id}`}
-                                        control={methods.control}
-                                        render={({ field, fieldState: { error } }) => (
-                                            <FormControl component="fieldset" error={!!error}>
-                                                <FormLabel component="legend" sx={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '0.875rem', fontWeight: 400, '&.Mui-focused': { color: '#0000FF' } }}>Payment Trigger</FormLabel>
-                                                <RadioGroup {...field} value={field.value || ''} onChange={e => field.onChange(e.target.value)} >
-                                                    <FormControlLabel value="thisMonth" control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />} label="This Month" />
-                                                    <FormControlLabel value="nextMonth" control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />} label="Next Month" />
-                                                </RadioGroup>
-                                            </FormControl>
-                                        )}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Payout Date */}
-                            <div style={{ marginTop: '24px', maxWidth: '300px' }}>
-                                <RHFTextField
-                                    name={`payoutDate_${cycle.id}`}
-                                    label="Payout Date"
-                                    type="date"
-                                />
-                            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+                        <div>
+                            <Label>Start Date</Label>
+                            <RHFTextField name="startDate_1" type="date" />
                         </div>
 
-                        {/* Add More Button - Only show after the last section */}
-                        {index === paymentCycles.length - 1 && (
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-                                <Button variant="contained" onClick={addPaymentCycle} sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} >
-                                    Add More
-                                </Button>
-                            </div>
-                        )}
-                        {/* Separator line between sections */}
-                        {index < paymentCycles.length - 1 && (
-                            <hr style={{ margin: '32px 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
+                        <div>
+                            <Label>End Date</Label>
+                            <RHFTextField name="endDate_1" type="date" />
+                        </div>
 
-                        )}
+                        <div>
+                            <Label>Payment Trigger</Label>
+                            <Controller
+                                name="paymentTrigger_1"
+                                control={methods.control}
+                                render={({ field, fieldState }) => (
+                                    <>
+                                        <RadioGroup
+                                            row
+                                            {...field}
+                                            value={field.value || ''}
+                                            onChange={e => field.onChange(e.target.value)}
+                                        >
+                                            <FormControlLabel value="thisMonth" control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />} label="This Month" />
+                                            <FormControlLabel value="nextMonth" control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />} label="Next Month" />
+                                        </RadioGroup>
+                                        {fieldState.error && <p className="text-sm text-red-600 mt-1">{fieldState.error.message}</p>}
+                                    </>
+                                )}
+                            />
+                        </div>
                     </div>
-                ))}
 
-                {/* Bottom Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '48px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
-                    <Button variant="outlined" onClick={handleCancel} sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} >
+                    {/* Payout Date */}
+                    <div className="mt-6 max-w-sm">
+                        <Label>Payout Date</Label>
+                        <RHFTextField name="payoutDate_1" type="date" />
+                    </div>
+                </div>
+
+                {/* Bottom Buttons */}
+                <div className="flex justify-between mt-12 pt-6 border-t border-gray-200">
+                    <Button
+                        variant="outlined"
+                        sx={{
+                            background: "#0000FF",
+                            color: "white",
+                            px: 6,
+                            py: 1,
+                            borderRadius: 2,
+                            fontSize: "16px",
+                            fontWeight: 500,
+                            textTransform: "none",
+                            "&:hover": { background: "#0000FF" }
+                        }}
+                        onClick={() => {
+                            methods.reset();
+                            navigate(-1); 
+                        }}
+                    >
                         Cancel
                     </Button>
-                    <Button variant="contained" type="submit" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}   >
+                    <Button
+                        variant="contained"
+                        type="submit"
+                        sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}
+                    >
                         Add Payment Cycle
                     </Button>
                 </div>

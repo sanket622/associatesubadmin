@@ -1,0 +1,176 @@
+// slices/partnerSlice.js
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+const initialState = {
+  partners: [],
+  loading: false,
+  error: null,
+};
+
+const partnerSlice = createSlice({
+  name: 'partner',
+  initialState,
+  reducers: {
+    fetchPartnersStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchPartnersSuccess: (state, action) => {
+      state.loading = false;
+      state.partners = action.payload;
+    },
+    fetchPartnersFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const {
+  fetchPartnersStart,
+  fetchPartnersSuccess,
+  fetchPartnersFailure,
+} = partnerSlice.actions;
+
+export const fetchPartners = () => async (dispatch) => {
+  dispatch(fetchPartnersStart());
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/getEmployersByAssociateSubAdmin',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    dispatch(fetchPartnersSuccess(response.data.data));
+  } catch (error) {
+    dispatch(fetchPartnersFailure(error.response?.data?.message || 'Failed to fetch partners'));
+  }
+};
+
+export default partnerSlice.reducer;
+
+// slices/contractSlice.js
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+const initialState = {
+  contractTypes: [],
+  combinations: [],
+  ruleBooks: [],
+  loading: false,
+  error: null,
+};
+
+const contractSlice = createSlice({
+  name: 'contract',
+  initialState,
+  reducers: {
+    fetchContractTypesSuccess: (state, action) => {
+      state.contractTypes = action.payload;
+    },
+    fetchContractCombinationsSuccess: (state, action) => {
+      state.combinations = action.payload;
+    },
+    fetchRuleBooksSuccess: (state, action) => {
+      state.ruleBooks = action.payload;
+    },
+  },
+});
+
+export const {
+  fetchContractTypesSuccess,
+  fetchContractCombinationsSuccess,
+  fetchRuleBooksSuccess,
+} = contractSlice.actions;
+
+export const fetchContractTypes = (employerId) => async (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      `https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const options = response.data.data.map(item => ({
+      label: item.contractType.name,
+      value: item.id,
+    }));
+    dispatch(fetchContractTypesSuccess(options));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const fetchContractCombinations = (contractTypeId) => async (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      `https://api.earnplus.net/api/v1/associate/contractCombination/getContractCombinationsByContractType/${contractTypeId}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    dispatch(fetchContractCombinationsSuccess(response.data.data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const fetchRuleBooks = (comboId) => async (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      `https://api.earnplus.net/api/v1/associate/contractCombination/getContractRuleBooks?contractCombinationId=${comboId}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    dispatch(fetchRuleBooksSuccess(response.data.data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export default contractSlice.reducer;
+
+// slices/variantSlice.js
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+const initialState = {
+  variants: [],
+};
+
+const variantSlice = createSlice({
+  name: 'variant',
+  initialState,
+  reducers: {
+    fetchAssignedVariantsSuccess: (state, action) => {
+      state.variants = action.payload;
+    },
+  },
+});
+
+export const { fetchAssignedVariantsSuccess } = variantSlice.actions;
+
+export const fetchAssignedVariants = (employerId) => async (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      `https://api.earnplus.net/api/v1/associate/variantProduct/getAssignedVariantProducts/${employerId}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    dispatch(fetchAssignedVariantsSuccess(response.data.data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export default variantSlice.reducer;

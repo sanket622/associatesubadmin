@@ -101,10 +101,10 @@ export const fetchContractCombinations = (employerId) => async (dispatch) => {
     const combinations = response.data.data;
 
     dispatch(getContractCombinationsSuccess(combinations));
-    enqueueSnackbar('Contract combinations fetched successfully!', { variant: 'success' });
+    
   } catch (error) {
     const message = error.response?.data?.message || 'Failed to fetch contract combinations';
-    enqueueSnackbar(message, { variant: 'error' });
+    
   }
 };
 
@@ -120,7 +120,7 @@ export const fetchContractTypes = (employerId) => async (dispatch) => {
 
         const options = response.data.data.map(item => ({
             label: item.contractType.name,
-            value: item.contractType.id,
+            value: item.id,
         }));
 
         dispatch(fetchContractTypesSuccess(options));
@@ -129,5 +129,23 @@ export const fetchContractTypes = (employerId) => async (dispatch) => {
         enqueueSnackbar(message, { variant: 'error' });
     }
 };
+
+export const fetchSingleContractCombination = (contractId) => async (dispatch) => {
+    dispatch(submitStart());
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+            `https://api.earnplus.net/api/v1/associate/contractCombination/getSingleContractCombination/${contractId}`,
+            {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            }
+        );
+        dispatch(submitSuccess(response.data.data));
+    } catch (error) {
+        const message = error.response?.data?.message || 'Failed to fetch contract detail';
+        dispatch(submitFailure(message));
+    }
+};
+
 
 export default paymentCycleSlice.reducer;

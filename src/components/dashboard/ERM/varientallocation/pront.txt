@@ -1,0 +1,200 @@
+make same to same design in react js use my filed component that is 
+// form
+import { Controller, useFormContext } from 'react-hook-form';
+
+import { Autocomplete, ListItemText, TextField } from '@mui/material';
+
+// ----------------------------------------------------------------------
+
+export default function RHFAutocomplete({ name, label, placeholder, helperText, require, onChangeCallback, ...other }) {
+    const { control, setValue } = useFormContext();
+
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+                <Autocomplete
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#0000FF',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderRadius: '10px',
+                            },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                            color: '#0000FF',
+                        },
+                    }}
+                    size='small'
+                    openOnFocus
+                    autoComplete
+                    {...field}
+                    value={field?.value || null}
+                    onChange={(event, newValue) => {
+                        setValue(name, newValue, { shouldValidate: true })
+                        if (onChangeCallback && typeof onChangeCallback === "function") {
+                            onChangeCallback(newValue)
+                        }
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            size='small'
+                            label={label}
+                            placeholder={placeholder}
+                            error={!!error}
+                            helperText={error ? error?.message : helperText}
+                            {...params}
+                            required={require === 'true'}
+                        />
+                    )}
+                    {...other}
+                />
+            )}
+        />
+    );
+} and for Employer filed dropdown set this api call function export const fetchPartners = () => async (dispatch) => {
+  dispatch(fetchPartnersStart());
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.get(
+      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/getEmployersByAssociateSubAdmin',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    dispatch(fetchPartnersSuccess(response?.data?.data));
+  } catch (error) {
+    const message = error.response?.data?.message || 'Failed to fetch partners';
+    dispatch(fetchPartnersFailure(message));
+  }
+}; and response is this export const fetchContractTypes = (employerId) => async (dispatch) => {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+            `https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
+            {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            }
+        );
+
+        const options = response.data.data.map(item => ({
+            label: item.contractType.name,
+            value: item.id,
+        }));
+
+        dispatch(fetchContractTypesSuccess(options));
+    } catch (error) {
+        const message = error.response?.data?.message || 'Failed to fetch contract types';
+        enqueueSnackbar(message, { variant: 'error' });
+    }
+}; ## and for Contract Type use this api call function export const fetchContractTypes = (employerId) => async (dispatch) => {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+            `https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
+            {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            }
+        );
+
+        const options = response.data.data.map(item => ({
+            label: item.contractType.name,
+            value: item.id,
+        }));
+
+        dispatch(fetchContractTypesSuccess(options));
+    } catch (error) {
+        const message = error.response?.data?.message || 'Failed to fetch contract types';
+        enqueueSnackbar(message, { variant: 'error' });
+    }
+}; and response is this {
+    "statusCode": 200,
+    "success": true,
+    "message": "Employer Contract Types fetched successfully!",
+    "data": [
+        {
+            "id": "34963423-590f-4dc8-b0d8-8c303b18dea0",
+            "employerId": "941f60bf-c896-4f7c-8be5-a5d41fad3132",
+            "contractTypeId": "139cd912-2548-461b-b9ff-445aa2475dd7",
+            "createdAt": "2025-05-22T05:49:02.265Z",
+            "updatedAt": "2025-05-22T05:49:02.265Z",
+            "isDeleted": false,
+            "contractType": {
+                "id": "139cd912-2548-461b-b9ff-445aa2475dd7",
+                "name": "Type 1 (Fixed Monthly)",
+                "description": "Fixed - Employees receive a predetermined salary amount based on actual days worked and Payment will follow a set cycle (E.g. Monthly )  ensuring predictable earnings unaffected by productivity or hours logged."
+            }
+        },
+        {
+            "id": "efdce506-5471-4005-91d1-c289bdba49ce",
+            "employerId": "941f60bf-c896-4f7c-8be5-a5d41fad3132",
+            "contractTypeId": "857d7441-08ba-41ca-a42c-dfff0a072a36",
+            "createdAt": "2025-05-22T05:49:02.265Z",
+            "updatedAt": "2025-05-22T05:49:02.265Z",
+            "isDeleted": false,
+            "contractType": {
+                "id": "857d7441-08ba-41ca-a42c-dfff0a072a36",
+                "name": "Type 2 (Fixed & Variable Monthly)",
+                "description": " Fixed + Variable - Guarantees a base fixed salary plus additional pay tied to performance (e.g., units made or Units sold ). Efforts will directly impact earnings by rewarding higher output ."
+            }
+        }
+    ]
+} and for Contract-Payment Cycle Combo make api function api endpoint is this /api/v1/associate/contractCombination/getContractCombinationsByContractType/34963423-590f-4dc8-b0d8-8c303b18dea0 and response is {
+    "statusCode": 200,
+    "success": true,
+    "message": "Contract Combinations fetched successfully!",
+    "data": [
+        {
+            "id": "7a71763f-f68e-4604-870b-5e5424a9f513",
+            "employerId": "941f60bf-c896-4f7c-8be5-a5d41fad3132",
+            "contractTypeId": "34963423-590f-4dc8-b0d8-8c303b18dea0",
+            "uniqueId": "PAY-941f60bf-c896-4f7c-8be5-a5d41fad3132-002",
+            "triggerNextMonth": true,
+            "accuralStartAt": "2025-06-19T00:00:00.000Z",
+            "accuralEndAt": "2025-06-19T00:00:00.000Z",
+            "payoutDate": "2025-06-19T00:00:00.000Z",
+            "createdAt": "2025-06-19T10:08:47.465Z",
+            "updatedAt": "2025-06-19T10:08:47.465Z",
+            "isDeleted": false
+        }, in it show uniqueId in dropdown and for this Business Logic Rule ID create api call function like other, api endpoint is this /api/v1/associate/contractCombination/getContractRuleBooks?contractCombinationId=7a71763f-f68e-4604-870b-5e5424a9f513 amd response is this { 
+    "statusCode": 200,
+    "success": true,
+    "message": "Contract Rule Books fetched successfully!",
+    "data": [
+        {
+            "id": "6493ebad-de19-46e2-9c30-4596f99dee24",
+            "ruleBookId": "RULE-7a71763f-f68e-4604-870b-5e5424a9f513-001",
+            "workingPeriod": 2,
+            "workLoacationId": "b1ec0094-94bd-4ce5-871f-b577407a5004",
+            "createdAt": "2025-06-20T10:13:38.389Z",
+            "updatedAt": "2025-06-20T10:13:38.389Z", ## and for select varient api endpoint is /api/v1/associate/variantProduct/getAssignedVariantProducts/941f60bf-c896-4f7c-8be5-a5d41fad3132 and response is {
+    "statusCode": 200,
+    "success": true,
+    "message": "Assigned variant products fetched successfully!",
+    "data": [
+        {
+            "id": "3f5ccb3d-fcd3-43a8-86c7-c4547ccb1d45",
+            "variantProductId": "47d0470a-f460-4591-b2c4-22b78e6223fe",
+            "employerId": "941f60bf-c896-4f7c-8be5-a5d41fad3132",
+            "aasignmentDate": "2025-06-16T00:00:00.000Z",
+            "endDate": "2025-06-16T00:00:00.000Z",
+            "employerNote": "asrtrytuk,hjmgfsdbfxvnbc",
+            "createdAt": "2025-06-16T10:48:59.154Z",
+            "updatedAt": "2025-06-16T10:48:59.154Z",
+            "variantProduct": {
+                "id": "47d0470a-f460-4591-b2c4-22b78e6223fe",
+                "variantName": "My new variant"
+            },
+            "employer": {
+                "id": "941f60bf-c896-4f7c-8be5-a5d41fad3132",
+                "employerId": "EMP-00001",
+                "name": "Abhiraj"
+            }
+        }
+    ]
+}

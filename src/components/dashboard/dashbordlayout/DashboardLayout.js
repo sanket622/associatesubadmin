@@ -33,6 +33,7 @@ import EmployerOnboarding from '../ERM/employeronboarding/EmployerOnboarding';
 import PartnerTable from '../ERM/employeronboarding/PartnerTable';
 import AddPaymentCycle from '../ERM/employeronboarding/AddPaymentCycle';
 import PaymentCycleList from '../ERM/employeronboarding/PaymentCycleList';
+import PaymentCycleDetail from '../ERM/employeronboarding/PaymentCycleDetail';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -47,8 +48,8 @@ const DashboardLayout = () => {
     { label: "Master product", path: 'masterproduct', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
     { label: "Approval Queue", path: 'approvalqueue', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
     { label: "Product Master List", path: 'productmasterlist', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
-    { label: "Employer Onboarding", path: 'employeronboarding',  },
-    { label: "Partner List", path: 'partnerlist',  },
+    { label: "Employer Onboarding", path: 'employeronboarding', },
+    { label: "Partner List", path: 'partnerlist', },
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -113,11 +114,11 @@ const DashboardLayout = () => {
 
               {/* ++++++++++++++++++++++++++++ ERM +++++++++++++++++++++++++++++++++ */}
 
-               <Route path="/employeronboarding" element={<EmployerOnboarding />} />
-               <Route path="/partnerlist" element={<PartnerTable />} />
-               <Route path="/payment-cycle-list/:id" element={<PaymentCycleList />} />
-               <Route path="/payment" element={<AddPaymentCycle />} />
-
+              <Route path="/employeronboarding" element={<EmployerOnboarding />} />
+              <Route path="/partnerlist" element={<PartnerTable />} />
+              <Route path="/payment-cycle-list/:employerId" element={<PaymentCycleList />} />
+              <Route path="/add-payment-cycle/:employerId/:contractCombinationId" element={<AddPaymentCycle />} />
+              <Route path="/payment-cycle-detail/:contractId" element={<PaymentCycleDetail />} />
 
             </Routes>
           </div>

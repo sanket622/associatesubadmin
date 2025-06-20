@@ -9,15 +9,8 @@ import TimelyRepaymentIncentives from './createvarient/TimelyRepaymentIncentives
 
 const CreateVariant = () => {
     const [tabIndex, setTabIndex] = useState(0);
-    const methods = useForm({
-        defaultValues: {},
-    });
-
+    
     const handleTabChange = (_, newValue) => setTabIndex(newValue);
-
-    const onSubmit = (data) => {
-        console.log('Submitted Data:', data);
-    };
 
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
