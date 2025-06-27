@@ -34,6 +34,8 @@ import PartnerTable from '../ERM/employeronboarding/PartnerTable';
 import AddPaymentCycle from '../ERM/employeronboarding/AddPaymentCycle';
 import PaymentCycleList from '../ERM/employeronboarding/PaymentCycleList';
 import PaymentCycleDetail from '../ERM/employeronboarding/PaymentCycleDetail';
+import VariantAllocationForm from '../ERM/varientallocation/VariantAllocationForm';
+import AllocatedProductsTable from '../ERM/varientallocation/AllocatedProductsTable';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ const DashboardLayout = () => {
     { label: "Product Master List", path: 'productmasterlist', icon: <AnalyticsIcon />, outlinedIcon: <AnalyticsOutlinedIcon />, },
     { label: "Employer Onboarding", path: 'employeronboarding', },
     { label: "Partner List", path: 'partnerlist', },
+    { label: "Varient Allocation", path: 'varientallocation', },
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -119,6 +122,7 @@ const DashboardLayout = () => {
               <Route path="/payment-cycle-list/:employerId" element={<PaymentCycleList />} />
               <Route path="/add-payment-cycle/:employerId/:contractCombinationId" element={<AddPaymentCycle />} />
               <Route path="/payment-cycle-detail/:contractId" element={<PaymentCycleDetail />} />
+              <Route path="/varientallocation" element={<AllocatedProductsTable />} />
 
             </Routes>
           </div>

@@ -76,7 +76,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
     const editEligibilityData = useSelector((state) => state.employmentTypes.editEligibilityData);
     const productDetails = useSelector((state) => state.products.productDetails);
 
-     const defaultValues = (productDetails && mode === "EDIT") ? {
+    const defaultValues = (productDetails && mode === "EDIT") ? {
         minAge: editEligibilityData?.minAge || productDetails?.eligibilityCriteria?.minAge || '',
         maxAge: editEligibilityData?.maxAge || productDetails?.eligibilityCriteria?.maxAge || '',
         minMonthlyIncome: editEligibilityData?.minMonthlyIncome || productDetails?.eligibilityCriteria?.minMonthlyIncome || '',
@@ -118,8 +118,18 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
                 opt.id === editEligibilityData?.documentVerificationMode?.id
                 || opt.id === productDetails?.eligibilityCriteria?.documentVerificationModes?.[0]
             ) || null,
-    }: {
-       
+    } : {
+        minAge: '',
+        maxAge: '',
+        minMonthlyIncome: '',
+        minBusinessVintage: '',
+        minBureauScore: '',
+        employmentTypeAllowed: [],
+        blacklistFlags: [],
+        minimumDocumentsRequired: [],
+        bureauType: null,
+        documentSubmissionMode: null,
+        documentVerificationMode: null,
     }
 
 
@@ -128,7 +138,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
         dispatch(fetchDocuments());
     }, [dispatch]);
 
-     const methods = useForm({
+    const methods = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues
     });
@@ -140,7 +150,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
         formState: { errors }
     } = methods
 
-    
+
     const values = watch()
     console.log("values", values);
 
@@ -151,7 +161,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
     }, [productDetails, editEligibilityData])
 
 
-  
+
     const onSubmit = (data) => {
         if (mode === "EDIT") {
             dispatch(editEligibilityData(data))

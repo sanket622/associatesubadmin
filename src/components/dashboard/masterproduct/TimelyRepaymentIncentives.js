@@ -1,5 +1,5 @@
 import React from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import TextFieldComponent from '../../subcompotents/TextFieldComponent';
 import AutocompleteFieldComponent from '../../subcompotents/AutocompleteFieldComponent';
 import {
@@ -8,8 +8,17 @@ import {
     RadioGroup,
     FormControlLabel,
     FormControl,
+    Box,
+    Button,
 } from '@mui/material';
 import Label from '../../subcompotents/Label';
+import * as Yup from 'yup';
+import FormProvider from '../../subcompotents/FormProvider';
+import RHFTextField from '../../subcompotents/RHFTextField';
+import RHFAutocomplete from '../../subcompotents/RHFAutocomplete';
+import { submitTimelyRepayment } from '../../../redux/masterproduct/timelyrepayment/timelyRepaymentSlice';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
 
 const dummyOptions = [
     { id: '1', name: 'Option 1' },
@@ -17,27 +26,82 @@ const dummyOptions = [
     { id: '3', name: 'Option 3' },
 ];
 
-const TimelyRepaymentIncentives = () => {
-    const { control } = useFormContext();
+const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
 
-    const penalInterestApplicable = useWatch({
-        control,
-        name: 'penalInterestApplicable',
-        defaultValue: 'no', // ensures it is selected by default
+    const timelyRepaymentSchema = Yup.object().shape({
+        penalInterestApplicable: Yup.string().oneOf(['yes', 'no']).required(),
+
+        incentiveType: Yup.object().nullable().when('penalInterestApplicable', {
+            is: 'yes',
+            then: (schema) => schema.required('Incentive Type is required'),
+            otherwise: (schema) => schema.nullable(),
+        }),
+
+        incentiveValue: Yup.number()
+            .typeError('Must be a number')
+            .when('penalInterestApplicable', {
+                is: 'yes',
+                then: (schema) => schema.required('Value required'),
+            }),
+
+        payoutMode: Yup.object().nullable().when('penalInterestApplicable', {
+            is: 'yes',
+            then: (schema) => schema.required('Payout Mode required'),
+            otherwise: (schema) => schema.nullable(),
+        }),
+
+        payoutTimeline: Yup.string().when('penalInterestApplicable', {
+            is: 'yes',
+            then: (schema) => schema.required('Timeline required'),
+        }),
+
+        incentiveReversalConditions: Yup.string().when('penalInterestApplicable', {
+            is: 'yes',
+            then: (schema) => schema.required('Reversal Conditions required'),
+        }),
     });
 
+    const timelyRepaymentDefaultValues = {
+        penalInterestApplicable: 'no',
+        incentiveType: null,
+        incentiveValue: '',
+        eligibilityCriteria: null,
+        payoutMode: null,
+        payoutTimeline: '',
+        incentiveReversalConditions: '',
+    };
+
+
+    const dispatch = useDispatch();
+    const { loading } = useSelector(state => state.timelyRepayment || {});
+
+
+    const methods = useForm({
+        resolver: yupResolver(timelyRepaymentSchema),
+        defaultValues: timelyRepaymentDefaultValues,
+    });
+
+    const { control, watch, handleSubmit } = methods;
+    const penalInterestApplicable = watch('penalInterestApplicable');
+
+    const onSubmit = data => {
+        dispatch(submitTimelyRepayment(data));
+    };
+
+    const onError = err => console.log('Validation errors', err);
+
+
     return (
-        <Grid container spacing={2}>
-            {/* Radio Group */}
-            <Grid item xs={12} md={4}>
-                <FormControl component="fieldset">
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={4}>
                     <Label>Penal Interest Rate Applicable?</Label>
+
                     <Controller
                         name="penalInterestApplicable"
                         control={control}
-                        defaultValue="no"
                         render={({ field }) => (
-                            <RadioGroup row {...field} id="penalInterestApplicable">
+                            <RadioGroup row {...field}>
                                 <FormControlLabel
                                     value="yes"
                                     control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
@@ -51,95 +115,75 @@ const TimelyRepaymentIncentives = () => {
                             </RadioGroup>
                         )}
                     />
-                </FormControl>
+
+                </Grid>
+                {penalInterestApplicable === 'yes' && (
+                    <>
+                        <Grid item xs={12} md={4}>
+                            <Label htmlFor="incentiveType">Incentive Type</Label>
+                            <RHFAutocomplete
+                                name="incentiveType"
+                                options={dummyOptions}
+                                getOptionLabel={opt => opt.name}
+                                placeholder="Select..."
+                                helperText=""
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Label htmlFor="incentiveValue">Incentive Value</Label>
+                            <RHFTextField name="incentiveValue" />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Label htmlFor="payoutMode">Payout Mode</Label>
+                            <RHFAutocomplete
+                                name="payoutMode"
+                                options={dummyOptions}
+                                getOptionLabel={opt => opt.name}
+                                placeholder="Select..."
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Label htmlFor="payoutTimeline">Payout Timeline</Label>
+                            <RHFTextField name="payoutTimeline" />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Label htmlFor="incentiveReversalConditions">Incentive Reversal Conditions</Label>
+                            <RHFTextField
+                                name="incentiveReversalConditions"
+                                multiline
+                                rows={4}
+                            />
+                        </Grid>
+                    </>
+                )}
             </Grid>
 
-            {/* Conditionally show these only if "Yes" is selected */}
-            {penalInterestApplicable === 'yes' && (
-                <>
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="incentiveType">Incentive Type</Label>
-                        <Controller
-                            name="incentiveType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutocompleteFieldComponent
-                                    {...field}
-                                    id="incentiveType"
-                                    options={dummyOptions}
-                                    getOptionLabel={(option) => option.name}
-                                />
-                            )}
-                        />
-                    </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
+                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>
+                    {tabIndex + 1} / 10
+                </Box>
+                <Button
+                    sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}
+                    variant="outlined"
+                    onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))}
+                    disabled={tabIndex === 0}
+                >
+                    Back
+                </Button>
+                <Button
+                    variant="contained"
+                    sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}
+                    type="submit"
+                >
+                    Submit
+                </Button>
+            </Box>
 
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="incentiveValue">Incentive Value</Label>
-                        <Controller
-                            name="incentiveValue"
-                            control={control}
-                            render={({ field }) => (
-                                <TextFieldComponent {...field} id="incentiveValue" />
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="eligibilityCriteria">Eligibility Criteria</Label>
-                        <Controller
-                            name="eligibilityCriteria"
-                            control={control}
-                            render={({ field }) => (
-                                <AutocompleteFieldComponent
-                                    {...field}
-                                    id="eligibilityCriteria"
-                                    options={dummyOptions}
-                                    getOptionLabel={(option) => option.name}
-                                />
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="payoutMode">Payout Mode</Label>
-                        <Controller
-                            name="payoutMode"
-                            control={control}
-                            render={({ field }) => (
-                                <AutocompleteFieldComponent
-                                    {...field}
-                                    id="payoutMode"
-                                    options={dummyOptions}
-                                    getOptionLabel={(option) => option.name}
-                                />
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="payoutTimeline">Payout Timeline</Label>
-                        <Controller
-                            name="payoutTimeline"
-                            control={control}
-                            render={({ field }) => (
-                                <TextFieldComponent {...field} id="payoutTimeline" />
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Label htmlFor="incentiveReversalConditions">Incentive Reversal Conditions</Label>
-                        <Controller
-                            name="incentiveReversalConditions"
-                            control={control}
-                            render={({ field }) => (
-                                <TextFieldComponent {...field} id="incentiveReversalConditions" multiline rows={4} />
-                            )}
-                        />
-                    </Grid>
-                </>
-            )}
-        </Grid>
+        </FormProvider >
     );
 };
 

@@ -1,0 +1,110 @@
+  {/* Additional Charges */}
+                {/* <Box mt={4}>
+                    <Typography variant="h6" fontWeight="bold" mb={2}>
+                        Additional Charges
+                    </Typography>
+
+                   
+                    <Box
+                        p={3}
+                        mb={2}
+                        border="1px solid #ccc"
+                        borderRadius="16px"
+                        display="flex"
+                        flexDirection="column"
+                        position="relative"
+                    >
+                        <Box display="flex" justifyContent="space-between">
+                            <Grid container spacing={2} sx={{ flex: 1 }}>
+                                <Grid item xs={12} md={6}>
+                                    <Label htmlFor="subscriptionFee">Subscription Period & Fee</Label>
+                                    <TextFieldComponent
+                                        name="subscriptionFee"
+                                        id="subscriptionFee"
+                                        value=""
+                                        onChange={() => { }}
+                                        fullWidth
+                                        disabled
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Label htmlFor="subscriptionGst">Subscription GST</Label>
+                                    <Controller
+                                        name="subscriptionGst"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <TextFieldComponent {...field} id="subscriptionGst" />
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            <Checkbox
+                                sx={{
+                                    alignSelf: 'flex-start',
+                                    color: '#0000FF',
+                                    marginLeft: 4,
+                                    marginTop: -2,
+                                    marginRight: -2,
+                                    '&.Mui-checked': {
+                                        color: '#0000FF',
+                                    },
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                    <Box
+                        p={3}
+                        border="1px solid #ccc"
+                        borderRadius="16px"
+                        display="flex"
+                        flexDirection="column"
+                        position="relative"
+                    >
+                        <Box display="flex" justifyContent="space-between">
+                            <Grid container spacing={2} sx={{ flex: 1 }}>
+                                <Grid item xs={12} md={3}>
+                                    <Label htmlFor="perTransactionFee">Per Transaction Fee</Label>
+                                    <AutocompleteFieldComponent
+                                        options={[]}
+                                        value={null}
+                                        onChange={() => { }}
+                                        getOptionLabel={(option) => option.name}
+                                        id="perTransactionFee"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3}>
+                                    <Label htmlFor="perTransactionAmount">Per Transaction Amount</Label>
+                                    <TextFieldComponent
+                                        value=""
+                                        onChange={() => { }}
+                                        id="perTransactionAmount"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Label htmlFor="gstOnTransactionFee">GST on Per Transaction Fee</Label>
+                                    <Controller
+                                        name="gstOnTransactionFee"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <TextFieldComponent {...field} id="gstOnTransactionFee" />
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            <Checkbox
+                                sx={{
+                                    alignSelf: 'flex-start',
+                                    color: '#0000FF',
+                                    marginLeft: 4,
+                                    marginTop: -2,
+                                    marginRight: -2,
+                                    '&.Mui-checked': {
+                                        color: '#0000FF',
+                                    },
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                </Box> */}

@@ -71,6 +71,8 @@ const CreateProduct = () => {
                         <Tab label="Behavioral & Transaction Data Parameters" />
                         <Tab label="Risk & Scoring Inputs" />
                         <Tab label="Collateral & Guarantee Data" />
+                        <Tab label="Other Charges" />
+                         <Tab label="Timely Repayment Incentives" />
                     </Tabs>
                     <Box mt={3}>
                         {tabIndex === 0 && <GeneralProductMetadata handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
@@ -85,6 +87,8 @@ const CreateProduct = () => {
                         {/* {tabIndex === 9 && <CreditEngineConfigurationParameters />} */}
                         {/* {tabIndex === 10 && <DecisionActionLogging />} */}
                         {tabIndex === 7 && <CollateralGuaranteeData handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+                        {tabIndex === 8 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+                        {tabIndex === 9 && <TimelyRepaymentIncentives handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
                         {/* {tabIndex === 12 && <ComplianceRegulatoryChecks />}
                             {tabIndex === 13 && <UserSystemInteractionLogs />} */}
                     </Box>

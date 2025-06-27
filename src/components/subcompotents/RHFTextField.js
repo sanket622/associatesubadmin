@@ -32,7 +32,8 @@ export default function RHFTextField({ name, helperText, ...other }) {
                     }}
                     {...field}
                     fullWidth
-                    value={typeof field.value === 'number' && field.value === 0 ? '' : field.value}
+                    // value={typeof field.value === 'number' && field.value === 0 ? '' : field.value}
+                    value={field.value ?? ''}
                     error={!!error}
                     helperText={error ? error?.message : helperText}
                     {...other}

@@ -26,7 +26,11 @@ import archiveVariantReducer from './varient/archiveVariantSlice';
 import employerOnboardingReducer from '../components/dashboard/ERM/redux/employeronboarding/employerOnboardingSlice';
 import paymentCycleReducer from '../components/dashboard/ERM/redux/employeronboarding/paymentCycleSlice';
 import contractRuleReducer from '../components/dashboard/ERM/redux/employeronboarding/contractRuleSlice';
-
+import otherChargesReducer from './masterproduct/othercharges/otherChargesSlice';
+import timelyRepaymentReducer from './masterproduct/timelyrepayment/timelyRepaymentSlice';
+import featuresReducer from '../components/dashboard/ERM/redux/varientallocation/featuresSlice';
+import productAllocationReducer from '../components/dashboard/ERM/redux/varientallocation/productAllocationSlice';
+import allocatedProductsReducer from '../components/dashboard/ERM/redux/varientallocation/allocatedProductsSlice';
 
 
 export const store = configureStore({
@@ -58,5 +62,10 @@ export const store = configureStore({
         employerOnboarding: employerOnboardingReducer,
         paymentCycle: paymentCycleReducer,
         contractRule: contractRuleReducer,
+        otherCharges: otherChargesReducer,
+        timelyRepayment: timelyRepaymentReducer,
+        features: featuresReducer,
+        productAllocation: productAllocationReducer,
+         allocatedProducts: allocatedProductsReducer,
     },
 });
