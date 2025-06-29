@@ -1,16 +1,32 @@
 // CreateVariant.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Tab, Tabs, Button } from '@mui/material';
 import { useForm, FormProvider } from 'react-hook-form';
 import BasicInformation from './createvarient/BasicInformation';
 import VariantParameters from './createvarient/VariantParameters';
 import OtherCharges from './createvarient/OtherCharges';
 import TimelyRepaymentIncentives from './createvarient/TimelyRepaymentIncentives';
+import { useLocation, useParams } from 'react-router-dom';
+import { fetchVariantProductDetail } from '../../../redux/varient/variantSingleSlice';
+import { useDispatch } from 'react-redux';
+
 
 const CreateVariant = () => {
     const [tabIndex, setTabIndex] = useState(0);
-    
+    const {variantId} = useParams();
+    const dispatch = useDispatch()
     const handleTabChange = (_, newValue) => setTabIndex(newValue);
+    const location = useLocation();
+    const mode = location.state?.mode || null;
+    const isEditMode = mode === 'EDIT';
+
+      useEffect(() => {
+            if (mode === "EDIT" && variantId) {
+                dispatch(fetchVariantProductDetail(variantId))
+            }
+        }, [variantId])
+    
+
 
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
@@ -21,24 +37,24 @@ const CreateVariant = () => {
                     <path d="M1.38672 8.33179L13.0001 14.9985L24.6134 8.33179" stroke="#0000FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M7 4.69189L19 11.5586" stroke="#0000FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Create Variant
+                {isEditMode ? 'Edit Variant' : 'Create Variant'}
             </h1>
 
-                    <Box sx={{ width: '100%' }}>
-                         <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" variant="scrollable" scrollButtons="auto" textColor="inherit" sx={{ backgroundColor: '#F5F5FF', '& .MuiTabs-indicator': { backgroundColor: '#0000FF' }, '& .MuiTab-root': { color: '#424242', textTransform: 'capitalize', whiteSpace: 'normal', lineHeight: 1.2, minHeight: 'auto', }, '& .Mui-selected': { color: '#0000FF' } }}>
-                            <Tab label="Basic Information"  />                          
-                            <Tab label="varient Parameter"  />                          
-                            <Tab label="Other Charges"  />                          
-                            <Tab label="Timely Repayment Incentives"  />                          
-                        </Tabs>
+            <Box sx={{ width: '100%' }}>
+                <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" variant="scrollable" scrollButtons="auto" textColor="inherit" sx={{ backgroundColor: '#F5F5FF', '& .MuiTabs-indicator': { backgroundColor: '#0000FF' }, '& .MuiTab-root': { color: '#424242', textTransform: 'capitalize', whiteSpace: 'normal', lineHeight: 1.2, minHeight: 'auto', }, '& .Mui-selected': { color: '#0000FF' } }}>
+                    <Tab label="Basic Information" />
+                    <Tab label="varient Parameter" />
+                    <Tab label="Other Charges" />
+                    <Tab label="Timely Repayment Incentives" />
+                </Tabs>
 
-                        <Box mt={3}>
-                            {tabIndex === 0 && <BasicInformation handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}                           
-                            {tabIndex === 1 && <VariantParameters handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}                           
-                            {tabIndex === 2 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}                           
-                            {tabIndex === 3 && <TimelyRepaymentIncentives handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}                           
-                        </Box>
-                    </Box>
+                <Box mt={3}>
+                    {tabIndex === 0 && <BasicInformation handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex}  />}
+                    {tabIndex === 1 && <VariantParameters handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+                    {tabIndex === 2 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+                    {tabIndex === 3 && <TimelyRepaymentIncentives handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+                </Box>
+            </Box>
         </div>
     );
 };

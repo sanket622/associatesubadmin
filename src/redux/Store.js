@@ -10,8 +10,8 @@ import financialTermsReducer from '../redux/masterproduct/productparameter/finan
 import creditBureauConfigReducer from '../redux/masterproduct/creditbreuconfig/creditBureauConfigSlice';
 import financialStatementReducer from '../redux/masterproduct/financialstatement/financialStatementSlice';
 import behavioralDataReducer from '../redux/masterproduct/behaviraldata/behavioralDataSlice';
-import { submitRiskScoringData } from './masterproduct/riskscoring/riskScoringSubmitSlice';
-import { submitCollateralData } from './masterproduct/colateralandgurantee/collateralSubmitSlice';
+import riskScoringReducer from './masterproduct/riskscoring/riskScoringSubmitSlice';
+import collateralSubmitReducer from './masterproduct/colateralandgurantee/collateralSubmitSlice';
 import productsReducer from '../redux/masterproduct/tableslice/productsSlice';
 import deleteProductReducer from '../redux/masterproduct/tableslice/deleteProductSlice';
 import approvalQueueReducer from '../redux/approvalqueue/approvalQueueSlice';
@@ -46,8 +46,8 @@ export const store = configureStore({
         creditBureauConfig: creditBureauConfigReducer,
         financialStatement: financialStatementReducer,
         behavioralData: behavioralDataReducer,
-        riskSubmit: submitRiskScoringData,
-        collateralsubmit: submitCollateralData,
+        riskSubmit: riskScoringReducer,
+        collateralsubmit: collateralSubmitReducer,
         products: productsReducer,
         deleteProduct: deleteProductReducer,
         approvalQueue: approvalQueueReducer,
@@ -66,6 +66,6 @@ export const store = configureStore({
         timelyRepayment: timelyRepaymentReducer,
         features: featuresReducer,
         productAllocation: productAllocationReducer,
-         allocatedProducts: allocatedProductsReducer,
+        allocatedProducts: allocatedProductsReducer,
     },
 });

@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   data: null,
+  editVarientOtherChargesData: null
 };
 
 const variantProductOtherChargesSubmitSlice = createSlice({
@@ -29,6 +30,9 @@ const variantProductOtherChargesSubmitSlice = createSlice({
       state.error = null;
       state.data = null;
     },
+    seteditVarientOtherChargesData(state, action) {
+      state.editVarientOtherChargesData = action.payload
+    },
   },
 });
 
@@ -37,6 +41,7 @@ export const {
   submitSuccess,
   submitFailure,
   clearSubmitState,
+  seteditVarientOtherChargesData,
 } = variantProductOtherChargesSubmitSlice.actions;
 
 // 🔁 Thunk to submit other charges
@@ -45,7 +50,7 @@ export const submitVariantOtherCharges = (formData, callback) => async (dispatch
 
   try {
     const accessToken = localStorage.getItem('accessToken');
-     const variantId = localStorage.getItem('createdVariantId');
+    const variantId = localStorage.getItem('createdVariantId');
 
     const payload = {
       variantProductId: variantId,

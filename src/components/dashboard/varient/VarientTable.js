@@ -12,6 +12,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GroupIcon from '@mui/icons-material/Group';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import ArchiveDialog from './ArchiveDialog';
+import EditIcon from '@mui/icons-material/Edit';
+
 
 const VarientTable = () => {
     const dispatch = useDispatch();
@@ -36,6 +38,7 @@ const VarientTable = () => {
         navigate(`/assigned-partners/${variantId}`);
     };
 
+
     return (
         <>
             <div className="p-6">
@@ -52,7 +55,7 @@ const VarientTable = () => {
                         <Table>
                             <TableHead sx={{ background: '#F5F5FF' }}>
                                 <TableRow>
-                                    {['Sno.', 'Name', 'Type', 'Code', 'Product Type', 'View Varient', 'Assign', 'View Assigned', 'Archive'].map((header) => (
+                                    {['Sno.', 'Name', 'Type', 'Code', 'Product Type', 'View Varient', 'Assign', 'View Assigned', 'Archive', 'Edit'].map((header) => (
                                         <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>{header}</TableCell>
                                     ))}
                                 </TableRow>
@@ -119,6 +122,16 @@ const VarientTable = () => {
                                                 </IconButton>
 
                                             </TableCell>
+                                            <TableCell>
+                                                <IconButton
+                                                    onClick={() => navigate(`/createvarient/${variant.id}`, { state: { mode: 'EDIT' } })}
+                                                    title="Edit Variant"
+                                                    sx={{ color: 'green' }}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                            </TableCell>
+
                                         </TableRow>
                                     ))
                                 )}

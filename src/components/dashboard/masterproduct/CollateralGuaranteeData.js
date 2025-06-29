@@ -90,14 +90,14 @@ const schema = yup.object().shape({
 
 const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
 
-
-
     const location = useLocation()
     const mode = location?.state?.mode
     const dispatch = useDispatch();
 
     const productDetails = useSelector((state) => state.products.productDetails);
-    const editCollateralGuranteeData = useSelector((state) => state.createProduct.editCollateralGuranteeData);
+    const editCollateralGuranteeData = useSelector((state) => state.collateralsubmit.editCollateralGuranteeData);
+
+    
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         // Collateral Type (must match object from collateralTypeOptions)
@@ -196,7 +196,6 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
         resolver: yupResolver(schema),
         defaultValues
     });
-
 
     const {
         control,

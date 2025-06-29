@@ -43,12 +43,17 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
     const mode = location?.state?.mode
     const dispatch = useDispatch();
 
-    const editCreditBureauData = useSelector((state) => state.employmentTypes.editEligibilityData);
+    const editCreditBureauData = useSelector((state) => state.creditBureauConfig.editCreditBureauData);
     const productDetails = useSelector((state) => state.products.productDetails);
+    console.log(editCreditBureauData);
+    
+
+    
+    const findOption = (options, id) => options.find(option => option.id === id) || null;
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         creditBureauSource: editCreditBureauData?.creditBureauSource
-            || productDetails?.creditBureauConfig?.creditBureauSources
+            || findOption(bureauTypeOptions, productDetails?.creditBureauConfig?.creditBureauSources?.[0])
             || [],
 
         minScoreRequired: editCreditBureauData?.minScoreRequired
@@ -64,13 +69,13 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
             || productDetails?.creditBureauConfig?.enquiriesLast6Months,
 
         loanDelinquencyAllowed: editCreditBureauData?.loanDelinquencyAllowed
-            || productDetails?.creditBureauConfig?.loanDelinquencyAllowed,
+            || findOption(delinquencyOptions,productDetails?.creditBureauConfig?.loanDelinquencyAllowed,)|| [],
 
-        bureauDataFreshnessDays: editCreditBureauData?.bureauDataFreshnessDays
+        bureauFreshnessDays: editCreditBureauData?.bureauDataFreshnessDays
             || productDetails?.creditBureauConfig?.bureauDataFreshnessDays,
 
         customBureauFlags: editCreditBureauData?.customBureauFlags
-            || productDetails?.creditBureauConfig?.customBureauFlags
+            || findOption(blacklistFlagOptions,productDetails?.creditBureauConfig?.customBureauFlags?.[0])
             || [],
 
         scoreDecayTolerance: editCreditBureauData?.scoreDecayTolerance

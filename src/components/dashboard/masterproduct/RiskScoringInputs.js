@@ -20,8 +20,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import FormProvider from '../../subcompotents/FormProvider';
-import { submitRiskScoringData } from '../../../redux/masterproduct/riskscoring/riskScoringSubmitSlice';
-import { setEditProductparameter } from '../../../redux/masterproduct/productparameter/financialTermsSlice';
+import { setEditRiskScoringData, submitRiskScoringData } from '../../../redux/masterproduct/riskscoring/riskScoringSubmitSlice';
 import { useLocation } from 'react-router';
 
 const RiskScoringInputs = ({ tabIndex, setTabIndex }) => {
@@ -30,8 +29,9 @@ const RiskScoringInputs = ({ tabIndex, setTabIndex }) => {
     const dispatch = useDispatch();
 
     const productDetails = useSelector((state) => state.products.productDetails);
-    const editRiskScoringData = useSelector((state) => state.createProduct.editRiskScoringData
-    );
+    const editRiskScoringData = useSelector((state) => state.riskSubmit.editRiskScoringData );
+    console.log(editRiskScoringData);
+    
 
     const riskScoringSchema = yup.object().shape({
         internalScoreVariables: yup
@@ -137,7 +137,7 @@ const RiskScoringInputs = ({ tabIndex, setTabIndex }) => {
 
     const onSubmit = (data) => {
         if (mode === "EDIT") {
-            dispatch(setEditProductparameter(data))
+            dispatch(setEditRiskScoringData(data))
             setTabIndex((prev) => Math.min(prev + 1, 9));
         } else {
             dispatch(submitRiskScoringData(data, () => {

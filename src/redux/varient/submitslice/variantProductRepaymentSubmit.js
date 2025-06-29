@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   data: null,
+  editTimelyRepaymentData:null,
 };
 
 const variantProductRepaymentSubmitSlice = createSlice({
@@ -29,6 +30,9 @@ const variantProductRepaymentSubmitSlice = createSlice({
       state.error = null;
       state.data = null;
     },
+     setEditTimelyRepaymentData(state, action) {
+      state.editTimelyRepaymentData = action.payload
+    },
   },
 });
 
@@ -37,6 +41,7 @@ export const {
   submitSuccess,
   submitFailure,
   clearSubmitState,
+  setEditTimelyRepaymentData,
 } = variantProductRepaymentSubmitSlice.actions;
 
 // Thunk to submit repayment incentives

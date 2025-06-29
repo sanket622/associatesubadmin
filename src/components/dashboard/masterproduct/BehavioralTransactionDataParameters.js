@@ -26,8 +26,6 @@ import { setEditBehavioralData, submitBehavioralData } from '../../../redux/mast
 import { useLocation } from 'react-router';
 import { useEffect } from 'react';
 
-
-
 export const billPaymentHistoryOptions = [
     { id: 'BBPS', name: 'BBPS' },
     { id: 'UPI', name: 'UPI' },
@@ -50,7 +48,10 @@ const BehavioralTransactionDataParameters = ({ tabIndex, setTabIndex }) => {
     const dispatch = useDispatch();
 
     const productDetails = useSelector((state) => state.products.productDetails);
-    const editBehavioralData = useSelector((state) => state.createProduct.editBehavioralData);
+    const editBehavioralData = useSelector((state) => state.behavioralData.editBehavioralData);
+    const findOption = (options, id) => options.find(option => option.id === id) || null;
+    console.log(editBehavioralData);
+
 
     const schema = yup.object().shape({
         latePaymentFeeValue: yup
@@ -82,58 +83,50 @@ const BehavioralTransactionDataParameters = ({ tabIndex, setTabIndex }) => {
             .nullable()
             .required('Repeat Borrower Behavior is required'),
 
-        pdfParsingOrJsonRequired: yup
-            .string()
-            .required('Please select an option'),
+
     });
 
     const behavioralData = editBehavioralData || productDetails?.behavioralData;
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
 
-  latePaymentFeeValue:
-    editBehavioralData?.latePaymentFeeValue ??
-    behavioralData?.salaryRegularityThreshold ??
-    '',
+        latePaymentFeeValue:
+            editBehavioralData?.latePaymentFeeValue ??
+            behavioralData?.salaryRegularityThreshold ??
+            '',
 
-  prepaymentFeeType:
-    editBehavioralData?.prepaymentFeeType ??
-    behavioralData?.spendingConsistencyPercent ??
-    '',
+        prepaymentFeeType:
+            editBehavioralData?.prepaymentFeeType ??
+            behavioralData?.spendingConsistencyPercent ??
+            '',
 
-  overallGst:
-    editBehavioralData?.overallGst ??
-    behavioralData?.upiSpendToIncomeRatio ??
-    '',
+        overallGst:
+            editBehavioralData?.overallGst ??
+            behavioralData?.upiSpendToIncomeRatio ??
+            '',
 
-  disbursementMode:
-    billPaymentHistoryOptions.find(
-      option =>
-        option.id === editBehavioralData?.disbursementMode ||
-        option.id === behavioralData?.billPaymentHistory
-    ) ?? null,
+        disbursementMode:
+            billPaymentHistoryOptions.find(
+                option =>
+                    option.id === editBehavioralData?.disbursementMode?.id ||
+                    option.id === behavioralData?.billPaymentHistory
+            ) ?? null,
 
-  repaymentMode:
-    editBehavioralData?.repaymentMode ??
-    behavioralData?.locationConsistencyKm?.toString() ??
-    '',
+        repaymentMode:
+            editBehavioralData?.repaymentMode ??
+            behavioralData?.locationConsistencyKm?.toString() ??
+            '',
 
-  emiFrequency:
-    borrowerBehaviorOptions.find(
-      option =>
-        option.id === editBehavioralData?.emiFrequency ||
-        option.id === behavioralData?.repeatBorrowerBehavior
-    ) ?? null,
+        emiFrequency:
+            borrowerBehaviorOptions.find(
+                option =>
+                    option.id === editBehavioralData?.emiFrequency?.id ||
+                    option.id === behavioralData?.repeatBorrowerBehavior
+            ) ?? null,
 
-  pdfParsingOrJsonRequired:
-    (editBehavioralData?.pdfParsingOrJsonRequired ??
-      behavioralData?.digitalFootprintRequired) === true
-      ? 'yes'
-      : (editBehavioralData?.pdfParsingOrJsonRequired ??
-          behavioralData?.digitalFootprintRequired) === false
-      ? 'no'
-      : '',
-} : {
+        pdfParsingOrJsonRequired: editBehavioralData?.pdfParsingOrJsonRequired || (productDetails?.behavioralData?.digitalFootprintRequired === true ? "yes" : "no")
+
+    } : {
 
     }
 

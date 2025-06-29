@@ -14,6 +14,7 @@ import { fetchProductDetails, fetchProducts, setPage, setRowsPerPage } from '../
 import { useNavigate } from 'react-router';
 import DeleteModal from './DeleteModal';
 import { setEditGeneralProductMetaData } from '../../../redux/masterproduct/productmetadata/createProductSlice';
+import { setEditProductparameter } from '../../../redux/masterproduct/productparameter/financialTermsSlice';
 
 const MasterProductTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -102,6 +103,7 @@ const MasterProductTable = () => {
                       <TableCell>
                         <IconButton style={{ color: '#0000FF' }} onClick={() => {
                           dispatch(setEditGeneralProductMetaData(null))
+                          dispatch(setEditProductparameter(null))
                           navigate(`/createproduct/${prod.id}`, { state: { mode: 'EDIT' } })
                         }}><EditIcon /></IconButton>
                       </TableCell>

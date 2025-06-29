@@ -1,110 +1,67 @@
 import React from 'react';
 import {
     Grid,
-    Typography,
     Box,
-    Checkbox,
     Button,
 } from '@mui/material';
-import { useFormContext, Controller, useForm } from 'react-hook-form';
-import TextFieldComponent from '../../subcompotents/TextFieldComponent';
-import AutocompleteFieldComponent from '../../subcompotents/AutocompleteFieldComponent';
+import { useForm } from 'react-hook-form';
 import Label from '../../subcompotents/Label';
 import RHFTextField from '../../subcompotents/RHFTextField';
 import FormProvider from '../../subcompotents/FormProvider';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { submitOtherCharges, setEditOtherChargesData } from '../../../redux/masterproduct/othercharges/otherChargesSlice';
-
+import { submitOtherCharges } from '../../../redux/masterproduct/othercharges/otherChargesSlice';
 
 const OtherCharges = ({ tabIndex, setTabIndex, }) => {
 
-    const dispatch = useDispatch();
-    const mode = "CREATE"; // or get from props/context
-    const editOtherChargesData = useSelector((state) => state.otherCharges.editOtherChargesData);
-    const productDetails = {}; // if needed, pass this from parent or Redux
+  const dispatch = useDispatch();
 
-    const validationSchema = yup.object().shape({
-        chequeBounceCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        dublicateNocCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        furnishingCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        chequeSwapCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        revocation: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        documentCopyCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        stampDutyCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        nocCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        incidentalCharge: yup.number().typeError('Required').min(0, 'Must be positive').required('Required'),
-        subscriptionGst: yup.string().nullable(),
-        gstOnTransactionFee: yup.string().nullable(),
-    });
+  const schema = yup.object().shape({
+  chequeBounceCharge: yup.number().typeError('Must be a number').required('Required'),
+  dublicateNocCharge: yup.number().typeError('Must be a number').required('Required'),
+  furnishingCharge: yup.number().typeError('Must be a number').required('Required'),
+  chequeSwapCharge: yup.number().typeError('Must be a number').required('Required'),
+  revocation: yup.number().typeError('Must be a number').required('Required'),
+  documentCopyCharge: yup.number().typeError('Must be a number').required('Required'),
+  stampDutyCharge: yup.number().typeError('Must be a number').required('Required'),
+  nocCharge: yup.number().typeError('Must be a number').required('Required'),
+  incidentalCharge: yup.number().typeError('Must be a number').required('Required'),
+});
 
-    const defaultValues = {
-        chequeBounceCharge: '',
-        dublicateNocCharge: '',
-        furnishingCharge: '',
-        chequeSwapCharge: '',
-        revocation: '',
-        documentCopyCharge: '',
-        stampDutyCharge: '',
-        nocCharge: '',
-        incidentalCharge: '',
-        subscriptionGst: '',
-        gstOnTransactionFee: '',
-    };
+  // ✅ Setup useForm with validation
+  const methods = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      chequeBounceCharge: '',
+      dublicateNocCharge: '',
+      furnishingCharge: '',
+      chequeSwapCharge: '',
+      revocation: '',
+      documentCopyCharge: '',
+      stampDutyCharge: '',
+      nocCharge: '',
+      incidentalCharge: '',
+    },
+  });
 
-    const methods = useForm({
-        resolver: yupResolver(validationSchema),
-        defaultValues
-    });
-    const {
-        control,
-        reset,
-        handleSubmit,
-        watch,
-        formState: { errors }
-    } = methods
+  const {
+    handleSubmit,
+    reset,
+  } = methods;
 
+  // ✅ On Submit Handler
+  const onSubmit = (data) => {
+    dispatch(submitOtherCharges(data, () => {
+      // Go to next tab on success
+      setTabIndex(prev => prev + 1);
+    }));
+  };
 
-    const values = watch()
-    console.log("values", values);
-
-    useEffect(() => {
-        if (productDetails || editOtherChargesData) {
-            reset(editOtherChargesData || defaultValues);
-        }
-    }, [productDetails, editOtherChargesData, reset]);
-
-
-
-    const onSubmit = (data) => {
-        if (mode === "EDIT") {
-            // if editing, use PUT or appropriate endpoint
-            console.log("Edit mode: submit edit logic here");
-        } else {
-            dispatch(submitOtherCharges(data, () => {
-                setTabIndex((prev) => Math.min(prev + 1, 9));
-            }));
-        }
-    };
-
-    const onError = (errors) => {
-        console.log("Validation Errors:", errors);
-    };
-
-    useEffect(() => {
-        console.log('editEligibilityData');
-    }, []);
-
-    useEffect(() => {
-        if (editOtherChargesData) {
-            reset(editOtherChargesData);
-        } else {
-            reset(defaultValues);
-        }
-    }, [editOtherChargesData, reset]);
-
+  const onError = (errors) => {
+    console.log("Form validation errors:", errors);
+  };
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
@@ -118,42 +75,42 @@ const OtherCharges = ({ tabIndex, setTabIndex, }) => {
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="dublicateNocCharge">Charges for issuing duplicate termination papers (Duplicate NOC)</Label>
-                        <RHFTextField name="dublicateNocCharge" id="dublicateNocCharge" />
+                        <RHFTextField name="dublicateNocCharge" id="dublicateNocCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="furnishingCharge">Charges for furnishing statement of account - 2nd time</Label>
-                        <RHFTextField name="furnishingCharge" id="furnishingCharge" />
+                        <RHFTextField name="furnishingCharge" id="furnishingCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="chequeSwapCharge">Cheque Swapping Charges</Label>
-                        <RHFTextField name="chequeSwapCharge" id="chequeSwapCharge" />
+                        <RHFTextField name="chequeSwapCharge" id="chequeSwapCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="revocation">Revocation/changes of ECS/ACH instruction charges</Label>
-                        <RHFTextField name="revocation" id="revocation" />
+                        <RHFTextField name="revocation" id="revocation" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="documentCopyCharge">Charges for issuing copy of any document at borrowers request</Label>
-                        <RHFTextField name="documentCopyCharge" id="documentCopyCharge" />
+                        <RHFTextField name="documentCopyCharge" id="documentCopyCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="stampDutyCharge">Stamp Duty Charges</Label>
-                        <RHFTextField name="stampDutyCharge" id="stampDutyCharge" />
+                        <RHFTextField name="stampDutyCharge" id="stampDutyCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="nocCharge">NOC Issuance Charges</Label>
-                        <RHFTextField name="nocCharge" id="nocCharge" />
+                        <RHFTextField name="nocCharge" id="nocCharge" type='number' />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="incidentalCharge">Legal / Collections / Repossession and Incidental Charges</Label>
-                        <RHFTextField name="incidentalCharge" id="incidentalCharge" />
+                        <RHFTextField name="incidentalCharge" id="incidentalCharge" type='number' />
                     </Grid>
                 </Grid>
             </Box>

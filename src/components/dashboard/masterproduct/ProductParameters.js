@@ -1,11 +1,8 @@
 import React, { useEffect } from 'react';
-import { useFormContext, Controller, useForm, } from 'react-hook-form';
+import { Controller, useForm, } from 'react-hook-form';
 import { useSelector, useDispatch } from 'react-redux';
 import { Grid, FormControl, RadioGroup, Radio, FormControlLabel, Box, Button } from '@mui/material';
 import * as yup from 'yup';
-
-import TextFieldComponent from '../../subcompotents/TextFieldComponent';
-import AutocompleteFieldComponent from '../../subcompotents/AutocompleteFieldComponent';
 import Label from '../../subcompotents/Label';
 import { fetchRepaymentModes, fetchDisbursementModes, submitFinancialTerms, setEditProductparameter } from '../../../redux/masterproduct/productparameter/financialTermsSlice';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -72,10 +69,10 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, handleNext 
     const repaymentModes = useSelector(state => state.financialTerms?.repaymentModes || []);
     const disbursementModes = useSelector(state => state.financialTerms?.disbursementModes || []);
     const editProductparameter = useSelector((state) => state.financialTerms?.editProductparameter);
-      const productDetails = useSelector((state) => state.products.productDetails);
+    const productDetails = useSelector((state) => state.products.productDetails);
     const findOption = (options, id) => options.find(option => option.id === id) || null;
 
-     const productParameterValidationSchema = yup.object({
+    const productParameterValidationSchema = yup.object({
         minTenureMonths: yup.number().positive().required('Minimum Tenure is required'),
         maxTenureMonths: yup.number().positive().required('Maximum Tenure is required'),
         minLoanAmount: yup.number().positive().required('Minimum Loan Amount is required'),
@@ -95,60 +92,62 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, handleNext 
         repaymentMode: yup.object().required('Repayment Mode is required')
     });
 
-   const defaultValues = (productDetails && mode === "EDIT") ? {
-    minLoanAmount: editProductparameter?.financialTerms?.minLoanAmount || productDetails?.financialTerms?.minLoanAmount,
-    maxLoanAmount: editProductparameter?.financialTerms?.maxLoanAmount || productDetails?.financialTerms?.maxLoanAmount,
-    minTenureMonths: editProductparameter?.financialTerms?.minTenureMonths || productDetails?.financialTerms?.minTenureMonths,
-    maxTenureMonths: editProductparameter?.financialTerms?.maxTenureMonths || productDetails?.financialTerms?.maxTenureMonths,
+    const defaultValues = (productDetails && mode === "EDIT") ? {
+        minLoanAmount: editProductparameter?.minLoanAmount || productDetails?.financialTerms?.minLoanAmount,
+        maxLoanAmount: editProductparameter?.maxLoanAmount || productDetails?.financialTerms?.maxLoanAmount,
+        minTenureMonths: editProductparameter?.minTenureMonths || productDetails?.financialTerms?.minTenureMonths,
+        maxTenureMonths: editProductparameter?.maxTenureMonths || productDetails?.financialTerms?.maxTenureMonths,
 
-    interestRateType: findOption(
-        interestRateOptions,
-        editProductparameter?.financialTerms?.interestRateType || productDetails?.financialTerms?.interestRateType
-    ),
-    interestMin: editProductparameter?.financialTerms?.interestRateMin || productDetails?.financialTerms?.interestRateMin,
-    interestMax: editProductparameter?.financialTerms?.interestRateMax || productDetails?.financialTerms?.interestRateMax,
+        interestRateType: findOption(
+            interestRateOptions,
+            editProductparameter?.interestRateType?.id || productDetails?.financialTerms?.interestRateType
+        ),
+        interestMin: editProductparameter?.interestRateMin || productDetails?.financialTerms?.interestRateMin,
+        interestMax: editProductparameter?.interestRateMax || productDetails?.financialTerms?.interestRateMax,
 
-    processingFeeType: findOption(
-        processingFeeTypeOptions,
-        editProductparameter?.financialTerms?.processingFeeType || productDetails?.financialTerms?.processingFeeType
-    ),
-    processingFeeValue: editProductparameter?.financialTerms?.processingFeeValue || productDetails?.financialTerms?.processingFeeValue,
+        processingFeeType: findOption(
+            processingFeeTypeOptions,
+            editProductparameter?.processingFeeType?.id || productDetails?.financialTerms?.processingFeeType
+        ),
+        processingFeeValue: editProductparameter?.financialTerms?.processingFeeValue || productDetails?.financialTerms?.processingFeeValue,
 
-    latePaymentFeeType: findOption(
-        latePaymentFeeTypeOptions,
-        editProductparameter?.financialTerms?.latePaymentFeeType || productDetails?.financialTerms?.latePaymentFeeType
-    ),
-    latePaymentFeeValue: editProductparameter?.financialTerms?.latePaymentFeeValue || productDetails?.financialTerms?.latePaymentFeeValue,
+        latePaymentFeeType: findOption(
+            latePaymentFeeTypeOptions,
+            editProductparameter?.latePaymentFeeType?.id || productDetails?.financialTerms?.latePaymentFeeType
+        ),
+        latePaymentFeeValue: editProductparameter?.latePaymentFeeValue || productDetails?.financialTerms?.latePaymentFeeValue,
 
-    prepaymentFeeType: findOption(
-        prepaymentFeeTypeOptions,
-        editProductparameter?.financialTerms?.prepaymentFeeType || productDetails?.financialTerms?.prepaymentFeeType
-    ),
-    prepaymentFeeValue: editProductparameter?.financialTerms?.prepaymentFeeValue || productDetails?.financialTerms?.prepaymentFeeValue,
+        prepaymentFeeType: findOption(
+            prepaymentFeeTypeOptions,
+            editProductparameter?.prepaymentFeeType?.id || productDetails?.financialTerms?.prepaymentFeeType
+        ),
+        prepaymentFeeValue: editProductparameter?.prepaymentFeeValue || productDetails?.financialTerms?.prepaymentFeeValue,
 
-    prepaymentRulesAllowed: (editProductparameter?.financialTerms?.prepaymentAllowed ?? productDetails?.financialTerms?.prepaymentAllowed) ? 'yes' : 'no',
+        prepaymentRulesAllowed: (editProductparameter?.prepaymentAllowed ?? productDetails?.financialTerms?.prepaymentAllowed) ? 'yes' : 'no',
 
-    emiFrequency: findOption(
-        emiFrequencyOptions,
-        editProductparameter?.financialTerms?.emiFrequency || productDetails?.financialTerms?.emiFrequency
-    ),
+        emiFrequency: findOption(
+            emiFrequencyOptions,
+            editProductparameter?.emiFrequency?.id || productDetails?.financialTerms?.emiFrequency
+        ),
 
-    disbursementMode: null, // to be set later
-    repaymentMode: null     // to be set later
-} : {};
+        disbursementMode: null,
+        repaymentMode: null
+    } : {};
 
-const methods = useForm({
-    resolver: yupResolver(productParameterValidationSchema),
-    defaultValues,
-});
+    console.log(editProductparameter)
 
-const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors }
-} = methods;
+    const methods = useForm({
+        resolver: yupResolver(productParameterValidationSchema),
+        defaultValues,
+    });
+
+    const {
+        control,
+        handleSubmit,
+        setValue,
+        reset,
+        formState: { errors }
+    } = methods;
 
     useEffect(() => {
         dispatch(fetchRepaymentModes());
@@ -156,32 +155,20 @@ const {
     }, [dispatch]);
 
     useEffect(() => {
-    if (repaymentModes.length > 0 && disbursementModes.length > 0 && mode === 'EDIT' && editProductparameter?.financialTerms) {
-        reset({
-            ...defaultValues,
-            disbursementMode: findOption(disbursementModes, editProductparameter.financialTerms.disbursementMode),
-            repaymentMode: findOption(repaymentModes, editProductparameter.financialTerms.repaymentMode),
-            interestRateType: findOption(interestRateOptions, editProductparameter.financialTerms.interestRateType),
-            processingFeeType: findOption(processingFeeTypeOptions, editProductparameter.financialTerms.processingFeeType),
-            latePaymentFeeType: findOption(latePaymentFeeTypeOptions, editProductparameter.financialTerms.latePaymentFeeType),
-            prepaymentFeeType: findOption(prepaymentFeeTypeOptions, editProductparameter.financialTerms.prepaymentFeeType),
-            emiFrequency: findOption(emiFrequencyOptions, editProductparameter.financialTerms.emiFrequency),
-            prepaymentRulesAllowed: editProductparameter.financialTerms.prepaymentAllowed ? 'yes' : 'no',
-        });
+        reset(defaultValues)
+    }, [repaymentModes, disbursementModes, editProductparameter, mode]);
+
+
+    const onSubmit = (data) => {
+        if (mode === "EDIT") {
+            dispatch(setEditProductparameter(data))
+            setTabIndex((prev) => Math.min(prev + 1, 9));
+        } else {
+            dispatch(submitFinancialTerms(data, () => {
+                setTabIndex((prev) => Math.min(prev + 1, 9));
+            }));
+        }
     }
-}, [repaymentModes, disbursementModes, editProductparameter, mode, reset]);
-
-
-   const onSubmit = (data) => {
-           if (mode === "EDIT") {
-               dispatch(setEditProductparameter(data))
-               setTabIndex((prev) => Math.min(prev + 1, 9));
-           } else {
-               dispatch(submitFinancialTerms(data, () => {
-                   setTabIndex((prev) => Math.min(prev + 1, 9));
-               }));
-           }
-       }
     const onError = (e) => console.log(e);
 
     return (

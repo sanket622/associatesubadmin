@@ -104,6 +104,7 @@ const DashboardLayout = () => {
               <Route path="/createproduct" element={< CreateProduct />} />
               <Route path="/createproduct/:productId" element={<CreateProduct />} />
               <Route path="/createvarient" element={< CreateVariant />} />
+              <Route path="/createvarient/:variantId" element={< CreateVariant />} />
               <Route path="/masterproduct" element={< MasterProductTable />} />
               <Route path="/view-product/:id" element={<ViewProduct />} />
               <Route path="/version-history/:masterProductId" element={<VersionHistory />} />

@@ -35,7 +35,7 @@ export const {
   createProductStart,
   createProductSuccess,
   createProductFailure,
-  setEditGeneralProductMetaData
+  setEditGeneralProductMetaData,
 } = createProductSlice.actions;
 
 export const createGeneralProduct = (formData, callback) => async (dispatch) => {

@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   data: null,
+  editVarientBasicData: null
 };
 
 const variantProductSubmitSlice = createSlice({
@@ -29,6 +30,9 @@ const variantProductSubmitSlice = createSlice({
       state.error = null;
       state.data = null;
     },
+    setEditVarientBasicData(state, action) {
+      state.editVarientBasicData = action.payload
+    },
   },
 });
 
@@ -37,6 +41,7 @@ export const {
   submitSuccess,
   submitFailure,
   clearSubmitState,
+  setEditVarientBasicData,
 } = variantProductSubmitSlice.actions;
 
 // Thunk for submitting variant product
@@ -63,12 +68,12 @@ export const submitVariantProduct = (formData, callback) => async (dispatch) => 
       payload,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`, // ✅ FIXED
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
 
-     const variantId = response?.data?.data?.id;
+    const variantId = response?.data?.data?.id;
     localStorage.setItem('createdVariantId', variantId);
 
     enqueueSnackbar('Submitted successfully!', { variant: 'success' });

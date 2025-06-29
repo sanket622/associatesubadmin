@@ -17,7 +17,6 @@ import { useLocation } from 'react-router';
 import { replaceUnderscore } from '../../subcompotents/UtilityService';
 
 
-
 const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handleNext }) => {
     const location = useLocation()
     const mode = location?.state?.mode

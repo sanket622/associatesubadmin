@@ -59,6 +59,8 @@ const FinancialStatementParameters = ({ tabIndex, setTabIndex }) => {
 
     const productDetails = useSelector((state) => state.products.productDetails);
     const editFinancialData = useSelector((state) => state.financialStatement.editFinancialData);
+    console.log(editFinancialData);
+    
 
 
     const financialStatementSchema = yup.object().shape({
@@ -109,19 +111,19 @@ const FinancialStatementParameters = ({ tabIndex, setTabIndex }) => {
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
 
-        minimumMonthlyCredit: editFinancialData?.minMonthlyCredit
+        minimumMonthlyCredit: editFinancialData?.minimumMonthlyCredit
             || productDetails?.financialStatements?.minMonthlyCredit
             || '',
 
-        minimumAverageBalance: editFinancialData?.minAverageBalance
+        minimumAverageBalance: editFinancialData?.minimumAverageBalance
             || productDetails?.financialStatements?.minAverageBalance
             || '',
 
-        bouncesOrCharges: editFinancialData?.bouncesLast3Months
+        bouncesOrCharges: editFinancialData?.bouncesOrCharges
             || productDetails?.financialStatements?.bouncesLast3Months
             || '',
 
-        cashDepositsCap: editFinancialData?.cashDepositsCapPercent
+        cashDepositsCap: editFinancialData?.cashDepositsCap
             || productDetails?.financialStatements?.cashDepositsCapPercent
             || '',
 
@@ -135,30 +137,25 @@ const FinancialStatementParameters = ({ tabIndex, setTabIndex }) => {
         incomeRecognitionMethod:
             incomeRecognitionMethodOptions.find(
                 option =>
-                    option.id === editFinancialData?.netIncomeRecognition
+                    option.id === editFinancialData?.incomeRecognitionMethod
                     || option.id === productDetails?.financialStatements?.netIncomeRecognition
             ) || null,
 
         statementSource:
             statementSourceOptions.find(
                 option =>
-                    option.id === editFinancialData?.statementSources?.[0]
+                    option.id === editFinancialData?.statementSource?.[0]
                     || option.id === productDetails?.financialStatements?.statementSources?.[0]
             ) || null,
 
         accountType:
             accountTypeOptions.find(
                 option =>
-                    option.id === editFinancialData?.accountTypes?.[0]
+                    option.id === editFinancialData?.accountType?.[0]
                     || option.id === productDetails?.financialStatements?.accountTypes?.[0]
             ) || null,
 
-        pdfParsingOrJsonRequired:
-            (editFinancialData?.pdfParsingRequired ?? productDetails?.financialStatements?.pdfParsingRequired) === true
-                ? 'yes'
-                : (editFinancialData?.pdfParsingRequired ?? productDetails?.financialStatements?.pdfParsingRequired) === false
-                    ? 'no'
-                    : '',
+        pdfParsingOrJsonRequired: editFinancialData?.pdfParsingOrJsonRequired || (productDetails?.financialStatements?.pdfParsingRequired === true ? "yes" : "no")
     } : {
         minimumMonthlyCredit: '',
         minimumAverageBalance: '',

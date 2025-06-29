@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Grid,
     Box,
@@ -13,11 +13,18 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import Label from '../../../subcompotents/Label';
-import { submitVariantOtherCharges } from '../../../../redux/varient/submitslice/variantProductOtherChargesSubmitSlice';
-import { useDispatch } from 'react-redux';
+import { seteditVarientOtherChargesData, submitVariantOtherCharges } from '../../../../redux/varient/submitslice/variantProductOtherChargesSubmitSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setEditVarientParameterData } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
+import { useLocation } from 'react-router';
 
 const OtherCharges = ({ setTabIndex, tabIndex }) => {
+   const location = useLocation()
+    const mode = location?.state?.mode
     const dispatch = useDispatch();
+
+     const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
+        const editVarientOtherChargesData = useSelector((state) => state.variantProductOtherChargesSubmit.editVarientOtherChargesData);
 
     const requiredNumber = () =>
         Yup.number().typeError('Must be a number').required('Required');
@@ -36,19 +43,38 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
         // gstOnTransactionFee: requiredNumber(),
     });
 
-    const defaultValues = {
-        chequeBounceCharges: '',
-        duplicateNocCharges: '',
-        statementCharges: '',
-        chequeSwappingCharges: '',
-        ecsCharges: '',
-        documentCopyCharges: '',
-        stampDutyCharges: '',
-        nocIssuanceCharges: '',
-        legalCharges: '',
-        subscriptionGst: '',
-        gstOnTransactionFee: '',
-    };
+   const defaultValues = (mode === "EDIT" && variantDetail) ? {
+    chequeBounceCharges: editVarientOtherChargesData?.chequeBounceCharges ?? variantDetail.VariantProductOtherCharges.chequeBounceCharge ?? '',
+    duplicateNocCharges: editVarientOtherChargesData?.duplicateNocCharges ?? variantDetail.VariantProductOtherCharges.dublicateNocCharge ?? '',
+    statementCharges: editVarientOtherChargesData?.statementCharges ?? variantDetail.VariantProductOtherCharges.furnishingCharge ?? '',
+    chequeSwappingCharges: editVarientOtherChargesData?.chequeSwappingCharges ?? variantDetail.VariantProductOtherCharges.chequeSwapCharge ?? '',
+    ecsCharges: editVarientOtherChargesData?.ecsCharges ?? variantDetail.VariantProductOtherCharges.revocation ?? '',
+    documentCopyCharges: editVarientOtherChargesData?.documentCopyCharges ?? variantDetail.VariantProductOtherCharges.documentCopyCharge ?? '',
+    stampDutyCharges: editVarientOtherChargesData?.stampDutyCharges ?? variantDetail.VariantProductOtherCharges.stampDutyCharge ?? '',
+    nocIssuanceCharges: editVarientOtherChargesData?.nocIssuanceCharges ?? variantDetail.VariantProductOtherCharges.nocCharge ?? '',
+    legalCharges: editVarientOtherChargesData?.legalCharges ?? variantDetail.VariantProductOtherCharges.incidentalCharge ?? '',
+    
+    subscriptionGst: editVarientOtherChargesData?.subscriptionGst ?? '',
+    gstOnTransactionFee: editVarientOtherChargesData?.gstOnTransactionFee ?? '',
+    subscriptionFee: editVarientOtherChargesData?.subscriptionFee ?? '',
+    perTransactionFee: editVarientOtherChargesData?.perTransactionFee ?? null,
+    perTransactionAmount: editVarientOtherChargesData?.perTransactionAmount ?? '',
+} : {
+    chequeBounceCharges: '',
+    duplicateNocCharges: '',
+    statementCharges: '',
+    chequeSwappingCharges: '',
+    ecsCharges: '',
+    documentCopyCharges: '',
+    stampDutyCharges: '',
+    nocIssuanceCharges: '',
+    legalCharges: '',
+    subscriptionGst: '',
+    gstOnTransactionFee: '',
+    subscriptionFee: '',
+    perTransactionFee: null,
+    perTransactionAmount: '',
+};
 
     const methods = useForm({
         resolver: yupResolver(OtherChargesSchema),
@@ -58,14 +84,26 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
     const {
         handleSubmit,
         control,
+        reset,
         formState: { errors },
     } = methods;
 
-    const onSubmit = (data) => {
-        dispatch(submitVariantOtherCharges(data, () => {
-            setTabIndex(prev => prev + 1);
-        }));
-    };
+    useEffect(() => {
+           if (variantDetail || editVarientOtherChargesData) {
+               reset(defaultValues)
+           }
+       }, [variantDetail, editVarientOtherChargesData])
+   
+       const onSubmit = (data) => {
+           if (mode === "EDIT") {
+               dispatch(seteditVarientOtherChargesData(data))
+               setTabIndex((prev) => Math.min(prev + 1, 9));
+           } else {
+               dispatch(submitVariantOtherCharges(data, () => {
+                   setTabIndex((prev) => Math.min(prev + 1, 9));
+               }));
+           }
+       }
 
     const onError = (err) => {
         console.log('Validation Errors:', err);

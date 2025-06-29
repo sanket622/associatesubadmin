@@ -57,7 +57,7 @@ export const {
   eligibilityCriteriaSubmitStart,
   eligibilityCriteriaSubmitSuccess,
   eligibilityCriteriaSubmitFailure,
-  editEligibilityData,
+  setEditEligibilityData,
 } = employmentTypesSlice.actions;
 
 export const fetchEmploymentTypes = () => async (dispatch) => {

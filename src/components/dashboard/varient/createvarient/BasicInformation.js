@@ -4,9 +4,6 @@ import {
     Box,
     Button
 } from '@mui/material';
-import { useFormContext, Controller } from 'react-hook-form';
-import TextFieldComponent from '../../../subcompotents/TextFieldComponent';
-import AutocompleteFieldComponent from '../../../subcompotents/AutocompleteFieldComponent';
 import Label from '../../../subcompotents/Label';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
@@ -18,20 +15,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchProductMetadata } from '../../../../redux/masterproduct/productmetadata/productMetadataSlice';
 import { fetchProducts } from '../../../../redux/masterproduct/tableslice/productsSlice';
-import { submitVariantProduct } from '../../../../redux/varient/submitslice/variantProductSubmitSlice';
+import { setEditVarientBasicData, submitVariantProduct } from '../../../../redux/varient/submitslice/variantProductSubmitSlice';
+import { useLocation } from 'react-router';
 
- 
-const BasicInformation = ({ setTabIndex, tabIndex }) => {
+
+const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
+    const location = useLocation()
+    const mode = location?.state?.mode
     const dispatch = useDispatch();
 
     const { partners } = useSelector((state) => state.productMetadata);
     const { products } = useSelector((state) => state.products);
 
+    const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
+    const editVarientBasicData = useSelector((state) => state.variantProductSubmit.editVarientBasicData);
+
     const productType = [
-    { id: 'SECURED', name: 'Secured' },
-    { id: 'UNSECURED', name: 'Unsecured' },
-    { id: 'NA', name: 'Na' },
-];
+        { id: 'SECURED', name: 'Secured' },
+        { id: 'UNSECURED', name: 'Unsecured' },
+        { id: 'NA', name: 'Na' },
+    ];
 
     const BasicInfoSchema = Yup.object().shape({
         linkedProductId: Yup.object().required('Linked Product Master ID is required'),
@@ -39,12 +42,45 @@ const BasicInformation = ({ setTabIndex, tabIndex }) => {
         variantName: Yup.string().required('Variant Name is required'),
         variantCode: Yup.string().required('Variant Code is required'),
         variantType: Yup.string().required('Variant Type is required'),
-        partner: Yup.object().nullable(), // Optional
+        partner: Yup.object().nullable(),
         remarks: Yup.string().optional(),
     });
-    const defaultValues = {
+
+    const defaultValues = (mode === "EDIT" && variantDetail) ? {
+        linkedProductId:
+            editVarientBasicData?.linkedProductId ||
+            products?.find(p => p.id === variantDetail?.masterProductId) ||
+            null,
+
+        productType:
+            editVarientBasicData?.productType ||
+            productType?.find(p => p.id === variantDetail?.productType) ||
+            null,
+
+        variantName:
+            editVarientBasicData?.variantName ||
+            variantDetail?.variantName || '',
+
+        variantCode:
+            editVarientBasicData?.variantCode ||
+            variantDetail?.variantCode || '',
+
+        variantType:
+            editVarientBasicData?.variantType ||
+            variantDetail?.variantType || '',
+
+        partner:
+            editVarientBasicData?.partner ||
+            partners?.find(p => p.id === variantDetail.partnerId) ||
+            null,
+
+        remarks:
+            editVarientBasicData?.remarks ||
+            variantDetail?.remark || '',
+
+    } : {
         linkedProductId: null,
-        productType: '',
+        productType: null,
         variantName: '',
         variantCode: '',
         variantType: '',
@@ -52,23 +88,33 @@ const BasicInformation = ({ setTabIndex, tabIndex }) => {
         remarks: '',
     };
 
+
     useEffect(() => {
         dispatch(fetchProductMetadata());
         dispatch(fetchProducts());
     }, [dispatch]);
-
-    
 
     const methods = useForm({
         resolver: yupResolver(BasicInfoSchema),
         defaultValues,
     });
 
+    useEffect(() => {
+        if (variantDetail || editVarientBasicData) {
+            reset(defaultValues)
+        }
+    }, [variantDetail, editVarientBasicData])
+
     const onSubmit = (data) => {
-        dispatch(submitVariantProduct(data, () => {
-            setTabIndex(prev => prev + 1);
-        }));
-    };
+        if (mode === "EDIT") {
+            dispatch(setEditVarientBasicData(data))
+            setTabIndex((prev) => Math.min(prev + 1, 9));
+        } else {
+            dispatch(submitVariantProduct(data, () => {
+                setTabIndex((prev) => Math.min(prev + 1, 9));
+            }));
+        }
+    }
 
     const {
         control,
@@ -97,7 +143,7 @@ const BasicInformation = ({ setTabIndex, tabIndex }) => {
 
                         <Grid item xs={12} md={4}>
                             <Label htmlFor="productType">Product Type</Label>
-                           <RHFAutocomplete name="productType" options={productType} getOptionLabel={(option) => option.name} />
+                            <RHFAutocomplete name="productType" options={productType} getOptionLabel={(option) => option.name} />
                         </Grid>
 
                         <Grid item xs={12} md={4}>

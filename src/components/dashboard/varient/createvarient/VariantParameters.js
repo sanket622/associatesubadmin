@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Grid,
     Box,
@@ -16,48 +16,23 @@ import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
-import { useDispatch } from 'react-redux';
-import { submitVariantProductParameter } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setEditVarientParameterData, submitVariantProductParameter } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
+import { useLocation } from 'react-router';
 
-const VariantSchema = Yup.object().shape({
-    minimumLoanAmount: Yup.string().required('Minimum Loan Amount is required'),
-    maximumLoanAmount: Yup.string().required('Maximum Loan Amount is required'),
-    interestRateMin: Yup.string().required('Interest Rate Range (Min) is required'),
-    interestRateMax: Yup.string().required('Interest Rate Range (Max) is required'),
-    processingFeeValue: Yup.mixed().required('Processing Fee Value is required'),
-    latePaymentFeeType: Yup.object().required('Late Payment Fee Type is required'),
-    latePaymentFeeValue: Yup.string().required('Late Payment Fee Value is required'),
-    prepaymentFeeValue: Yup.string().required('Prepayment Fee Value is required'),
-    penalInterestRate: Yup.string().required('Penal Interest Rate is required'),
-    penalInterestConditions: Yup.string().required('Penal Interest Conditions is required'),
-    // coBorrowerRequiredForLowScore: Yup.string().required('Penal Interest Rate Applicable is required'),
-    interestRateType: Yup.mixed().required('Interest Rate Type is required'),
-    processingFeeType: Yup.mixed().required('Processing Fee Type is required'),
-    prepaymentFeeType: Yup.mixed().required('Prepayment Fee Type is required'),
-    emiFrequency: Yup.mixed().required('EMI Frequency is required'),
-});
 
-const defaultValues = {
-    minimumLoanAmount: '',
-    maximumLoanAmount: '',
-    tenureOptions: null,
-    interestRateType: null,
-    interestRateMin: '',
-    interestRateMax: '',
-    processingFeeType: '',
-    processingFeeValue: null,
-    latePaymentFeeType: '',
-    latePaymentFeeValue: '',
-    prepaymentFeeType: '',
-    prepaymentFeeValue: '',
-    emiFrequency: '',
-    penalInterestRate: '',
-    penalInterestConditions: '',
-    coBorrowerRequiredForLowScore: '',
-};
 
 const VariantParameters = ({ setTabIndex, tabIndex }) => {
 
+    const location = useLocation()
+    const mode = location?.state?.mode
+    const dispatch = useDispatch();
+
+    const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
+    const editVarientParameterData = useSelector((state) => state.variantProductParameterSubmit.editVarientParameterData);
+
+    console.log(variantDetail.VariantProductParameter.processingFeeValue, editVarientParameterData?.processingFeeValue);
+    
     const interestRateTypes = [
         { id: 'FLAT', name: 'Flat' },
         { id: 'REDUCING', name: 'Reducing' },
@@ -79,7 +54,98 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
         { id: 'Custom', name: 'Custom' },
     ];
 
-    const dispatch = useDispatch();
+    const VariantSchema = Yup.object().shape({
+        minimumLoanAmount: Yup.string().required('Minimum Loan Amount is required'),
+        maximumLoanAmount: Yup.string().required('Maximum Loan Amount is required'),
+        interestRateMin: Yup.string().required('Interest Rate Range (Min) is required'),
+        interestRateMax: Yup.string().required('Interest Rate Range (Max) is required'),
+        processingFeeValue: Yup.mixed().required('Processing Fee Value is required'),
+        latePaymentFeeType: Yup.object().required('Late Payment Fee Type is required'),
+        latePaymentFeeValue: Yup.string().required('Late Payment Fee Value is required'),
+        prepaymentFeeValue: Yup.string().required('Prepayment Fee Value is required'),
+        penalInterestRate: Yup.string().required('Penal Interest Rate is required'),
+        penalInterestConditions: Yup.string().required('Penal Interest Conditions is required'),
+        // coBorrowerRequiredForLowScore: Yup.string().required('Penal Interest Rate Applicable is required'),
+        interestRateType: Yup.mixed().required('Interest Rate Type is required'),
+        processingFeeType: Yup.mixed().required('Processing Fee Type is required'),
+        prepaymentFeeType: Yup.mixed().required('Prepayment Fee Type is required'),
+        emiFrequency: Yup.mixed().required('EMI Frequency is required'),
+    });
+
+    const findOption = (options, value, key = 'id') =>
+        options?.find(option => option?.[key] === value) || null;
+
+    const defaultValues = (mode === 'EDIT' && variantDetail?.VariantProductParameter) ? {
+        minimumLoanAmount: editVarientParameterData?.minimumLoanAmount || variantDetail.VariantProductParameter.minLoanAmount || '',
+        maximumLoanAmount: editVarientParameterData?.maximumLoanAmount || variantDetail.VariantProductParameter.maxLoanAmount || '',
+        minTenureMonths: editVarientParameterData?.minTenureMonths || variantDetail.VariantProductParameter.minTenureMonths || '',
+        maxTenureMonths: editVarientParameterData?.maxTenureMonths || variantDetail.VariantProductParameter.maxTenureMonths || '',
+
+        interestRateType:
+            editVarientParameterData?.interestRateType ||
+            findOption(interestRateTypes, variantDetail.VariantProductParameter.interestRateType, 'id') ||
+            null,
+
+        interestRateMin: editVarientParameterData?.interestRateMin || variantDetail.VariantProductParameter.interestRateMin || '',
+        interestRateMax: editVarientParameterData?.interestRateMax || variantDetail.VariantProductParameter.interestRateMax || '',
+
+        processingFeeType:
+            editVarientParameterData?.processingFeeType ||
+            findOption(feeTypes, variantDetail.VariantProductParameter.processingFeeType, 'id') ||
+            null,
+
+        processingFeeValue: editVarientParameterData?.processingFeeValue || variantDetail.VariantProductParameter.processingFeeValue || "0",
+
+        latePaymentFeeType:
+            editVarientParameterData?.latePaymentFeeType ||
+            findOption(feeTypes, variantDetail.VariantProductParameter.latePaymentFeeType, 'id') ||
+            null,
+
+        latePaymentFeeValue: editVarientParameterData?.latePaymentFeeValue || variantDetail.VariantProductParameter.latePaymentFeeValue || '0',
+
+        prepaymentFeeType:
+            editVarientParameterData?.prepaymentFeeType ||
+            findOption(feeTypes, variantDetail.VariantProductParameter.prepaymentFeeType, 'id') ||
+            null,
+
+        prepaymentFeeValue: editVarientParameterData?.prepaymentFeeValue || variantDetail.VariantProductParameter.prepaymentFeeValue || '0',
+
+        emiFrequency:
+            editVarientParameterData?.emiFrequency ||
+            findOption(emiFrequencies, variantDetail.VariantProductParameter.emiFrequency, 'id') ||
+            null,
+
+        penalInterestRate: editVarientParameterData?.penalInterestRate || variantDetail.VariantProductParameter.penalInterestRate || '',
+        penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail.VariantProductParameter.penalInterestConditions || '',
+
+        minimumAge: editVarientParameterData?.minimumAge || variantDetail.VariantProductParameter.minAge || '',
+        maximumAge: editVarientParameterData?.maximumAge || variantDetail.VariantProductParameter.maxAge || '',
+
+        penalInterestRateApplicable:
+            editVarientParameterData?.penalInterestRateApplicable ??
+            (variantDetail.VariantProductParameter.penalInterestApplicable ? 'yes' : 'no'),
+    } : {
+        minimumLoanAmount: '',
+        maximumLoanAmount: '',
+        minTenureMonths: '',
+        maxTenureMonths: '',
+        interestRateType: null,
+        interestRateMin: '',
+        interestRateMax: '',
+        processingFeeType: null,
+        processingFeeValue: '',
+        latePaymentFeeType: null,
+        latePaymentFeeValue: '',
+        prepaymentFeeType: null,
+        prepaymentFeeValue: '',
+        emiFrequency: null,
+        penalInterestRate: '',
+        penalInterestConditions: '',
+        minimumAge: '',
+        maximumAge: '',
+        penalInterestRateApplicable: '',
+    };
+
 
     const methods = useForm({
         resolver: yupResolver(VariantSchema),
@@ -89,14 +155,30 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
     const {
         control,
         handleSubmit,
+        reset,
+        watch,
         formState: { errors },
     } = methods;
 
+    console.log(watch());
+    
+
+    useEffect(() => {
+        if (variantDetail || editVarientParameterData) {
+            reset(defaultValues)
+        }
+    }, [variantDetail, editVarientParameterData])
+
     const onSubmit = (data) => {
-        dispatch(submitVariantProductParameter(data, () => {
-            setTabIndex((prev) => prev + 1);
-        }));
-    };
+        if (mode === "EDIT") {
+            dispatch(setEditVarientParameterData(data))
+            setTabIndex((prev) => Math.min(prev + 1, 9));
+        } else {
+            dispatch(submitVariantProductParameter(data, () => {
+                setTabIndex((prev) => Math.min(prev + 1, 9));
+            }));
+        }
+    }
 
     const onError = (e) => {
         console.log(e);

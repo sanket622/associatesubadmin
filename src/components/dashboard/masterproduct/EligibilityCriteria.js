@@ -1,7 +1,7 @@
 import { Box, Button, Grid } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEmploymentTypes, fetchDocuments, submitEligibilityCriteria } from '../../../redux/masterproduct/eligibilitycriteria/employmentTypesSlice';
+import { fetchEmploymentTypes, fetchDocuments, submitEligibilityCriteria,setEditEligibilityData } from '../../../redux/masterproduct/eligibilitycriteria/employmentTypesSlice';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
@@ -91,10 +91,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
             })) || [],
 
         blacklistFlags:
-            editEligibilityData?.blacklistFlags?.map(flag => ({
-                id: flag,
-                name: blacklistFlagOptions.find(opt => opt.id === flag)?.name || flag
-            })) ||
+            editEligibilityData?.blacklistFlags ||
             productDetails?.eligibilityCriteria?.blacklistFlags?.map(flag => ({
                 id: flag,
                 name: blacklistFlagOptions.find(opt => opt.id === flag)?.name || flag
@@ -164,7 +161,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
 
     const onSubmit = (data) => {
         if (mode === "EDIT") {
-            dispatch(editEligibilityData(data))
+            dispatch(setEditEligibilityData(data))
             setTabIndex((prev) => Math.min(prev + 1, 9));
         } else {
             dispatch(submitEligibilityCriteria(data, () => {

@@ -6,6 +6,7 @@ const initialState = {
     loading: false,
     error: null,
     data: null,
+    editVarientParameterData: null,
 };
 
 const variantProductParameterSubmitSlice = createSlice({
@@ -29,6 +30,9 @@ const variantProductParameterSubmitSlice = createSlice({
             state.error = null;
             state.data = null;
         },
+        setEditVarientParameterData(state, action) {
+            state.editVarientParameterData = action.payload
+        },
     },
 });
 
@@ -37,6 +41,7 @@ export const {
     submitSuccess,
     submitFailure,
     clearSubmitState,
+    setEditVarientParameterData,
 } = variantProductParameterSubmitSlice.actions;
 
 export const submitVariantProductParameter = (formData, callback) => async (dispatch) => {
