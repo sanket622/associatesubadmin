@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../redux/auth/authSlice";
+import { loginUser } from "../auth/redux/auth/authSlice";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import logo from '../../assets/earnlogo.png';
 import backgroundimg from './1.png';
 import { Button, IconButton, InputAdornment } from "@mui/material";
 import { useSnackbar } from 'notistack';
-import TextFieldComponent from "../subcompotents/TextFieldComponent";
+import RHFTextField from "../subcompotents/RHFTextField";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import FormProvider from "../subcompotents/FormProvider";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -27,14 +28,18 @@ const Login = () => {
   const auth = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
+
+  const methods = useForm({
+    resolver: yupResolver(schema),
+
+  });
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onChange",
-  });
+    reset,
+    watch,
+  } = methods
 
   useEffect(() => {
     if (auth?.accessToken) {
@@ -48,9 +53,11 @@ const Login = () => {
     localStorage.removeItem("userId");
   }, []);
 
+  const onError = (e) => console.log(e)
+
   const onSubmit = async (data) => {
     const result = await dispatch(loginUser(data.email, data.password));
-  
+
     if (result?.success === true) {
       enqueueSnackbar("Login successful!", {
         variant: "success",
@@ -64,7 +71,7 @@ const Login = () => {
       });
     }
   };
-  
+
   return (
     <div
       className="flex items-center justify-center bg-cover bg-center"
@@ -97,85 +104,50 @@ const Login = () => {
             & Password
           </h1>
 
-          <form
-            className="grid grid-cols-1 gap-4 mt-10"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
             {/* Email */}
             <div>
               <label className="block font-medium mb-1">Email ID</label>
-              <Controller
+              <RHFTextField
                 name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextFieldComponent
-                    placeholder="Enter Your Email ID"
-                    {...field}
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                  />
-                )}
+                placeholder="Enter Your Email ID"
+                type="email"
               />
+
             </div>
 
             {/* Password */}
             <div>
               <label className="block font-medium mb-1">Password</label>
-              <Controller
+              <RHFTextField
                 name="password"
-                control={control}
-                render={({ field }) => (
-                  <TextFieldComponent
-                    placeholder="Enter Your Password"
-                    {...field}
-                    type={showPassword ? "text" : "password"}
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? (
-                              <AiOutlineEyeInvisible />
-                            ) : (
-                              <AiOutlineEye />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                )}
+                placeholder="Enter Your Password"
+                type={showPassword ? "text" : "password"}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <AiOutlineEyeInvisible />
+                        ) : (
+                          <AiOutlineEye />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
+
             </div>
 
             {/* Submit */}
             <div className="flex justify-center mt-4">
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                disabled={auth.loading}
-                sx={{
-                  background: "#0000FF",
-                  color: "white",
-                  px: 12,
-                  py: 1,
-                  borderRadius: 2,
-                  fontSize: "16px",
-                  fontWeight: 500,
-                  textTransform: "none",
-                  "&:hover": { background: "#0000FF" },
-                }}
-              >
-                {auth.loading ? "Logging In..." : "Log In"}
-              </Button>
+              <Button fullWidth type="submit" variant="contained" disabled={auth.loading} sx={{ background: "#0000FF", color: "white", px: 12, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}>{auth.loading ? "Logging In..." : "Log In"}</Button>
             </div>
-          </form>
+          </FormProvider>
         </div>
       </div>
     </div>

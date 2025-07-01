@@ -13,6 +13,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import ArchiveDialog from './ArchiveDialog';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 
 
 const VarientTable = () => {
@@ -42,7 +43,15 @@ const VarientTable = () => {
     return (
         <>
             <div className="p-6">
-                <h1 className="text-[24px] font-semibold mb-4">Variant List</h1>
+                <h1 className="text-[24px] font-semibold mb-2">Variant List</h1>
+                <div className="p-2 flex justify-end items-center">
+                    <div className="mb-2 flex gap-4">
+                        <Button  startIcon={<AddIcon />} sx={{ background: "#0000FF", color: "white", px: 4, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} onClick={() => navigate('/createvarient')}>
+                            Create varient
+                        </Button>
+
+                    </div>
+                </div>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                     <TableContainer component={Paper}
                         sx={{

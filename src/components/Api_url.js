@@ -11,9 +11,6 @@ export const AddEmployeeByEmployerView = `${BASE_URL}AddEmployeeByEmployerView`;
 export const BulkEmployeeAdd = `${BASE_URL}BulkEmployeeAdd`;
 export const GetHomeScreenKPI = `${BASE_URL}GetHomeScreenKPI`;
 
-
-
-
 // #########fpo urls############
 
 
@@ -28,7 +25,7 @@ export const useApis = () => {
         const accessToken = localStorage.getItem('access_token');
 
         if (!accessToken) {
-            navigate('/login'); // Navigate if there's no token
+            navigate('/login');
             return;
         }
 

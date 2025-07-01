@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../redux/auth/authSlice';
+import authReducer from '../components/auth/redux/auth/authSlice';
 import employeeReducer from './employee/employeeSlice';
 import roleModuleReducer from './managerole/roleModuleSlice';
 import productMetadataReducer from '../redux/masterproduct/productmetadata/productMetadataSlice';
@@ -31,10 +31,12 @@ import timelyRepaymentReducer from './masterproduct/timelyrepayment/timelyRepaym
 import featuresReducer from '../components/dashboard/ERM/redux/varientallocation/featuresSlice';
 import productAllocationReducer from '../components/dashboard/ERM/redux/varientallocation/productAllocationSlice';
 import allocatedProductsReducer from '../components/dashboard/ERM/redux/varientallocation/allocatedProductsSlice';
+import kycReducer from '../components/dashboard/operationmanager/redux/kyc/kycSlice';
 
 
 export const store = configureStore({
     reducer: {
+        
         auth: authReducer,
         employee: employeeReducer,
         roleModule: roleModuleReducer,
@@ -67,5 +69,11 @@ export const store = configureStore({
         features: featuresReducer,
         productAllocation: productAllocationReducer,
         allocatedProducts: allocatedProductsReducer,
+
+        // ++++++++++++ opretation manager +++++++++++++++++
+
+        kyc: kycReducer,
+
+
     },
 });

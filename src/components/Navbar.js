@@ -13,7 +13,7 @@ import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsAc
 import SettingsIcon from '@mui/icons-material/Settings';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
 import { useDispatch } from 'react-redux';
-import { logout } from '../redux/auth/authSlice';
+import { logout } from './auth/redux/auth/authSlice';
 
 
 
