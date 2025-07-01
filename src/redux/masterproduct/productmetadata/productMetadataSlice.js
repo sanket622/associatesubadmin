@@ -71,7 +71,7 @@ export const fetchProductMetadata = () => async (dispatch) => {
       axios.get('https://api.earnplus.net/api/v1/associate/loan/getAllLoanTypes'),
       axios.get('https://api.earnplus.net/api/v1/associate/productCategory/getProductPurposes'),
       axios.get('https://api.earnplus.net/api/v1/associate/partner/getAllProductPartners'),
-      axios.get('https://api.earnplus.net/api/v1/associate/location/getStatesByCountry/ed48987d-e371-4a16-a254-0158c9f241b2')
+      axios.get('https://api.earnplus.net/api/v1/associate/location/getStatesByCountry/ad445591-3574-4a07-9b81-09ffedcc1bb6')
     ]);
 
     dispatch(setProductCategories(productCategoriesRes.data.data));

@@ -6,7 +6,8 @@ const initialState = {
     loading: false,
     error: null,
     data: null,
-    editCollateralGuranteeData: null
+    editCollateralGuranteeData: null,
+    ownershipDocs: [],
 };
 
 const collateralSubmitSlice = createSlice({
@@ -30,6 +31,19 @@ const collateralSubmitSlice = createSlice({
             state.error = null;
             state.data = null;
         },
+        fetchOwnershipDocsStart(state) {
+            state.loading = true;
+            state.error = null;
+        },
+        fetchOwnershipDocsSuccess(state, action) {
+            state.loading = false;
+            state.ownershipDocs = action.payload;
+        },
+        fetchOwnershipDocsFailure(state, action) {
+            state.loading = false;
+            state.error = action.payload;
+        },
+
         setEditCollateralGuranteeData(state, action) {
             state.editCollateralGuranteeData = action.payload
         }
@@ -42,7 +56,11 @@ export const {
     submitFailure,
     clearState,
     setEditCollateralGuranteeData,
+    fetchOwnershipDocsStart,
+    fetchOwnershipDocsSuccess,
+    fetchOwnershipDocsFailure
 } = collateralSubmitSlice.actions;
+
 
 export const submitCollateralData = (formData, callback) => async (dispatch) => {
     dispatch(submitStart());
@@ -94,5 +112,30 @@ export const submitCollateralData = (formData, callback) => async (dispatch) => 
         dispatch(submitFailure(message));
     }
 };
+
+export const fetchOwnershipDocs = () => async (dispatch) => {
+    dispatch(fetchOwnershipDocsStart());
+
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+
+        const response = await axios.get(
+            'https://api.earnplus.net/api/v1/associate/ownership/getAllOwnershipDocuments',
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            }
+        );
+
+        const docs = response.data?.data || [];
+        dispatch(fetchOwnershipDocsSuccess(docs));
+    } catch (error) {
+        console.error(error);
+        const message = error.response?.data?.message || 'Failed to fetch ownership documents';
+        dispatch(fetchOwnershipDocsFailure(message));
+    }
+};
+
 
 export default collateralSubmitSlice.reducer;

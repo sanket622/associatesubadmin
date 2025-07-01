@@ -14,38 +14,42 @@ import { useLocation } from 'react-router';
 export const interestRateOptions = [
     { id: 'FLAT', name: 'Flat' },
     { id: 'REDUCING', name: 'Reducing Balance' },
-    { id: 'HYBRID', name: 'Hybrid' },
+    { id: ' ZERO', name: 'Zero' },
+    { id: ' CUSTOM', name: 'Custom' },
+    // { id: 'HYBRID', name: 'Hybrid' },
 ];
 
 export const processingFeeTypeOptions = [
-    { id: 'RUPEE', name: 'Rupee' },
+    { id: 'FLAT', name: 'Flat' },
     { id: 'PERCENTAGE', name: 'Percentage' },
+    { id: 'NONE', name: 'None' }
 ];
 
 export const latePaymentFeeTypeOptions = [
-    { id: 'FIXED', name: 'Fixed' },
-    { id: 'PERCENTAGE_PER_DAY', name: 'Percentage Per Day' },
+    { id: 'FLAT', name: 'Flat' },
+    { id: 'PERCENTAGE', name: 'Percentage' },
+    { id: 'NONE', name: 'None' }
 ];
 
 export const prepaymentFeeTypeOptions = [
-    { id: 'RUPEE', name: 'Rupee' },
+    { id: 'FLAT', name: 'Flat' },
     { id: 'PERCENTAGE', name: 'Percentage' },
-    { id: 'NONE', name: 'None' },
+    { id: 'NONE', name: 'None' }
 ];
 
-export const disbursementModeOptions = [
-    { id: 'NEFT', name: 'Neft' },
-    { id: 'IMPS', name: 'Imps' },
-    { id: 'UPI', name: 'Upi' },
-];
+// export const disbursementModeOptions = [
+//     { id: 'NEFT', name: 'Neft' },
+//     { id: 'IMPS', name: 'Imps' },
+//     { id: 'UPI', name: 'Upi' },
+// ];
 
-export const repaymentModeOptions = [
-    { id: 'LIEN', name: 'Lien' },
-    { id: 'ENACH', name: 'Enach' },
-    { id: 'SELFPAY', name: 'Selfpay' },
-    { id: 'EMI', name: 'Emi' },
-    { id: 'BNPL', name: 'Bnpl' },
-];
+// export const repaymentModeOptions = [
+//     { id: 'LIEN', name: 'Lien' },
+//     { id: 'ENACH', name: 'Enach' },
+//     { id: 'SELFPAY', name: 'Selfpay' },
+//     { id: 'EMI', name: 'Emi' },
+//     { id: 'BNPL', name: 'Bnpl' },
+// ];
 
 export const emiFrequencyOptions = [
     { id: 'Daily', name: 'Daily' },
@@ -55,12 +59,12 @@ export const emiFrequencyOptions = [
     { id: 'Custom', name: 'Custom' },
 ];
 
-export const tenureUnitOptions = [
-    { id: 'Days', name: 'Days' },
-    { id: 'Weeks', name: 'Weeks' },
-    { id: 'Months', name: 'Months' },
-    { id: 'PayoutLinked', name: 'Payoutlinked' },
-];
+// export const tenureUnitOptions = [
+//     { id: 'Days', name: 'Days' },
+//     { id: 'Weeks', name: 'Weeks' },
+//     { id: 'Months', name: 'Months' },
+//     { id: 'PayoutLinked', name: 'Payoutlinked' },
+// ];
 
 const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, handleNext }) => {
     const dispatch = useDispatch();

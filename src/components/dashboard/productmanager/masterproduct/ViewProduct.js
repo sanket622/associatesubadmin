@@ -68,9 +68,15 @@ const ViewProduct = () => {
     behavioralData,
     riskScoring,
     Collateral,
+    masterProductOtherCharges,  // <--- Add this
+    masterProductRepayment,       // <--- Add this
+    financialTerms,
   } = productDetails;
 
+
+
   return (
+
     <Box p={{ xs: 1, md: 2 }} maxWidth={1000}>
       <Paper elevation={3} sx={{ borderRadius: 3, p: 3 }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -92,6 +98,27 @@ const ViewProduct = () => {
             { label: 'Segment Type', value: MasterProductSegment?.[0]?.productSegment?.name },
             { label: 'Purpose Category', value: MasterProductPurpose?.[0]?.productPurpose?.purpose },
             { label: 'Partner', value: productPartner?.name },
+          ]}
+        />
+
+        <Section
+          title="Financial Terms"
+          fields={[
+            { label: 'Min Loan Amount', value: financialTerms?.minLoanAmount },
+            { label: 'Max Loan Amount', value: financialTerms?.maxLoanAmount },
+            { label: 'Min Tenure (months)', value: financialTerms?.minTenureMonths },
+            { label: 'Max Tenure (months)', value: financialTerms?.maxTenureMonths },
+            { label: 'Interest Rate Type', value: financialTerms?.interestRateType },
+            { label: 'Interest Rate Min (%)', value: financialTerms?.interestRateMin },
+            { label: 'Interest Rate Max (%)', value: financialTerms?.interestRateMax },
+            { label: 'Processing Fee Type', value: financialTerms?.processingFeeType },
+            { label: 'Processing Fee Value', value: financialTerms?.processingFeeValue },
+            { label: 'Late Payment Fee Type', value: financialTerms?.latePaymentFeeType },
+            { label: 'Late Payment Fee Value', value: financialTerms?.latePaymentFeeValue },
+            { label: 'Prepayment Allowed', value: financialTerms?.prepaymentAllowed ? 'Yes' : 'No' },
+            { label: 'Prepayment Fee Type', value: financialTerms?.prepaymentFeeType },
+            { label: 'Prepayment Fee Value', value: financialTerms?.prepaymentFeeValue },
+            { label: 'EMI Frequency', value: financialTerms?.emiFrequency },
           ]}
         />
 
@@ -154,12 +181,43 @@ const ViewProduct = () => {
           fields={[
             { label: 'Collateral Type', value: Collateral?.collateralType },
             { label: 'Collateral Value', value: Collateral?.collateralValue },
+            { label: 'Collateral Valuation Date', value: Collateral?.collateralValuationDate ? new Date(Collateral.collateralValuationDate).toLocaleDateString() : 'N/A' },
             { label: 'Collateral Owner', value: Collateral?.collateralOwnerName },
+            { label: 'Guarantor Required', value: Collateral?.guarantorRequired ? 'Yes' : 'No' },
             { label: 'Guarantor Name', value: Collateral?.guarantorName },
+            { label: 'Guarantor Relationship', value: Collateral?.guarantorRelationship },
             { label: 'Guarantor PAN', value: Collateral?.guarantorPAN },
+            { label: 'Guarantor Credit Bureau', value: Collateral?.guarantorCreditBureau },
             { label: 'Guarantor Credit Score', value: Collateral?.guarantorCreditScore },
+            { label: 'Guarantor Monthly Income', value: Collateral?.guarantorMonthlyIncome },
+            { label: 'Guarantor Income Proof Types', value: Collateral?.guarantorIncomeProofTypes?.join(', ') },
+            { label: 'Guarantor Verification Status', value: Collateral?.guarantorVerificationStatus },
+            // You can also add more like collateralDocs count or IDs
+            { label: 'Number of Collateral Documents', value: Collateral?.collateralDocs?.length },
           ]}
         />
+
+        <Section title="Other Charges" fields={[
+          { label: 'Cheque Bounce Charge', value: masterProductOtherCharges?.chequeBounceCharge },
+          { label: 'Duplicate NOC Charge', value: masterProductOtherCharges?.dublicateNocCharge },
+          { label: 'Furnishing Charge', value: masterProductOtherCharges?.furnishingCharge },
+          { label: 'Cheque Swap Charge', value: masterProductOtherCharges?.chequeSwapCharge },
+          { label: 'Revocation', value: masterProductOtherCharges?.revocation },
+          { label: 'Document Copy Charge', value: masterProductOtherCharges?.documentCopyCharge },
+          { label: 'Stamp Duty Charge', value: masterProductOtherCharges?.stampDutyCharge },
+          { label: 'NOC Charge', value: masterProductOtherCharges?.nocCharge },
+          { label: 'Incidental Charge', value: masterProductOtherCharges?.incidentalCharge },
+        ]} />
+
+        <Section title="Repayment Details" fields={[
+          { label: 'Penal Interest Applicable', value: masterProductRepayment?.penalInterestApplicable ? 'Yes' : 'No' },
+          { label: 'Incentive Type', value: masterProductRepayment?.incentiveType },
+          { label: 'Incentive Value', value: masterProductRepayment?.incentiveValue },
+          { label: 'Payout Mode', value: masterProductRepayment?.payoutMode },
+          { label: 'Incentive Reversal Conditions', value: masterProductRepayment?.incentiveReversalConditions },
+        ]} />
+
+
       </Paper>
     </Box>
   );

@@ -17,7 +17,7 @@ import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import FormProvider from '../../../subcompotents/FormProvider';
 import Label from '../../../subcompotents/Label';
 import { useDispatch, useSelector } from 'react-redux';
-import { setEditCollateralGuranteeData, submitCollateralData } from '../../../../redux/masterproduct/colateralandgurantee/collateralSubmitSlice';
+import { fetchOwnershipDocs, setEditCollateralGuranteeData, submitCollateralData } from '../../../../redux/masterproduct/colateralandgurantee/collateralSubmitSlice';
 import { useLocation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -74,7 +74,7 @@ const schema = yup.object().shape({
     collateralType: yup.object().nullable().required('Collateral Type is required'),
     collateralValue: yup.string().required('Collateral Value is required'),
     collateralValuationDate: yup.string().required('Collateral Valuation Date is required'),
-    collateralOwnershipDocs: yup.string().required('Ownership Docs are required'),
+    // collateralOwnershipDocs: yup.string().required('Ownership Docs are required'),
     collateralOwnerName: yup.string().required('Owner Name is required'),
     ownershipVerified: yup.object().nullable().required('Ownership Verified is required'),
     guarantorRequired: yup.object().nullable().required('Guarantor requirement is required'),
@@ -96,8 +96,13 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
 
     const productDetails = useSelector((state) => state.products.productDetails);
     const editCollateralGuranteeData = useSelector((state) => state.collateralsubmit.editCollateralGuranteeData);
+    const ownershipDocsOptions = useSelector((state) => state.collateralsubmit.ownershipDocs || []);
 
-    
+    useEffect(() => {
+        dispatch(fetchOwnershipDocs());
+    }, [dispatch]);
+
+
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         // Collateral Type (must match object from collateralTypeOptions)
@@ -117,7 +122,12 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
 
         // Collateral Ownership Docs - fallback to empty string if not in API
         collateralOwnershipDocs:
-            editCollateralGuranteeData?.collateralOwnershipDocs ?? '',
+            (editCollateralGuranteeData?.collateralOwnershipDocs && Array.isArray(editCollateralGuranteeData.collateralOwnershipDocs))
+                ? editCollateralGuranteeData.collateralOwnershipDocs
+                : (productDetails?.Collateral?.collateralDocs || []).map(docId =>
+                    ownershipDocsOptions.find(opt => opt.id === docId)
+                ) || [],
+
 
         // Collateral Owner Name
         collateralOwnerName:
@@ -190,7 +200,9 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
                     opt.id === editCollateralGuranteeData?.guarantorVerificationStatus ||
                     opt.id === productDetails?.Collateral?.guarantorVerificationStatus
             ) || null,
-    } : {}
+    } : {
+        collateralOwnershipDocs: [],
+    }
 
     const methods = useForm({
         resolver: yupResolver(schema),
@@ -245,7 +257,8 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="collateralOwnershipDocs">Collateral Ownership Docs</Label>
-                    <RHFTextField name="collateralOwnershipDocs" />
+                    <RHFAutocomplete name="collateralOwnershipDocs" options={ownershipDocsOptions || []} getOptionLabel={option => option?.name || ''} isOptionEqualToValue={(option, value) => option?.id === value?.id} multiple />
+
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="collateralOwnerName">Collateral Owner Name</Label>

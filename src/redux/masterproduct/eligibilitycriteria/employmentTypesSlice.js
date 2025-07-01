@@ -1,6 +1,7 @@
 // store/slices/employmentTypesSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { enqueueSnackbar } from 'notistack';
 
 const initialState = {
   employmentTypes: [],
@@ -8,7 +9,7 @@ const initialState = {
   loading: false,
   error: null,
   eligibilityCriteriaSubmission: null,
-  editEligibilityData:null
+  editEligibilityData: null
 };
 
 const employmentTypesSlice = createSlice({
@@ -44,7 +45,7 @@ const employmentTypesSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    setEditEligibilityData: (state, action) => {     
+    setEditEligibilityData: (state, action) => {
       state.editEligibilityData = action.payload;
     },
   },
@@ -146,15 +147,14 @@ export const submitEligibilityCriteria = (data, callback) => async (dispatch) =>
     );
 
     if (response.data.success) {
+      enqueueSnackbar('Eligibility Criteria successfully!', { variant: 'success' });
       dispatch(eligibilityCriteriaSubmitSuccess(response.data));
       if (typeof callback === 'function') {
         callback(); // Proceed to next tab or perform other success logic
       }
     } else {
-      dispatch(
-        eligibilityCriteriaSubmitFailure(
-          response.data.message || 'Failed to submit eligibility criteria'
-        )
+      enqueueSnackbar('Failed to submit', { variant: 'success' });
+      dispatch(eligibilityCriteriaSubmitFailure(response.data.message || 'Failed to submit eligibility criteria')
       );
     }
   } catch (error) {

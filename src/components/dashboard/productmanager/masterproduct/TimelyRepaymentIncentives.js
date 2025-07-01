@@ -96,7 +96,8 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
 
     const { control, watch, handleSubmit } = methods;
     const penalInterestApplicable = watch('penalInterestApplicable');
-    console.log(editCollateralGuranteeData.collateralOwnershipDocs);
+    console.log(editCollateralGuranteeData?.collateralOwnershipDocs);
+
 
 
     const onSubmit = (data,) => {
@@ -207,8 +208,9 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
                     collateralType: editCollateralGuranteeData.collateralType?.id || null,
                     collateralValue: Number(editCollateralGuranteeData.collateralValue),
                     collateralValuationDate: editCollateralGuranteeData.collateralValuationDate,
-                    documentIds: editCollateralGuranteeData.collateralOwnershipDocs ?
-                        [editCollateralGuranteeData.collateralOwnershipDocs] : [],
+                    documentIds: editCollateralGuranteeData?.collateralOwnershipDocs
+                        ? [editCollateralGuranteeData.collateralOwnershipDocs]
+                        : [],
                     collateralOwnerName: editCollateralGuranteeData.collateralOwnerName,
                     ownershipVerified: editCollateralGuranteeData.ownershipVerified?.id || null,
                     guarantorRequired: editCollateralGuranteeData.guarantorRequired?.id === 'TRUE',
@@ -249,7 +251,6 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
     }
 
     const onError = err => console.log('Validation errors', err);
-
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
