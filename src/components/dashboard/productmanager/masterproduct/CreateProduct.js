@@ -33,10 +33,10 @@ const CreateProduct = () => {
     const { productId } = useParams()
     const dispatch = useDispatch()
     const location = useLocation()
-
-    const mode = location?.state?.mode
+     const mode = location.state?.mode || null;
+    const isEditMode = mode === 'EDIT';
+   
     const [tabIndex, setTabIndex] = React.useState(0);
-
 
     const handleTabChange = (_, newValue) => setTabIndex(newValue);
 
@@ -56,7 +56,7 @@ const CreateProduct = () => {
                         <path d="M1.38672 8.33179L13.0001 14.9985L24.6134 8.33179" stroke="#0000FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         <path d="M7 4.69189L19 11.5586" stroke="#0000FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    Create Product
+                    {isEditMode ? 'Edit Product' : 'Create Product'}
                 </h1>
 
                 <Box sx={{ width: '100%' }}>
@@ -72,7 +72,7 @@ const CreateProduct = () => {
                         <Tab label="Risk & Scoring Inputs" />
                         <Tab label="Collateral & Guarantee Data" />
                         <Tab label="Other Charges" />
-                         <Tab label="Timely Repayment Incentives" />
+                        <Tab label="Timely Repayment Incentives" />
                     </Tabs>
                     <Box mt={3}>
                         {tabIndex === 0 && <GeneralProductMetadata handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}

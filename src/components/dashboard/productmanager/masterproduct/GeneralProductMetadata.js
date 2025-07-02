@@ -23,8 +23,7 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
     const dispatch = useDispatch();
 
     const productDetails = useSelector((state) => state.products.productDetails);
-    const editGeneralProductMetaData = useSelector((state) => state.createProduct.editGeneralProductMetaData);
-
+    const editGeneralProductMetaData = useSelector((state) => state?.createProduct?.editGeneralProductMetaData);
     const generalProductValidationSchema = yup.object().shape({
         productName: yup.string().required('Product Name is required'),
         productDescription: yup.string().required('Product Description is required'),

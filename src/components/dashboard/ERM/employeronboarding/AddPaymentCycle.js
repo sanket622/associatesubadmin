@@ -50,7 +50,7 @@ export default function AddPaymentCycle() {
     });
 
     const { handleSubmit } = methods;
-
+    
     const onSubmit = (data) => {
         const contractTypeId = data.contractType?.value;
 

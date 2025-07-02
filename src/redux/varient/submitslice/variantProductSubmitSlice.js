@@ -76,7 +76,7 @@ export const submitVariantProduct = (formData, callback) => async (dispatch) => 
     const variantId = response?.data?.data?.id;
     localStorage.setItem('createdVariantId', variantId);
 
-    enqueueSnackbar('Submitted successfully!', { variant: 'success' });
+    enqueueSnackbar('Basic information submitted successfully!', { variant: 'success' });
     dispatch(submitSuccess(response.data));
 
     if (typeof callback === 'function') callback();

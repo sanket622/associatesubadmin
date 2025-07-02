@@ -66,7 +66,6 @@ const PaymentCycleList = () => {
         );
     };
 
-
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -76,8 +75,9 @@ const PaymentCycleList = () => {
                     onClick={() => {
                         const firstId = contractCombinations?.[0]?.id;
                         if (firstId) navigate(`/add-payment-cycle/${employerId}/${firstId}`);
-                    }}
-                >Add Payment Cycle</Button>
+                    }} >
+                    Add Payment Cycle
+                </Button>
             </div>
 
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">

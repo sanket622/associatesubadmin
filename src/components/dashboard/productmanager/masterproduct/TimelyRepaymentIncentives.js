@@ -32,16 +32,18 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
     const location = useLocation()
     const mode = location?.state?.mode
 
-    const productDetails = useSelector((state) => state.products.productDetails);
+    const productDetails = useSelector((state) => state?.products?.productDetails);
 
-    const editGeneralProductMetaData = useSelector((state) => state.createProduct.editGeneralProductMetaData);
-    const editProductparameter = useSelector((state) => state.financialTerms?.editProductparameter);
-    const editBehavioralData = useSelector((state) => state.behavioralData.editBehavioralData);
-    const editCollateralGuranteeData = useSelector((state) => state.collateralsubmit.editCollateralGuranteeData);
-    const editCreditBureauData = useSelector((state) => state.creditBureauConfig.editCreditBureauData);
-    const editEligibilityData = useSelector((state) => state.employmentTypes.editEligibilityData);
-    const editFinancialData = useSelector((state) => state.financialStatement.editFinancialData);
-    const editRiskScoringData = useSelector((state) => state.riskSubmit.editRiskScoringData);
+    const editGeneralProductMetaData = useSelector((state) => state?.createProduct?.editGeneralProductMetaData);
+    const editProductparameter = useSelector((state) => state?.financialTerms?.editProductparameter);
+    const editBehavioralData = useSelector((state) => state?.behavioralData?.editBehavioralData);
+    const editCollateralGuranteeData = useSelector((state) => state?.collateralsubmit?.editCollateralGuranteeData);
+    const editCreditBureauData = useSelector((state) => state?.creditBureauConfig?.editCreditBureauData);
+    const editEligibilityData = useSelector((state) => state?.employmentTypes?.editEligibilityData);
+    const editFinancialData = useSelector((state) => state?.financialStatement?.editFinancialData);
+    const editRiskScoringData = useSelector((state) => state?.riskSubmit?.editRiskScoringData);
+    const editOtherChargesData = useSelector((state) => state?.otherCharges?.editOtherChargesData);
+    const editTimelyRepaaymentData = useSelector((state) => state?.timelyRepayment?.editTimelyRepaaymentData);
 
     const timelyRepaymentSchema = Yup.object().shape({
         penalInterestApplicable: Yup.string().oneOf(['yes', 'no']).required(),
@@ -76,11 +78,19 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
         }),
     });
 
-    const timelyRepaymentDefaultValues = {
+    const masterProductRepayment = productDetails?.masterProductRepayment;
+
+    const timelyRepaymentDefaultValues = (productDetails && mode === "EDIT") ? {
+        penalInterestApplicable: editTimelyRepaaymentData?.penalInterestApplicable ?? (masterProductRepayment?.penalInterestApplicable ? 'yes' : 'no') ?? 'no',
+        incentiveType: dummyOptions.find(opt => opt.id === (editTimelyRepaaymentData?.incentiveType ?? masterProductRepayment?.incentiveType)) ?? null,
+        incentiveValue: editTimelyRepaaymentData?.incentiveValue ?? masterProductRepayment?.incentiveValue ?? 0,
+        payoutMode: dummyOptions.find(opt => opt.id === (editTimelyRepaaymentData?.payoutMode ?? masterProductRepayment?.payoutMode)) ?? null,
+        payoutTimeline: editTimelyRepaaymentData?.payoutTimeline ?? masterProductRepayment?.payoutTimeline ?? '',
+        incentiveReversalConditions: editTimelyRepaaymentData?.incentiveReversalConditions ?? masterProductRepayment?.incentiveReversalConditions ?? '',
+    } : {
         penalInterestApplicable: 'no',
         incentiveType: null,
         incentiveValue: 0,
-        eligibilityCriteria: null,
         payoutMode: null,
         payoutTimeline: '',
         incentiveReversalConditions: '',
@@ -98,154 +108,154 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
     const penalInterestApplicable = watch('penalInterestApplicable');
     console.log(editCollateralGuranteeData?.collateralOwnershipDocs);
 
-
-
     const onSubmit = (data,) => {
         if (mode === "EDIT") {
             const payload = {
                 masterProductId: localStorage.getItem('createdProductId'),
-                productName: editGeneralProductMetaData.productName,
-                productDescription: editGeneralProductMetaData.productDescription,
-                productCode: editGeneralProductMetaData.productCode,
-                productCategoryId: editGeneralProductMetaData.subLoanType?.id,
-                loanTypeId: editGeneralProductMetaData.loanType?.id,
-                deliveryChannel: editGeneralProductMetaData.businessSegment?.[0]?.id || '',
-                partnerId: editGeneralProductMetaData.productType?.id,
-                status: editGeneralProductMetaData.status?.id,
-                purposeIds: editGeneralProductMetaData.partnerCode?.map(item => item.id),
-                segmentIds: editGeneralProductMetaData.segmentType?.map(item => item.id),
+                productName: editGeneralProductMetaData?.productName,
+                productDescription: editGeneralProductMetaData?.productDescription,
+                productCode: editGeneralProductMetaData?.productCode,
+                productCategoryId: editGeneralProductMetaData?.subLoanType?.id,
+                loanTypeId: editGeneralProductMetaData?.loanType?.id,
+                deliveryChannel: editGeneralProductMetaData?.businessSegment?.[0]?.id || '',
+                partnerId: editGeneralProductMetaData?.productType?.id,
+                status: editGeneralProductMetaData?.status?.id,
+                purposeIds: editGeneralProductMetaData?.partnerCode?.map(item => item.id),
+                segmentIds: editGeneralProductMetaData?.segmentType?.map(item => item.id),
 
                 financialTermsUpdate: {
-                    minLoanAmount: Number(editProductparameter.minLoanAmount),
-                    maxLoanAmount: Number(editProductparameter.maxLoanAmount),
-                    minTenureMonths: Number(editProductparameter.minTenureMonths),
-                    maxTenureMonths: Number(editProductparameter.maxTenureMonths),
-                    interestRateType: editProductparameter.interestRateType?.id,
-                    interestRateMin: Number(editProductparameter.interestMin),
-                    interestRateMax: Number(editProductparameter.interestMax),
-                    processingFeeType: editProductparameter.processingFeeType?.id,
-                    processingFeeValue: Number(editProductparameter.processingFeeValue),
-                    latePaymentFeeType: editProductparameter.latePaymentFeeType?.id,
-                    latePaymentFeeValue: Number(editProductparameter.latePaymentFeeValue),
-                    prepaymentAllowed: editProductparameter.prepaymentRulesAllowed === 'yes',
-                    prepaymentFeeType: editProductparameter.prepaymentFeeType?.id,
-                    prepaymentFeeValue: Number(editProductparameter.prepaymentFeeValue),
-                    emiFrequency: editProductparameter.emiFrequency?.id,
-                    disbursementModeIds: editProductparameter.disbursementMode ? [editProductparameter.disbursementMode.id] : [],
-                    repaymentModeIds: editProductparameter.repaymentMode ? [editProductparameter.repaymentMode.id] : [],
+                    minLoanAmount: Number(editProductparameter?.minLoanAmount),
+                    maxLoanAmount: Number(editProductparameter?.maxLoanAmount),
+                    minTenureMonths: Number(editProductparameter?.minTenureMonths),
+                    maxTenureMonths: Number(editProductparameter?.maxTenureMonths),
+                    interestRateType: editProductparameter?.interestRateType?.id,
+                    interestRateMin: Number(editProductparameter?.interestMin),
+                    interestRateMax: Number(editProductparameter?.interestMax),
+                    processingFeeType: editProductparameter?.processingFeeType?.id,
+                    processingFeeValue: Number(editProductparameter?.processingFeeValue),
+                    latePaymentFeeType: editProductparameter?.latePaymentFeeType?.id,
+                    latePaymentFeeValue: Number(editProductparameter?.latePaymentFeeValue),
+                    prepaymentAllowed: editProductparameter?.prepaymentRulesAllowed === 'yes',
+                    prepaymentFeeType: editProductparameter?.prepaymentFeeType?.id,
+                    prepaymentFeeValue: Number(editProductparameter?.prepaymentFeeValue),
+                    emiFrequency: editProductparameter?.emiFrequency?.id,
+                    disbursementModeIds: editProductparameter?.disbursementMode ? [editProductparameter?.disbursementMode?.id] : [],
+                    repaymentModeIds: editProductparameter?.repaymentMode ? [editProductparameter?.repaymentMode?.id] : [],
                 },
 
                 eligibilityCriteriaUpdate: {
-                    minAge: Number(editEligibilityData.minAge),
-                    maxAge: Number(editEligibilityData.maxAge),
-                    minMonthlyIncome: Number(editEligibilityData.minMonthlyIncome),
-                    minBusinessVintage: Number(editEligibilityData.minBusinessVintage),
-                    employmentIds: Array.isArray(editEligibilityData.employmentTypeAllowed)
-                        ? editEligibilityData.employmentTypeAllowed.map(item => typeof item === 'string' ? item : item.id)
-                        : editEligibilityData.employmentTypeAllowed
-                            ? [typeof editEligibilityData.employmentTypeAllowed === 'string' ? editEligibilityData.employmentTypeAllowed : editEligibilityData.employmentTypeAllowed.id]
+                    minAge: Number(editEligibilityData?.minAge),
+                    maxAge: Number(editEligibilityData?.maxAge),
+                    minMonthlyIncome: Number(editEligibilityData?.minMonthlyIncome),
+                    minBusinessVintage: Number(editEligibilityData?.minBusinessVintage),
+                    employmentIds: Array?.isArray(editEligibilityData?.employmentTypeAllowed)
+                        ? editEligibilityData?.employmentTypeAllowed.map(item => typeof item === 'string' ? item : item.id)
+                        : editEligibilityData?.employmentTypeAllowed
+                            ? [typeof editEligibilityData?.employmentTypeAllowed === 'string' ? editEligibilityData?.employmentTypeAllowed : editEligibilityData?.employmentTypeAllowed?.id]
                             : [],
-                    minBureauScore: Number(editEligibilityData.minBureauScore),
-                    bureauType: typeof editEligibilityData.bureauType === 'string' ? editEligibilityData.bureauType : editEligibilityData.bureauType?.id || '',
-                    blacklistFlags: editEligibilityData.blacklistFlags?.map(doc => doc.id) || [],
-                    documentIds: editEligibilityData.documentList?.map(doc => doc.id) || [],
-                    documentSubmissionModes: editEligibilityData.documentSubmissionMode
-                        ? [typeof editEligibilityData.documentSubmissionMode === 'string' ? editEligibilityData.documentSubmissionMode : editEligibilityData.documentSubmissionMode.id]
+                    minBureauScore: Number(editEligibilityData?.minBureauScore),
+                    bureauType: typeof editEligibilityData?.bureauType === 'string' ? editEligibilityData?.bureauType : editEligibilityData?.bureauType?.id || '',
+                    blacklistFlags: editEligibilityData?.blacklistFlags?.map(doc => doc?.id) || [],
+                    documentIds: editEligibilityData?.documentList?.map(doc => doc?.id) || [],
+                    documentSubmissionModes: editEligibilityData?.documentSubmissionMode
+                        ? [typeof editEligibilityData?.documentSubmissionMode === 'string' ? editEligibilityData?.documentSubmissionMode : editEligibilityData?.documentSubmissionMode?.id]
                         : [],
-                    documentVerificationModes: editEligibilityData.documentVerificationMode
-                        ? [typeof editEligibilityData.documentVerificationMode === 'string' ? editEligibilityData.documentVerificationMode : editEligibilityData.documentVerificationMode.id]
+                    documentVerificationModes: editEligibilityData?.documentVerificationMode
+                        ? [typeof editEligibilityData?.documentVerificationMode === 'string' ? editEligibilityData?.documentVerificationMode : editEligibilityData?.documentVerificationMode?.id]
                         : [],
                 },
 
                 creditBureauConfigUpdate: {
-                    creditBureauSources: Array.isArray(editCreditBureauData.creditBureauSource)
-                        ? editCreditBureauData.creditBureauSource.map(item => item.id || item)
-                        : [editCreditBureauData.creditBureauSource?.id || editCreditBureauData.creditBureauSource],
-                    minScoreRequired: Number(editCreditBureauData.minScoreRequired),
-                    maxActiveLoans: Number(editCreditBureauData.maxActiveLoans),
-                    maxCreditUtilization: Number(editCreditBureauData.maxCreditUtilRatio),
-                    enquiriesLast6Months: Number(editCreditBureauData.enquiriesLast6Months),
-                    loanDelinquencyAllowed: editCreditBureauData.loanDelinquencyAllowed?.id || editCreditBureauData.loanDelinquencyAllowed,
-                    bureauDataFreshnessDays: Number(editCreditBureauData.bureauFreshnessDays),
-                    customBureauFlags: Array.isArray(editCreditBureauData.customBureauFlags)
-                        ? editCreditBureauData.customBureauFlags.map(flag => flag.id || flag)
-                        : [editCreditBureauData.customBureauFlags?.id || editCreditBureauData.customBureauFlags],
-                    scoreDecayTolerance: Number(editCreditBureauData.scoreDecayTolerance),
+                    creditBureauSources: Array?.isArray(editCreditBureauData?.creditBureauSource)
+                        ? editCreditBureauData?.creditBureauSource.map(item => item?.id || item)
+                        : [editCreditBureauData?.creditBureauSource?.id || editCreditBureauData?.creditBureauSource],
+                    minScoreRequired: Number(editCreditBureauData?.minScoreRequired),
+                    maxActiveLoans: Number(editCreditBureauData?.maxActiveLoans),
+                    maxCreditUtilization: Number(editCreditBureauData?.maxCreditUtilRatio),
+                    enquiriesLast6Months: Number(editCreditBureauData?.enquiriesLast6Months),
+                    loanDelinquencyAllowed: editCreditBureauData?.loanDelinquencyAllowed?.id || editCreditBureauData?.loanDelinquencyAllowed,
+                    bureauDataFreshnessDays: Number(editCreditBureauData?.bureauFreshnessDays),
+                    customBureauFlags: Array.isArray(editCreditBureauData?.customBureauFlags)
+                        ? editCreditBureauData?.customBureauFlags?.map(flag => flag?.id || flag)
+                        : [editCreditBureauData?.customBureauFlags?.id || editCreditBureauData?.customBureauFlags],
+                    scoreDecayTolerance: Number(editCreditBureauData?.scoreDecayTolerance),
                 },
 
                 financialStatementsUpdate: {
-                    minMonthlyCredit: Number(editFinancialData.minimumMonthlyCredit),
-                    minAverageBalance: Number(editFinancialData.minimumAverageBalance),
-                    salaryCreditPattern: editFinancialData.salaryPattern?.id,
-                    bouncesLast3Months: Number(editFinancialData.bouncesOrCharges),
-                    netIncomeRecognition: editFinancialData.incomeRecognitionMethod?.id,
-                    cashDepositsCapPercent: Number(editFinancialData.cashDepositsCap),
-                    statementSources: [editFinancialData.statementSource?.id],
-                    accountTypes: [editFinancialData.accountType?.id],
-                    pdfParsingRequired: editFinancialData.pdfParsingOrJsonRequired === 'yes',
+                    minMonthlyCredit: Number(editFinancialData?.minimumMonthlyCredit),
+                    minAverageBalance: Number(editFinancialData?.minimumAverageBalance),
+                    salaryCreditPattern: editFinancialData?.salaryPattern?.id,
+                    bouncesLast3Months: Number(editFinancialData?.bouncesOrCharges),
+                    netIncomeRecognition: editFinancialData?.incomeRecognitionMethod?.id,
+                    cashDepositsCapPercent: Number(editFinancialData?.cashDepositsCap),
+                    statementSources: [editFinancialData?.statementSource?.id],
+                    accountTypes: [editFinancialData?.accountType?.id],
+                    pdfParsingRequired: editFinancialData?.pdfParsingOrJsonRequired === 'yes',
                 },
 
                 behavioralDataUpdate: {
-                    salaryRegularityThreshold: Number(editBehavioralData.latePaymentFeeValue),
-                    spendingConsistencyPercent: Number(editBehavioralData.prepaymentFeeType),
-                    upiSpendToIncomeRatio: Number(editBehavioralData.overallGst),
-                    billPaymentHistory: editBehavioralData.disbursementMode?.id || editBehavioralData.disbursementMode,
-                    digitalFootprintRequired: editBehavioralData.pdfParsingOrJsonRequired === 'yes',
-                    locationConsistencyKm: Number(editBehavioralData.repaymentMode),
-                    repeatBorrowerBehavior: editBehavioralData.emiFrequency?.id,
+                    salaryRegularityThreshold: Number(editBehavioralData?.latePaymentFeeValue),
+                    spendingConsistencyPercent: Number(editBehavioralData?.prepaymentFeeType),
+                    upiSpendToIncomeRatio: Number(editBehavioralData?.overallGst),
+                    billPaymentHistory: editBehavioralData?.disbursementMode?.id || editBehavioralData?.disbursementMode,
+                    digitalFootprintRequired: editBehavioralData?.pdfParsingOrJsonRequired === 'yes',
+                    locationConsistencyKm: Number(editBehavioralData?.repaymentMode),
+                    repeatBorrowerBehavior: editBehavioralData?.emiFrequency?.id,
                 },
 
                 riskScoringUpdate: {
-                    scoreVariableIds: editRiskScoringData.internalScoreVariables ? [editRiskScoringData.internalScoreVariables.id] : [],
-                    externalScoreIds: editRiskScoringData.externalScoreInputs ? [editRiskScoringData.externalScoreInputs.id] : [],
-                    riskCategoryMapping: Number(editRiskScoringData.riskCategoryMapping),
-                    maxDTI: Number(editRiskScoringData.maxDtiRatioAllowed),
-                    maxLTV: Number(editRiskScoringData.maxLtvRatioIfSecured),
-                    coBorrowerRequired: editRiskScoringData.coBorrowerRequiredForLowScore === 'yes',
+                    scoreVariableIds: editRiskScoringData?.internalScoreVariables ? [editRiskScoringData?.internalScoreVariables?.id] : [],
+                    externalScoreIds: editRiskScoringData?.externalScoreInputs ? [editRiskScoringData?.externalScoreInputs?.id] : [],
+                    riskCategoryMapping: Number(editRiskScoringData?.riskCategoryMapping),
+                    maxDTI: Number(editRiskScoringData?.maxDtiRatioAllowed),
+                    maxLTV: Number(editRiskScoringData?.maxLtvRatioIfSecured),
+                    coBorrowerRequired: editRiskScoringData?.coBorrowerRequiredForLowScore === 'yes',
                 },
 
                 collateralUpdate: {
-                    collateralType: editCollateralGuranteeData.collateralType?.id || null,
-                    collateralValue: Number(editCollateralGuranteeData.collateralValue),
-                    collateralValuationDate: new Date(editCollateralGuranteeData.collateralValuationDate).toISOString(),
+                    collateralType: editCollateralGuranteeData?.collateralType?.id || null,
+                    collateralValue: Number(editCollateralGuranteeData?.collateralValue),
+                    collateralValuationDate: new Date(editCollateralGuranteeData?.collateralValuationDate).toISOString(),
                     documentIds: Array.isArray(editCollateralGuranteeData?.collateralOwnershipDocs)
-                        ? editCollateralGuranteeData.collateralOwnershipDocs
+                        ? editCollateralGuranteeData?.collateralOwnershipDocs
                             .map(doc => doc?.docId)
                             .filter(id => typeof id === 'string' && id.trim() !== '')
                         : [],
 
 
-                    collateralOwnerName: editCollateralGuranteeData.collateralOwnerName,
-                    ownershipVerified: editCollateralGuranteeData.ownershipVerified?.id || null,
-                    guarantorRequired: editCollateralGuranteeData.guarantorRequired?.id === 'TRUE',
-                    guarantorName: editCollateralGuranteeData.guarantorName,
-                    guarantorRelationship: editCollateralGuranteeData.guarantorRelationship?.id || null,
-                    guarantorPAN: editCollateralGuranteeData.guarantorPan,
-                    guarantorCreditBureau: editCollateralGuranteeData.guarantorCreditBureau?.id || null,
-                    guarantorCreditScore: Number(editCollateralGuranteeData.guarantorCreditScore),
-                    guarantorMonthlyIncome: Number(editCollateralGuranteeData.guarantorMonthlyIncome),
-                    guarantorIncomeProofTypes: editCollateralGuranteeData.guarantorIncomeProofType ? [editCollateralGuranteeData.guarantorIncomeProofType.id] : [],
-                    guarantorVerificationStatus: editCollateralGuranteeData.guarantorVerificationStatus?.id || null,
+                    collateralOwnerName: editCollateralGuranteeData?.collateralOwnerName,
+                    ownershipVerified: editCollateralGuranteeData?.ownershipVerified?.id || null,
+                    guarantorRequired: editCollateralGuranteeData?.guarantorRequired?.id === 'TRUE',
+                    guarantorName: editCollateralGuranteeData?.guarantorName,
+                    guarantorRelationship: editCollateralGuranteeData?.guarantorRelationship?.id || null,
+                    guarantorPAN: editCollateralGuranteeData?.guarantorPan,
+                    guarantorCreditBureau: editCollateralGuranteeData?.guarantorCreditBureau?.id || null,
+                    guarantorCreditScore: Number(editCollateralGuranteeData?.guarantorCreditScore),
+                    guarantorMonthlyIncome: Number(editCollateralGuranteeData?.guarantorMonthlyIncome),
+                    guarantorIncomeProofTypes: editCollateralGuranteeData?.guarantorIncomeProofType ? [editCollateralGuranteeData?.guarantorIncomeProofType?.id] : [],
+                    guarantorVerificationStatus: editCollateralGuranteeData?.guarantorVerificationStatus?.id || null,
                 },
 
-                "otherChargesUpdate": {
-                    "chequeBounceCharge": 350,
-                    "dublicateNocCharge": 150,
-                    "furnishingCharge": 500,
-                    "chequeSwapCharge": 200,
-                    "revocation": 300,
-                    "documentCopyCharge": 100,
-                    "stampDutyCharge": 250,
-                    "nocCharge": 120,
-                    "incidentalCharge": 450
+                otherChargesUpdate: {
+                    chequeBounceCharge: Number(editOtherChargesData?.chequeBounceCharge ?? productDetails?.masterProductOtherCharges?.chequeBounceCharge ?? 0),
+                    dublicateNocCharge: Number(editOtherChargesData?.dublicateNocCharge ?? productDetails?.masterProductOtherCharges?.dublicateNocCharge ?? 0),
+                    furnishingCharge: Number(editOtherChargesData?.furnishingCharge ?? productDetails?.masterProductOtherCharges?.furnishingCharge ?? 0),
+                    chequeSwapCharge: Number(editOtherChargesData?.chequeSwapCharge ?? productDetails?.masterProductOtherCharges?.chequeSwapCharge ?? 0),
+                    revocation: Number(editOtherChargesData?.revocation ?? productDetails?.masterProductOtherCharges?.revocation ?? 0),
+                    documentCopyCharge: Number(editOtherChargesData?.documentCopyCharge ?? productDetails?.masterProductOtherCharges?.documentCopyCharge ?? 0),
+                    stampDutyCharge: Number(editOtherChargesData?.stampDutyCharge ?? productDetails?.masterProductOtherCharges?.stampDutyCharge ?? 0),
+                    nocCharge: Number(editOtherChargesData?.nocCharge ?? productDetails?.masterProductOtherCharges?.nocCharge ?? 0),
+                    incidentalCharge: Number(editOtherChargesData?.incidentalCharge ?? productDetails?.masterProductOtherCharges?.incidentalCharge ?? 0),
                 },
-                "repaymentUpdate": {
-                    "penalInterestApplicable": true,
-                    "incentiveType": "CASHBACK",
-                    "incentiveValue": 500,
-                    "payoutMode": "ONLINE",
-                    "incentiveReversalConditions": "Late EMI"
-                }
+
+                repaymentUpdate: {
+                    penalInterestApplicable: (editTimelyRepaaymentData?.penalInterestApplicable ?? productDetails?.masterProductRepayment?.penalInterestApplicable) === 'yes' || productDetails?.masterProductRepayment?.penalInterestApplicable === true,
+                    incentiveType: editTimelyRepaaymentData?.incentiveType?.id ?? productDetails?.masterProductRepayment?.incentiveType ?? '',
+                    incentiveValue: Number(editTimelyRepaaymentData?.incentiveValue ?? productDetails?.masterProductRepayment?.incentiveValue ?? 0),
+                    payoutMode: editTimelyRepaaymentData?.payoutMode?.id ?? productDetails?.masterProductRepayment?.payoutMode ?? '',
+                    // payoutTimeline: editTimelyRepaaymentData?.payoutTimeline ?? productDetails?.masterProductRepayment?.payoutTimeline ?? '',
+                    incentiveReversalConditions: editTimelyRepaaymentData?.incentiveReversalConditions ?? productDetails?.masterProductRepayment?.incentiveReversalConditions ?? ''
+                },
             };
             dispatch(submitEditMasterProductSubmit(payload))
         } else {

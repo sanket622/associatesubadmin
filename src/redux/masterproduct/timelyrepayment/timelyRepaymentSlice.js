@@ -7,6 +7,7 @@ const initialState = {
     loading: false,
     error: null,
     data: null,
+    editTimelyRepaaymentData: null,
 };
 
 const slice = createSlice({
@@ -24,6 +25,9 @@ const slice = createSlice({
         submitFailure(state, action) {
             state.loading = false;
             state.error = action.payload;
+        },
+        setEditTimelyRepaaymentData(state, action) {
+            state.editTimelyRepaaymentData = action.payload;
         },
     },
 });
@@ -50,7 +54,7 @@ export const submitTimelyRepayment = (formData, callback) => async dispatch => {
             payload.payoutMode = formData.payoutMode?.id || null;
             payload.incentiveReversalConditions = formData.incentiveReversalConditions;
         }
-        
+
         const response = await axios.post('https://api.earnplus.net/api/v1/associate/masterProduct/createMasterProductRepayment',
             payload,
             {

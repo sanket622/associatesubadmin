@@ -28,11 +28,11 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
     const mode = location?.state?.mode
     const dispatch = useDispatch();
 
-    const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
-    const editVarientParameterData = useSelector((state) => state.variantProductParameterSubmit.editVarientParameterData);
+    const variantDetail = useSelector((state) => state?.variantSingle?.variantDetail);
+    const editVarientParameterData = useSelector((state) => state?.variantProductParameterSubmit?.editVarientParameterData);
 
-    console.log(variantDetail.VariantProductParameter.processingFeeValue, editVarientParameterData?.processingFeeValue);
-    
+    // console.log(variantDetail.VariantProductParameter.processingFeeValue, editVarientParameterData?.processingFeeValue);
+
     const interestRateTypes = [
         { id: 'FLAT', name: 'Flat' },
         { id: 'REDUCING', name: 'Reducing' },
@@ -76,54 +76,54 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
         options?.find(option => option?.[key] === value) || null;
 
     const defaultValues = (mode === 'EDIT' && variantDetail?.VariantProductParameter) ? {
-        minimumLoanAmount: editVarientParameterData?.minimumLoanAmount || variantDetail.VariantProductParameter.minLoanAmount || '',
-        maximumLoanAmount: editVarientParameterData?.maximumLoanAmount || variantDetail.VariantProductParameter.maxLoanAmount || '',
-        minTenureMonths: editVarientParameterData?.minTenureMonths || variantDetail.VariantProductParameter.minTenureMonths || '',
-        maxTenureMonths: editVarientParameterData?.maxTenureMonths || variantDetail.VariantProductParameter.maxTenureMonths || '',
+        minimumLoanAmount: editVarientParameterData?.minimumLoanAmount || variantDetail?.VariantProductParameter?.minLoanAmount || '',
+        maximumLoanAmount: editVarientParameterData?.maximumLoanAmount || variantDetail?.VariantProductParameter?.maxLoanAmount || '',
+        minTenureMonths: editVarientParameterData?.minTenureMonths || variantDetail?.VariantProductParameter?.minTenureMonths || '',
+        maxTenureMonths: editVarientParameterData?.maxTenureMonths || variantDetail?.VariantProductParameter?.maxTenureMonths || '',
 
         interestRateType:
             editVarientParameterData?.interestRateType ||
-            findOption(interestRateTypes, variantDetail.VariantProductParameter.interestRateType, 'id') ||
+            findOption(interestRateTypes, variantDetail?.VariantProductParameter?.interestRateType, 'id') ||
             null,
 
-        interestRateMin: editVarientParameterData?.interestRateMin || variantDetail.VariantProductParameter.interestRateMin || '',
-        interestRateMax: editVarientParameterData?.interestRateMax || variantDetail.VariantProductParameter.interestRateMax || '',
+        interestRateMin: editVarientParameterData?.interestRateMin || variantDetail?.VariantProductParameter?.interestRateMin || '',
+        interestRateMax: editVarientParameterData?.interestRateMax || variantDetail?.VariantProductParameter?.interestRateMax || '',
 
         processingFeeType:
             editVarientParameterData?.processingFeeType ||
-            findOption(feeTypes, variantDetail.VariantProductParameter.processingFeeType, 'id') ||
+            findOption(feeTypes, variantDetail?.VariantProductParameter?.processingFeeType, 'id') ||
             null,
 
-        processingFeeValue: editVarientParameterData?.processingFeeValue || variantDetail.VariantProductParameter.processingFeeValue || "0",
+        processingFeeValue: editVarientParameterData?.processingFeeValue || variantDetail?.VariantProductParameter?.processingFeeValue || "0",
 
         latePaymentFeeType:
             editVarientParameterData?.latePaymentFeeType ||
-            findOption(feeTypes, variantDetail.VariantProductParameter.latePaymentFeeType, 'id') ||
+            findOption(feeTypes, variantDetail?.VariantProductParameter?.latePaymentFeeType, 'id') ||
             null,
 
-        latePaymentFeeValue: editVarientParameterData?.latePaymentFeeValue || variantDetail.VariantProductParameter.latePaymentFeeValue || '0',
+        latePaymentFeeValue: editVarientParameterData?.latePaymentFeeValue || variantDetail?.VariantProductParameter?.latePaymentFeeValue || '0',
 
         prepaymentFeeType:
             editVarientParameterData?.prepaymentFeeType ||
-            findOption(feeTypes, variantDetail.VariantProductParameter.prepaymentFeeType, 'id') ||
+            findOption(feeTypes, variantDetail?.VariantProductParameter?.prepaymentFeeType, 'id') ||
             null,
 
-        prepaymentFeeValue: editVarientParameterData?.prepaymentFeeValue || variantDetail.VariantProductParameter.prepaymentFeeValue || '0',
+        prepaymentFeeValue: editVarientParameterData?.prepaymentFeeValue || variantDetail?.VariantProductParameter?.prepaymentFeeValue || '0',
 
         emiFrequency:
             editVarientParameterData?.emiFrequency ||
-            findOption(emiFrequencies, variantDetail.VariantProductParameter.emiFrequency, 'id') ||
+            findOption(emiFrequencies, variantDetail?.VariantProductParameter?.emiFrequency, 'id') ||
             null,
 
-        penalInterestRate: editVarientParameterData?.penalInterestRate || variantDetail.VariantProductParameter.penalInterestRate || '',
-        penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail.VariantProductParameter.penalInterestConditions || '',
+        penalInterestRate: editVarientParameterData?.penalInterestRate || variantDetail?.VariantProductParameter?.penalInterestRate || '',
+        penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail?.VariantProductParameter?.penalInterestConditions || '',
 
-        minimumAge: editVarientParameterData?.minimumAge || variantDetail.VariantProductParameter.minAge || '',
-        maximumAge: editVarientParameterData?.maximumAge || variantDetail.VariantProductParameter.maxAge || '',
+        minimumAge: editVarientParameterData?.minimumAge || variantDetail?.VariantProductParameter?.minAge || '',
+        maximumAge: editVarientParameterData?.maximumAge || variantDetail?.VariantProductParameter?.maxAge || '',
 
         penalInterestRateApplicable:
             editVarientParameterData?.penalInterestRateApplicable ??
-            (variantDetail.VariantProductParameter.penalInterestApplicable ? 'yes' : 'no'),
+            (variantDetail?.VariantProductParameter?.penalInterestApplicable ? 'yes' : 'no'),
     } : {
         minimumLoanAmount: '',
         maximumLoanAmount: '',
@@ -161,13 +161,13 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
     } = methods;
 
     console.log(watch());
-    
+
 
     useEffect(() => {
-        if (variantDetail || editVarientParameterData) {
-            reset(defaultValues)
+        if (mode === 'EDIT' && variantDetail?.VariantProductParameter) {
+            reset(defaultValues);
         }
-    }, [variantDetail, editVarientParameterData])
+    }, [variantDetail, editVarientParameterData]);
 
     const onSubmit = (data) => {
         if (mode === "EDIT") {

@@ -33,7 +33,7 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
     const editVarientParameterData = useSelector((state) => state.variantProductParameterSubmit.editVarientParameterData);
 
     console.log(editVarientOtherChargesData);
-    
+
 
     // Dummy dropdown options
     const dummyOptions = [
@@ -60,10 +60,10 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
             then: schema => schema.required('Payout Mode is required'),
         }),
 
-        payoutTimeline: Yup.string().when('penalInterestApplicable', {
-            is: 'yes',
-            then: schema => schema.required('Payout Timeline is required'),
-        }),
+        // payoutTimeline: Yup.string().when('penalInterestApplicable', {
+        //     is: 'yes',
+        //     then: schema => schema.required('Payout Timeline is required'),
+        // }),
 
         incentiveReversalConditions: Yup.string().when('penalInterestApplicable', {
             is: 'yes',
@@ -71,24 +71,27 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
         }),
     });
 
+    const mapToOption = (value) => dummyOptions.find(opt => opt.name === value) || null;
+
     const defaultValues = (mode === 'EDIT' && variantDetail?.VariantProductRepayment) ? {
         penalInterestApplicable: editTimelyRepaymentData?.penalInterestApplicable ??
             (variantDetail.VariantProductRepayment.penalInterestApplicable ? 'yes' : 'no'),
 
         incentiveType: editTimelyRepaymentData?.incentiveType ??
-            variantDetail.VariantProductRepayment.incentiveType ?? null,
+            mapToOption(variantDetail.VariantProductRepayment.incentiveType) ?? null,
 
         incentiveValue: editTimelyRepaymentData?.incentiveValue ??
             variantDetail.VariantProductRepayment.incentiveValue?.toString() ?? '',
 
         payoutMode: editTimelyRepaymentData?.payoutMode ??
-            variantDetail.VariantProductRepayment.payoutMode ?? null,
+            mapToOption(variantDetail.VariantProductRepayment.payoutMode) ?? null,
 
         payoutTimeline: editTimelyRepaymentData?.payoutTimeline ??
             variantDetail.VariantProductRepayment.payoutTimeline ?? '',
 
         incentiveReversalConditions: editTimelyRepaymentData?.incentiveReversalConditions ??
             variantDetail.VariantProductRepayment.incentiveReversalConditions ?? '',
+
     } : {
         penalInterestApplicable: 'no',
         incentiveType: null,
@@ -98,6 +101,7 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
         incentiveReversalConditions: '',
     };
 
+
     const methods = useForm({
         resolver: yupResolver(TimelyRepaymentSchema),
         defaultValues,
@@ -106,6 +110,9 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
     const { control, handleSubmit, reset, watch } = methods;
 
     const values = watch()
+
+    console.log(values);
+    
 
 
     // useEffect(() => {
@@ -119,64 +126,64 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
             const payload = {
                 variantProductId: localStorage.getItem('createdVariantId'),
 
-                productType: editVarientBasicData?.productType || '',
+                productType: editVarientBasicData?.productType?.id || '',
                 variantName: editVarientBasicData?.variantName || '',
                 variantType: editVarientBasicData?.variantType || '',
-                partnerId: editVarientBasicData?.partnerId?.id || '',
-                remark: editVarientBasicData?.remark || '',
+                partnerId: editVarientBasicData?.productType?.id || '',
+                remark: editVarientBasicData?.remarks || '',
                 rejectionReason: editVarientBasicData?.rejectionReason || '',
 
                 parameterUpdate: {
-                    minLoanAmount: Number(editVarientParameterData?.minLoanAmount),
-                    maxLoanAmount: Number(editVarientParameterData?.maxLoanAmount),
-                    minTenureMonths: Number(editVarientParameterData?.minTenureMonths),
-                    maxTenureMonths: Number(editVarientParameterData?.maxTenureMonths),
-                    interestRateType: editVarientParameterData?.interestRateType?.id || '',
-                    interestRateMin: Number(editVarientParameterData?.interestMin),
-                    interestRateMax: Number(editVarientParameterData?.interestMax),
+                    minLoanAmount: Number(editVarientParameterData?.minimumLoanAmount || 0),
+                    maxLoanAmount: Number(editVarientParameterData?.maximumLoanAmount || 0),
+                    minTenureMonths: Number(editVarientParameterData?.minTenureMonths || 0),
+                    maxTenureMonths: Number(editVarientParameterData?.maxTenureMonths || 0),
+                    interestRateMin: Number(editVarientParameterData?.interestRateMin || 0),
+                    interestRateMax: Number(editVarientParameterData?.interestRateMax || 0),
+                    processingFeeValue: Number(editVarientParameterData?.processingFeeValue || 0),
                     processingFeeType: editVarientParameterData?.processingFeeType?.id || '',
-                    processingFeeValue: Number(editVarientParameterData?.processingFeeValue),
                     latePaymentFeeType: editVarientParameterData?.latePaymentFeeType?.id || '',
-                    latePaymentFeeValue: Number(editVarientParameterData?.latePaymentFeeValue),
-                    penalInterestApplicable: data?.penalInterestApplicable === 'yes',
-                    emiFrequency: editVarientParameterData?.emiFrequency?.id || '',
+                    latePaymentFeeValue: Number(editVarientParameterData?.latePaymentFeeValue || 0),
+                    penalInterestApplicable: editVarientParameterData?.penalInterestRateApplicable === 'yes',
+                    prepaymentFeeValue: Number(editVarientParameterData?.prepaymentFeeValue || 0),
+                    penalInterestRate: Number(editVarientParameterData?.penalInterestRate || 0),
+                    minAge: Number(editVarientParameterData?.minimumAge || 0),
+                    maxAge: Number(editVarientParameterData?.maximumAge || 0),
+                    interestRateType: editVarientParameterData?.interestRateType?.id || '',
                     prepaymentFeeType: editVarientParameterData?.prepaymentFeeType?.id || '',
-                    prepaymentFeeValue: Number(editVarientParameterData?.prepaymentFeeValue),
-                    penalInterestRate: Number(editVarientParameterData?.penalInterestRate),
-                    minAge: Number(editVarientParameterData?.minAge),
-                    maxAge: Number(editVarientParameterData?.maxAge),
+                    emiFrequency: editVarientParameterData?.emiFrequency?.id || '',
                 },
 
                 otherChargesUpdate: {
-                    chequeBounceCharge: Number(editVarientOtherChargesData?.chequeBounceCharges),
-                    dublicateNocCharge: Number(editVarientOtherChargesData?.duplicateNocCharges),
-                    furnishingCharge: Number(editVarientOtherChargesData?.furnishingCharges),
-                    chequeSwapCharge: Number(editVarientOtherChargesData?.chequeSwappingCharges),
-                    revocation: Number(editVarientOtherChargesData?.revocation),
-                    documentCopyCharge: Number(editVarientOtherChargesData?.documentCopyCharges),
-                    stampDutyCharge: Number(editVarientOtherChargesData?.stampDutyCharges),
-                    nocCharge: Number(editVarientOtherChargesData?.nocCharge),
-                    incidentalCharge: Number(editVarientOtherChargesData?.incidentalCharges),
+                    chequeBounceCharge: Number(editVarientOtherChargesData?.chequeBounceCharges || 0),
+                    dublicateNocCharge: Number(editVarientOtherChargesData?.duplicateNocCharges || 0),
+                    furnishingCharge: Number(editVarientOtherChargesData?.statementCharges || 0),
+                    chequeSwapCharge: Number(editVarientOtherChargesData?.chequeSwappingCharges || 0),
+                    revocation: Number(editVarientOtherChargesData?.ecsCharges || 0),
+                    documentCopyCharge: Number(editVarientOtherChargesData?.documentCopyCharges || 0),
+                    stampDutyCharge: Number(editVarientOtherChargesData?.stampDutyCharges || 0),
+                    nocCharge: Number(editVarientOtherChargesData?.nocIssuanceCharges || 0),
+                    incidentalCharge: Number(editVarientOtherChargesData?.legalCharges || 0),
                 },
 
                 repaymentUpdate: {
-                    penalInterestApplicable: data?.penalInterestApplicable === 'yes',
-                    incentiveType: data?.incentiveType?.name || '',
-                    incentiveValue: Number(data?.incentiveValue),
-                    payoutMode: data?.payoutMode?.name || '',
-                    incentiveReversalConditions: data?.incentiveReversalConditions || '',
-                }
+                    penalInterestApplicable: values?.penalInterestApplicable === 'yes',
+                    incentiveType: values?.incentiveType?.id || null,
+                    incentiveValue: Number(values?.incentiveValue || 0),
+                    payoutMode: values?.payoutMode?.id || null,
+                    // payoutTimeline: values?.payoutTimeline || '',
+                    incentiveReversalConditions: values?.incentiveReversalConditions || '',
+                },
             };
 
-            dispatch(submitEditVariantSubmit(payload)); 
-            console.log("Final Payload", payload); 
-          
+            dispatch(submitEditVariantSubmit(payload));
+            console.log("Final Payload", payload);
+
         } else {
             dispatch(submitVariantRepayment(data, () => {
             }));
         }
     };
-
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>

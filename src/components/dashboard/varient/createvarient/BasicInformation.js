@@ -103,7 +103,7 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
         if (variantDetail || editVarientBasicData) {
             reset(defaultValues)
         }
-    }, [variantDetail, editVarientBasicData])
+    }, [variantDetail, editVarientBasicData, products])
 
     const onSubmit = (data) => {
         if (mode === "EDIT") {

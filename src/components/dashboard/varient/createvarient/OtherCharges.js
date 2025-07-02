@@ -152,11 +152,11 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                 </Grid>
 
                 {/* Additional Charges */}
-                <Box mt={4}>
+                {/* <Box mt={4}>
                     <Typography variant="h6" fontWeight="bold" mb={2}>
                         Additional Charges
                     </Typography>
-                    {/* Subscription Fee Box */}
+                  
                     <Box
                         p={3}
                         mb={2}
@@ -165,7 +165,7 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                         display="flex"
                         flexDirection="column"
                     >
-                        {/* Header row with checkbox aligned right */}
+                        
                         <Box display="flex" justifyContent="flex-end">
                             <Checkbox
                                 sx={{
@@ -177,7 +177,7 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                             />
                         </Box>
 
-                        {/* Grid form content */}
+                       
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={6}>
                                 <Label htmlFor="subscriptionFee">Subscription Period & Fee</Label>
@@ -190,7 +190,7 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                         </Grid>
                     </Box>
 
-                    {/* Transaction Fee Box */}
+                   
                     <Box
                         p={3}
                         border="1px solid #ccc"
@@ -198,7 +198,7 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                         display="flex"
                         flexDirection="column"
                     >
-                        {/* Header row with checkbox aligned right */}
+                       
                         <Box display="flex" justifyContent="flex-end">
                             <Checkbox
                                 sx={{
@@ -231,7 +231,7 @@ const OtherCharges = ({ setTabIndex, tabIndex }) => {
                         </Grid>
                     </Box>
 
-                </Box>
+                </Box> */}
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
                 <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 4</Box>

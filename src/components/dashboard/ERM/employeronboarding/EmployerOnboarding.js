@@ -68,7 +68,7 @@ export default function EmployerOnboardingTabs() {
         },
     });
 
-    const { handleSubmit, getValues, register, watch, setValue } = methods;
+    const { handleSubmit, getValues, setValue } = methods;
 
     const handleVerify = (type) => {
         const formData = getValues();
@@ -85,7 +85,7 @@ export default function EmployerOnboardingTabs() {
         setOpenDialog(true); // just open dialog
     };
     const handleFinalSubmit = () => {
-        const allFormData = getValues(); // get full current form values
+        const allFormData = getValues(); 
         dispatch(submitEmployerData(allFormData, () => {
             setOpenDialog(false);
         }));
@@ -94,7 +94,7 @@ export default function EmployerOnboardingTabs() {
     const handleFileChange = (e, name) => {
         const file = e.target.files[0];
         if (file) {
-            setValue(name, file); // set file in form
+            setValue(name, file); 
             setFilePreviews(prev => ({ ...prev, [name]: file }));
         }
     };
@@ -171,7 +171,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* Legal Entity Type */}
                                     <Grid item xs={12} md={6}>
                                         <Label>Legal Entity Type</Label>
-                                        <RHFAutocomplete name="legalType" placeholder="Select Legal Entity Type" options={legalTypeOptions} getOptionLabel={(option) => option?.label || ''} isOptionEqualToValue={(option, value) => option?.value === value?.value} />
+                                        <RHFAutocomplete name="legalType"  options={legalTypeOptions} getOptionLabel={(option) => option?.label || ''} isOptionEqualToValue={(option, value) => option?.value === value?.value} />
                                     </Grid>
 
                                     {/* Admin Email ID */}

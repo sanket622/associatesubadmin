@@ -9,59 +9,90 @@ import Label from '../../../subcompotents/Label';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { submitOtherCharges } from '../../../../redux/masterproduct/othercharges/otherChargesSlice';
+import { setEditOtherChargesData, submitOtherCharges } from '../../../../redux/masterproduct/othercharges/otherChargesSlice';
+import { useLocation } from 'react-router';
 
 const OtherCharges = ({ tabIndex, setTabIndex, }) => {
+    const location = useLocation()
+    const mode = location?.state?.mode
+    const dispatch = useDispatch();
 
-  const dispatch = useDispatch();
+    const productDetails = useSelector((state) => state.products.productDetails);
+    const editOtherChargesData = useSelector((state) => state.otherCharges.editOtherChargesData);
 
-  const schema = yup.object().shape({
-  chequeBounceCharge: yup.number().typeError('Must be a number').required('Required'),
-  dublicateNocCharge: yup.number().typeError('Must be a number').required('Required'),
-  furnishingCharge: yup.number().typeError('Must be a number').required('Required'),
-  chequeSwapCharge: yup.number().typeError('Must be a number').required('Required'),
-  revocation: yup.number().typeError('Must be a number').required('Required'),
-  documentCopyCharge: yup.number().typeError('Must be a number').required('Required'),
-  stampDutyCharge: yup.number().typeError('Must be a number').required('Required'),
-  nocCharge: yup.number().typeError('Must be a number').required('Required'),
-  incidentalCharge: yup.number().typeError('Must be a number').required('Required'),
-});
+    const schema = yup.object().shape({
+        chequeBounceCharge: yup.number().typeError('Must be a number').required('Required'),
+        dublicateNocCharge: yup.number().typeError('Must be a number').required('Required'),
+        furnishingCharge: yup.number().typeError('Must be a number').required('Required'),
+        chequeSwapCharge: yup.number().typeError('Must be a number').required('Required'),
+        revocation: yup.number().typeError('Must be a number').required('Required'),
+        documentCopyCharge: yup.number().typeError('Must be a number').required('Required'),
+        stampDutyCharge: yup.number().typeError('Must be a number').required('Required'),
+        nocCharge: yup.number().typeError('Must be a number').required('Required'),
+        incidentalCharge: yup.number().typeError('Must be a number').required('Required'),
+    });
 
-  // ✅ Setup useForm with validation
-  const methods = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      chequeBounceCharge: '',
-      dublicateNocCharge: '',
-      furnishingCharge: '',
-      chequeSwapCharge: '',
-      revocation: '',
-      documentCopyCharge: '',
-      stampDutyCharge: '',
-      nocCharge: '',
-      incidentalCharge: '',
-    },
-  });
+    const masterProductOtherCharges = productDetails?.masterProductOtherCharges;
 
-  const {
-    handleSubmit,
-    reset,
-  } = methods;
+    const defaultValues = (productDetails && mode === "EDIT") ? {
+        chequeBounceCharge: editOtherChargesData?.chequeBounceCharge ?? masterProductOtherCharges?.chequeBounceCharge ?? '',
+        dublicateNocCharge: editOtherChargesData?.dublicateNocCharge ?? masterProductOtherCharges?.dublicateNocCharge ?? '',
+        furnishingCharge: editOtherChargesData?.furnishingCharge ?? masterProductOtherCharges?.furnishingCharge ?? '',
+        chequeSwapCharge: editOtherChargesData?.chequeSwapCharge ?? masterProductOtherCharges?.chequeSwapCharge ?? '',
+        revocation: editOtherChargesData?.revocation ?? masterProductOtherCharges?.revocation ?? '',
+        documentCopyCharge: editOtherChargesData?.documentCopyCharge ?? masterProductOtherCharges?.documentCopyCharge ?? '',
+        stampDutyCharge: editOtherChargesData?.stampDutyCharge ?? masterProductOtherCharges?.stampDutyCharge ?? '',
+        nocCharge: editOtherChargesData?.nocCharge ?? masterProductOtherCharges?.nocCharge ?? '',
+        incidentalCharge: editOtherChargesData?.incidentalCharge ?? masterProductOtherCharges?.incidentalCharge ?? '',
+    } : {
+        chequeBounceCharge: '',
+        dublicateNocCharge: '',
+        furnishingCharge: '',
+        chequeSwapCharge: '',
+        revocation: '',
+        documentCopyCharge: '',
+        stampDutyCharge: '',
+        nocCharge: '',
+        incidentalCharge: '',
+    };
 
-  // ✅ On Submit Handler
-  const onSubmit = (data) => {
-    dispatch(submitOtherCharges(data, () => {
-      // Go to next tab on success
-      setTabIndex(prev => prev + 1);
-    }));
-  };
+     const methods = useForm({
+        resolver: yupResolver(schema),
+        defaultValues,
+    });
 
-  const onError = (errors) => {
-    console.log("Form validation errors:", errors);
-  };
+    const {
+        control,
+        reset,
+        handleSubmit,
+        watch,
+        formState: { errors }
+    } = methods
+
+    const values = watch()
+    console.log("values", values);
+
+    useEffect(() => {
+        if (productDetails || editOtherChargesData) {
+            reset(defaultValues);
+        }
+    }, [productDetails, editOtherChargesData])
+
+
+    const onSubmit = (data) => {
+        if (mode === "EDIT") {
+            dispatch(setEditOtherChargesData(data))
+            setTabIndex((prev) => Math.min(prev + 1, 9));
+        } else {
+            dispatch(submitOtherCharges(data, () => {
+                setTabIndex((prev) => Math.min(prev + 1, 9));
+            }));
+        }
+    }
+    const onError = (e) => console.log(e)
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>

@@ -28,7 +28,7 @@ const PartnerTable = () => {
                     <Table>
                         <TableHead sx={{ background: '#F5F5FF' }}>
                             <TableRow>
-                                {['Sno.', 'Name', 'Email', 'Mobile', 'Contract Types', 'Status', 'Assign'].map((header) => (
+                                {['Sno.','Employer Id', 'Name', 'Email', 'Mobile', 'Contract Types', 'Status', 'Assign'].map((header) => (
                                     <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>{header}</TableCell>
                                 ))}
 
@@ -51,6 +51,7 @@ const PartnerTable = () => {
                                 partners.data.map((partner, index) => (
                                     <TableRow key={partner.id}>
                                         <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{partner.employerId}</TableCell>
                                         <TableCell>{partner.name}</TableCell>
                                         <TableCell>{partner.email}</TableCell>
                                         <TableCell>{partner.mobile}</TableCell>

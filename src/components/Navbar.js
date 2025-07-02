@@ -20,6 +20,7 @@ function Navbar() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (!payload.exp) return false;
       const now = Date.now() / 1000;
+
       return payload.exp > now;
     } catch (e) {
       return false;
@@ -32,8 +33,8 @@ function Navbar() {
     const userRaw = localStorage.getItem('user');
     const filteredModulesRaw = localStorage.getItem('filteredModules');
 
-    const isValid = isTokenValid(token);
 
+    const isValid = isTokenValid(token);
     if (!token || !refreshToken || !userRaw || !isValid) {
       dispatch(logout());
       navigate('/login', { replace: true });

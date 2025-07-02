@@ -26,8 +26,6 @@ const CreateVariant = () => {
             }
         }, [variantId])
     
-
-
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
             <h1 className="text-[24px] font-semibold my-3 flex gap-2">
