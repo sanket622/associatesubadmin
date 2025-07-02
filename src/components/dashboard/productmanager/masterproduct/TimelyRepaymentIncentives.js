@@ -147,7 +147,7 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
                             : [],
                     minBureauScore: Number(editEligibilityData.minBureauScore),
                     bureauType: typeof editEligibilityData.bureauType === 'string' ? editEligibilityData.bureauType : editEligibilityData.bureauType?.id || '',
-                    blacklistFlags: editEligibilityData.blacklistFlags || [],
+                    blacklistFlags: editEligibilityData.blacklistFlags?.map(doc => doc.id) || [],
                     documentIds: editEligibilityData.documentList?.map(doc => doc.id) || [],
                     documentSubmissionModes: editEligibilityData.documentSubmissionMode
                         ? [typeof editEligibilityData.documentSubmissionMode === 'string' ? editEligibilityData.documentSubmissionMode : editEligibilityData.documentSubmissionMode.id]
@@ -186,13 +186,13 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
                 },
 
                 behavioralDataUpdate: {
-                    salaryRegularityThreshold: Number(editBehavioralData.salaryRegularityThreshold),
-                    spendingConsistencyPercent: Number(editBehavioralData.spendingConsistencyPercent),
-                    upiSpendToIncomeRatio: Number(editBehavioralData.upiSpendToIncomeRatio),
-                    billPaymentHistory: editBehavioralData.billPaymentHistory?.id || editBehavioralData.billPaymentHistory,
+                    salaryRegularityThreshold: Number(editBehavioralData.latePaymentFeeValue),
+                    spendingConsistencyPercent: Number(editBehavioralData.prepaymentFeeType),
+                    upiSpendToIncomeRatio: Number(editBehavioralData.overallGst),
+                    billPaymentHistory: editBehavioralData.disbursementMode?.id || editBehavioralData.disbursementMode,
                     digitalFootprintRequired: editBehavioralData.pdfParsingOrJsonRequired === 'yes',
-                    locationConsistencyKm: Number(editBehavioralData.locationConsistencyKm),
-                    repeatBorrowerBehavior: editBehavioralData.repeatBorrowerBehavior?.id,
+                    locationConsistencyKm: Number(editBehavioralData.repaymentMode),
+                    repeatBorrowerBehavior: editBehavioralData.emiFrequency?.id,
                 },
 
                 riskScoringUpdate: {
@@ -207,10 +207,14 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
                 collateralUpdate: {
                     collateralType: editCollateralGuranteeData.collateralType?.id || null,
                     collateralValue: Number(editCollateralGuranteeData.collateralValue),
-                    collateralValuationDate: editCollateralGuranteeData.collateralValuationDate,
-                    documentIds: editCollateralGuranteeData?.collateralOwnershipDocs
-                        ? [editCollateralGuranteeData.collateralOwnershipDocs]
+                    collateralValuationDate: new Date(editCollateralGuranteeData.collateralValuationDate).toISOString(),
+                    documentIds: Array.isArray(editCollateralGuranteeData?.collateralOwnershipDocs)
+                        ? editCollateralGuranteeData.collateralOwnershipDocs
+                            .map(doc => doc?.docId)
+                            .filter(id => typeof id === 'string' && id.trim() !== '')
                         : [],
+
+
                     collateralOwnerName: editCollateralGuranteeData.collateralOwnerName,
                     ownershipVerified: editCollateralGuranteeData.ownershipVerified?.id || null,
                     guarantorRequired: editCollateralGuranteeData.guarantorRequired?.id === 'TRUE',

@@ -1,134 +1,93 @@
-import * as React from 'react';
-import logo from '../assets/earnlogo.png';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { logout, setCredentials, fetchAllModules, setFilteredModules } from './auth/redux/auth/authSlice';
+
+import logo from '../assets/earnlogo.png';
 import { Avatar, IconButton } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import GroupsIcon from '@mui/icons-material/Groups';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ContactPageIcon from '@mui/icons-material/ContactPage';
-import { useDispatch } from 'react-redux';
-import { logout } from './auth/redux/auth/authSlice';
-
-
 
 function Navbar() {
-
-  const [language, setLanguage] = React.useState('en');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const accessToken = useSelector((state) => state.auth.accessToken);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navigate = useNavigate();
-
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'hi' : 'en');
-  };
-
-  const handleClick = () => {
-    setMenuOpen((prev) => !prev);
-  };
-
-  const handleClose = () => {
-    setMenuOpen(false);
-  };
-
-  const dispatch = useDispatch();
-
-  const handleMenuItemClick = (setting) => {
-    switch (setting) {
-      case 'Logout':
-        dispatch(logout());
-        navigate('/login', { replace: true });
-        break;
-      default:
-        break;
+  const isTokenValid = (token) => {
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return false;
+      const now = Date.now() / 1000;
+      return payload.exp > now;
+    } catch (e) {
+      return false;
     }
-    handleClose();
   };
 
-  const BellIcon = () => (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="text-black"
-    >
-      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-    </svg>
-  );
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const userRaw = localStorage.getItem('user');
+    const filteredModulesRaw = localStorage.getItem('filteredModules');
 
+    const isValid = isTokenValid(token);
+
+    if (!token || !refreshToken || !userRaw || !isValid) {
+      dispatch(logout());
+      navigate('/login', { replace: true });
+    } else {
+      if (!accessToken) {
+        const user = JSON.parse(userRaw);
+        dispatch(setCredentials({ user, accessToken: token, refreshToken }));
+
+        if (filteredModulesRaw) {
+          const filteredModules = JSON.parse(filteredModulesRaw);
+          dispatch(setFilteredModules(filteredModules));
+        } else {
+          dispatch(fetchAllModules());
+        }
+
+        if (window.location.pathname === '/login') {
+          navigate('/home', { replace: true });
+        }
+      }
+    }
+  }, [dispatch, accessToken, navigate]);
+
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login', { replace: true });
+  };
 
   return (
-    <div className="bg-white w-full shadow-md fixed" style={{ zIndex: 9 }}>
-      <div className="flex justify-between items-center  w-full">
-        <div className="flex items-center cursor-pointer" onClick={toggleLanguage}>
-          <img
-            src={logo}
-            alt=""
-            className="w-[135px] ml-4"
-          />
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="relative mr-2">
-            <IconButton className="p-2">
-              <BellIcon />
-              {/* Red notification dot */}
-              <span className="absolute top-1 right-2 bg-red-500 rounded-full h-2 w-2"></span>
-            </IconButton>
+    <div className="bg-white w-full shadow-md fixed z-50">
+      <div className="flex justify-between items-center w-full px-4 py-2">
+        <img src={logo} alt="logo" className="h-14" />
+        <div className="relative">
+          <div className="flex items-center cursor-pointer" onClick={() => setMenuOpen((prev) => !prev)}>
+            <Avatar
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
+              alt="Main Admin"
+              className="h-10 w-10"
+            />
+            <span className="ml-2 font-semibold text-gray-800">Abhiraj</span>
+            <ArrowDropDownIcon className="text-blue-600" />
           </div>
-          {/* Profile dropdown */}
-          <div className="relative">
-            <div
-              className="flex items-center cursor-pointer py-4 mr-6"
-              onClick={handleClick}
-            >
-              {/* Profile Avatar */}
-              <Avatar
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-                alt="Main Admin"
-                className="h-12 w-12 mr-3"
-              />
 
-              {/* Admin Text */}
-              <span className="text-black font-semibold text-xl mr-0">
-                Abhiraj
-              </span>
-
-              {/* Dropdown Arrow */}
-              <ArrowDropDownIcon className="text-[#0000FF] h-8 w-8" />
-            </div>
-
-            {menuOpen && (
-              <div className="absolute top-16 right-2 w-40 bg-white rounded-lg shadow-lg border z-50 mr-4">
-                {/* Triangle Pointer */}
-                <div className="absolute -top-2 right-12 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-200 z-10"></div>
-
-                {/* Menu Items */}
-               
-                <div
-                  onClick={() => handleMenuItemClick('Logout')}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                >
-                  <LogoutIcon className="text-gray-700" />
-                  <span className="text-sm text-gray-800">Logout</span>
-                </div>
-
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg">
+              <div
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={handleLogout}
+              >
+                <LogoutIcon className="text-gray-700" />
+                <span>Logout</span>
               </div>
-            )}
-          </div>
-
+            </div>
+          )}
         </div>
       </div>
     </div>

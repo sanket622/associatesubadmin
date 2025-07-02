@@ -5,10 +5,10 @@ const initialState = {
   user: null,
   accessToken: null,
   refreshToken: null,
-  userModules: [],  
-  allModules: [],  
-  filteredModules: [], 
-  loading: false,
+  userModules: [],
+  allModules: [],
+  filteredModules: [],
+  loading: false, 
   error: null,
 };
 
@@ -39,7 +39,10 @@ const authSlice = createSlice({
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userId');
+      localStorage.removeItem('filteredModules');
+      localStorage.removeItem('user');
     },
+
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -75,8 +78,8 @@ export const loginUser = (email, password) => async (dispatch) => {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('userId', user.id);
+    localStorage.setItem('user', JSON.stringify(user));
 
-    // After login, fetch all modules
     dispatch(fetchAllModules());
 
     return { success: true };
@@ -100,15 +103,16 @@ export const fetchAllModules = () => async (dispatch, getState) => {
     const allModules = response.data.data || [];
     dispatch(setAllModules(allModules));
 
-    // Get user modules from state
     const userModules = getState().auth.userModules || [];
 
-    // Match user modules with all modules by path (or id)
     const filteredModules = allModules.filter((mod) =>
       userModules.some((userMod) => userMod.path === mod.path)
     );
 
     dispatch(setFilteredModules(filteredModules));
+    // Persist filteredModules in localStorage
+    localStorage.setItem('filteredModules', JSON.stringify(filteredModules));
+
   } catch (error) {
     const errMsg = error?.response?.data?.message || 'Failed to fetch modules';
     dispatch(setError(errMsg));
@@ -116,5 +120,6 @@ export const fetchAllModules = () => async (dispatch, getState) => {
     dispatch(setLoading(false));
   }
 };
+
 
 export default authSlice.reducer;

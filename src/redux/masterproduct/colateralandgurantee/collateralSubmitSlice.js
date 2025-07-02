@@ -74,7 +74,7 @@ export const submitCollateralData = (formData, callback) => async (dispatch) => 
             masterProductId: productId,
             collateralType: formData.collateralType?.id || null,
             collateralValue: Number(formData.collateralValue),
-            collateralValuationDate: formData.collateralValuationDate,
+            collateralValuationDate: new Date(formData.collateralValuationDate).toISOString(),
             collateralDocs: formData.collateralOwnershipDocs
                 ? formData.collateralOwnershipDocs.map(doc => doc.id)
                 : [],

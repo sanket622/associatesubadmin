@@ -253,7 +253,7 @@ const CollateralGuaranteeData = ({ setTabIndex, tabIndex, handleNext }) => {
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="collateralValuationDate">Collateral Valuation Date</Label>
-                    <RHFTextField name="collateralValuationDate" type="date" />
+                    <RHFTextField name="collateralValuationDate" type="datetime-local" />
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="collateralOwnershipDocs">Collateral Ownership Docs</Label>
