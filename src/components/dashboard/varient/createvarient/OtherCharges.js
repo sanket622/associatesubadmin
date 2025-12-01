@@ -16,7 +16,7 @@ import Label from '../../../subcompotents/Label';
 import { seteditVarientOtherChargesData, submitVariantOtherCharges } from '../../../../redux/varient/submitslice/variantProductOtherChargesSubmitSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { setEditVarientParameterData } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 const OtherCharges = ({ setTabIndex, tabIndex }) => {
    const location = useLocation()

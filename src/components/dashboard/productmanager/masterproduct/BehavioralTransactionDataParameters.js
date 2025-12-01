@@ -23,7 +23,7 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import { setEditBehavioralData, submitBehavioralData } from '../../../../redux/masterproduct/behaviraldata/behavioralDataSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
 export const billPaymentHistoryOptions = [

@@ -31,17 +31,17 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const filteredModules = useSelector((state) => state.auth.filteredModules);
+  console.log(filteredModules);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
     <div className="flex bg-gray-50" style={{ height: '100vh' }}>
-     <Navbar/>
+      <Navbar />
       <div
         style={{ boxShadow: '2px 0 5px rgba(0, 0, 0, 0.2)' }}
-        className={`bg-white text-black font-semibold text-[16px] px-4 pb-2 w-[250px] h-screen overflow-y-auto fixed top-0 left-0 bottom-0 z-0 transform transition-transform md:relative md:block ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0`}
+        className={`bg-white text-black font-semibold text-[16px] px-4 pb-2 w-[250px] h-screen overflow-y-auto fixed top-0 left-0 bottom-0 z-0 transform transition-transform md:relative md:block ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } md:translate-x-0`}
       >
         <ul className="space-y-4 mt-24">
           {filteredModules.map((item) => {
@@ -50,18 +50,17 @@ const DashboardLayout = () => {
               <li
                 key={item.id}
                 onClick={() => navigate(`/${item.path}`)}
-                className={`relative flex items-center px-5 py-2.5 cursor-pointer gap-3 transition-all ${
-                  isActive
+                className={`relative flex items-center px-5 py-2.5 cursor-pointer gap-3 transition-all ${isActive
                     ? 'bg-[#0000FF] font-medium rounded-xl text-white'
                     : 'hover:bg-[#0000FF] hover:text-white text-[#5B5B5B] rounded-xl'
-                }`}
+                  }`}
               >
                 {/* Optional: Show icon if available */}
                 {item.icon && (
                   <img
                     src={item.icon}
                     alt={item.moduleName}
-                    style={{ width: 20, height: 20  }}
+                    style={{ width: 20, height: 20 }}
                     className="inline-block  "
                   />
                 )}
@@ -92,7 +91,7 @@ const DashboardLayout = () => {
           <div className="mt-16">
             <Routes>
 
-               {/*++++++++++++++++++++++++++ Project manager +++++++++++++++++++++++++++++++ */}
+              {/*++++++++++++++++++++++++++ Project manager +++++++++++++++++++++++++++++++ */}
 
               <Route path="/home" element={<DashboardHeader />} />
               <Route path="/createproduct" element={< CreateProduct />} />
@@ -119,10 +118,10 @@ const DashboardLayout = () => {
               <Route path="/payment-cycle-detail/:contractId" element={<PaymentCycleDetail />} />
               <Route path="/varientallocation" element={<AllocatedProductsTable />} />
 
-               {/*++++++++++++++++++++++++++ Operation manager ++++++++++++++++++++++++++++++ */}
+              {/*++++++++++++++++++++++++++ Operation manager ++++++++++++++++++++++++++++++ */}
 
-                <Route path="/kyc" element={<KycTable />} />
-                <Route path="/kyc-detail/:id" element={<KYCDetailView />} />
+              <Route path="/kyc" element={<KycTable />} />
+              <Route path="/kyc-detail/:id" element={<KYCDetailView />} />
 
 
             </Routes>

@@ -9,7 +9,7 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import Label from '../../../subcompotents/Label';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 export const bureauTypeOptions = [
     { id: 'CIBIL', name: 'CIBIL' },

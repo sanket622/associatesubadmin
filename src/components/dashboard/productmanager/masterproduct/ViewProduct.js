@@ -42,6 +42,9 @@ const ViewProduct = () => {
   const dispatch = useDispatch();
   const { productDetails, loading, error } = useSelector((state) => state.products);
 
+  // console.log(productDetails);
+  
+
   useEffect(() => {
     dispatch(fetchProductDetails(id));
   }, [dispatch, id]);

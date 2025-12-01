@@ -18,7 +18,7 @@ import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { setEditVarientParameterData, submitVariantProductParameter } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 
 

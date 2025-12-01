@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Container, Typography, Grid, CircularProgress, Paper } from '@mui/material';
 import { fetchVersionDetails } from '../../../../redux/masterproduct/tableslice/productsSlice';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 const ViewVersion = () => {
      const { versionId } = useParams();

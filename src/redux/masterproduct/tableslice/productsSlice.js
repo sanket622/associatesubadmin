@@ -130,7 +130,7 @@ export const fetchProducts = (page, rowsPerPage) => async (dispatch) => {
         params: { page, rowsPerPage },
       }
     );
-   dispatch(fetchProductsSuccess(response.data.data)); 
+    dispatch(fetchProductsSuccess(response.data.data));
 
   } catch (err) {
     dispatch(fetchProductsFailure(err?.response?.data?.message || 'Failed to fetch products'));
@@ -145,8 +145,9 @@ export const fetchProductDetails = (productId, callback) => async (dispatch) => 
       `https://api.earnplus.net/api/v1/associate/masterProduct/getMasterProductDetails/${productId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    dispatch(fetchProductDetailsSuccess(response.data.data[0]));
-    if(callback && typeof callback === "function"){
+    // console.log(response);
+    dispatch(fetchProductDetailsSuccess(response.data.data));
+    if (callback && typeof callback === "function") {
       callback()
     }
   } catch (err) {
@@ -163,8 +164,8 @@ export const fetchProductVersions = (productId) => async (dispatch) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchProductVersionsSuccess(response.data.data));
-   
-    
+
+
   } catch (err) {
     dispatch(fetchProductVersionsFailure(err?.response?.data?.message || 'Failed to fetch version history'));
   }

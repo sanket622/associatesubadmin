@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
  const BASE_URL = "http://64.227.166.238:8090/employer/";
  const MEDIA_URL = "https://apis.agrisarathi.com/";

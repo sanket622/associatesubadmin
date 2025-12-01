@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setEditOtherChargesData, submitOtherCharges } from '../../../../redux/masterproduct/othercharges/otherChargesSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 const OtherCharges = ({ tabIndex, setTabIndex, }) => {
     const location = useLocation()

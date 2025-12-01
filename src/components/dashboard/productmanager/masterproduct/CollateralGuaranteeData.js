@@ -18,7 +18,7 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import Label from '../../../subcompotents/Label';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOwnershipDocs, setEditCollateralGuranteeData, submitCollateralData } from '../../../../redux/masterproduct/colateralandgurantee/collateralSubmitSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
 export const collateralTypeOptions = [

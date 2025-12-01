@@ -11,7 +11,7 @@ import { useFormContext, Controller, useForm } from 'react-hook-form';
 import { setEditCreditBureauData, submitCreditBureauConfig } from '../../../../redux/masterproduct/creditbreuconfig/creditBureauConfigSlice';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 export const delinquencyOptions = [
     { id: 'NONE', name: 'None' },

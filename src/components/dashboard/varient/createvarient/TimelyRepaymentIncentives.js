@@ -18,7 +18,7 @@ import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { submitVariantRepayment } from '../../../../redux/varient/submitslice/variantProductRepaymentSubmit';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { submitEditVariantSubmit } from '../../../../redux/varient/editvarient/EditVarientSlice';
 
 const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {

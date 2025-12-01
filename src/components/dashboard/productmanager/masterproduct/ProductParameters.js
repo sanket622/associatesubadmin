@@ -9,7 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 export const interestRateOptions = [
     { id: 'FLAT', name: 'Flat' },

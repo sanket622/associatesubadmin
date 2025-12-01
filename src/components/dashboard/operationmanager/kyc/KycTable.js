@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Visibility, Flag, Download } from '@mui/icons-material';
 import { fetchKYCRequests } from '../redux/kyc/kycSlice';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const KycTable = () => {
     const dispatch = useDispatch();

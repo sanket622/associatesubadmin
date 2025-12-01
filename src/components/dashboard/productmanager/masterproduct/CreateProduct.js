@@ -25,7 +25,7 @@ import { useSnackbar } from 'notistack';
 import { createGeneralProduct } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import { submitFinancialTerms } from '../../../../redux/masterproduct/productparameter/financialTermsSlice';
 import { submitEligibilityCriteria } from '../../../../redux/masterproduct/eligibilitycriteria/employmentTypesSlice';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router-dom';
 import { fetchProductDetails } from '../../../../redux/masterproduct/tableslice/productsSlice';
 
 

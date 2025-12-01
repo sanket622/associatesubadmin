@@ -13,7 +13,7 @@ import RHFTextField from '../../subcompotents/RHFTextField'; // Adjust import pa
 import FormProvider from '../../subcompotents/FormProvider'; // Required for RHFTextField
 import { submitArchive } from '../../../redux/varient/archiveVariantSlice';
 import Label from '../../subcompotents/Label';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 const ArchiveDialog = ({ open, onClose, variant }) => {
   const dispatch = useDispatch();

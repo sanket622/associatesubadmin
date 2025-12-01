@@ -21,7 +21,7 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import { setEditFinancialData, submitFinancialStatement } from '../../../../redux/masterproduct/financialstatement/financialStatementSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 export const salaryPatternOptions = [
     { id: 'MONTHLY', name: 'Monthly' },

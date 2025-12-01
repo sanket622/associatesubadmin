@@ -1,5 +1,5 @@
 import React, {  useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import logo from '../../assets/earnlogo.png'
 import { Button, IconButton, InputAdornment, TextField } from '@mui/material';

@@ -21,7 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { setEditRiskScoringData, submitRiskScoringData } from '../../../../redux/masterproduct/riskscoring/riskScoringSubmitSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 const RiskScoringInputs = ({ tabIndex, setTabIndex }) => {
     const location = useLocation()

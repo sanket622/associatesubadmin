@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 import { fetchProductMetadata } from '../../../../redux/masterproduct/productmetadata/productMetadataSlice';
 import { fetchProducts } from '../../../../redux/masterproduct/tableslice/productsSlice';
 import { setEditVarientBasicData, submitVariantProduct } from '../../../../redux/varient/submitslice/variantProductSubmitSlice';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 
 const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {

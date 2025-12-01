@@ -13,7 +13,7 @@ import { useSnackbar } from 'notistack';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { replaceUnderscore } from '../../../subcompotents/UtilityService';
 
 
@@ -21,7 +21,6 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
     const location = useLocation()
     const mode = location?.state?.mode
     const dispatch = useDispatch();
-
     const productDetails = useSelector((state) => state.products.productDetails);
     const editGeneralProductMetaData = useSelector((state) => state?.createProduct?.editGeneralProductMetaData);
     const generalProductValidationSchema = yup.object().shape({
@@ -71,7 +70,7 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
 
     const values = watch()
     console.log("values", values);
-    
+
     useEffect(() => {
         if (productDetails || editGeneralProductMetaData) {
             reset(defaultValues)

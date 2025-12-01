@@ -19,7 +19,7 @@ import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import { submitTimelyRepayment } from '../../../../redux/masterproduct/timelyrepayment/timelyRepaymentSlice';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { submitEditMasterProductSubmit } from '../../../../redux/masterproduct/editmasterproduct/EditMasterProduct';
 
 const dummyOptions = [

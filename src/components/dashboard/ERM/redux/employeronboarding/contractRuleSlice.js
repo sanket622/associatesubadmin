@@ -32,25 +32,25 @@ export const {
 } = contractRuleSlice.actions;
 
 export const fetchWorkLocations = (employerId) => async (dispatch) => {
-  try {
-    const accessToken = localStorage.getItem('accessToken');
-    const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/contractCombination/getWorkLocationsByEmployerId?employerId=${employerId}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-       
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+            `https://api.earnplus.net/api/v1/associate/contractCombination/getWorkLocationsByEmployerId?employerId=${employerId}`,
+            {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            }
+        );
+
         const options = response.data.data.map(item => ({
             label: item.workspaceName,
             value: item.id,
         }));
 
 
-    dispatch(fetchWorkLocationsSuccess(options));
-  } catch (error) {
-    enqueueSnackbar('Failed to fetch work locations', { variant: 'error' });
-  }
+        dispatch(fetchWorkLocationsSuccess(options));
+    } catch (error) {
+        enqueueSnackbar('Failed to fetch work locations', { variant: 'error' });
+    }
 };
 
 
