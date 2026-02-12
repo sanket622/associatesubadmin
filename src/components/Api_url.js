@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
- const BASE_URL = "http://64.227.166.238:8090/employer/";
- const MEDIA_URL = "https://apis.agrisarathi.com/";
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://64.227.166.238:8090/employer/";
+const MEDIA_URL = process.env.REACT_APP_BACKEND_MEDIA || "https://apis.agrisarathi.com/";
 
 
 export const EmployerRegistration = `${BASE_URL}EmployerRegistration`;
