@@ -1,23 +1,23 @@
-import { Box, Button, Grid } from '@mui/material';
+import { Box, Button, FormControlLabel, Grid, Radio, RadioGroup } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEmploymentTypes, fetchDocuments, submitEligibilityCriteria,setEditEligibilityData } from '../../../../redux/masterproduct/eligibilitycriteria/employmentTypesSlice';
+import {  submitEligibilityCriteria, setEditEligibilityData } from '../../../../redux/masterproduct/eligibilitycriteria/employmentTypesSlice';
 import * as yup from 'yup';
+import { useSnackbar } from 'notistack';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import Label from '../../../subcompotents/Label';
 import { useLocation } from 'react-router-dom';
+import { setEligibilityCriteria } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
+import { primaryBtnSx } from '../../../subcompotents/UtilityService';
+import {
 
-export const bureauTypeOptions = [
-    { id: 'CIBIL', name: 'CIBIL' },
-    { id: 'CRIF_HIGHMARK', name: 'CRIF HIGHMARK' },
-    { id: 'EXPERIAN', name: 'EXPERIAN' },
-    { id: 'EQUIFAX', name: 'EQUIFAX' },
-    { id: 'ANY', name: 'ANY' },
-];
+    updateMasterProductDraft
+} from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
+
 
 export const blacklistFlagOptions = [
     { id: 'WRITE_OFF', name: 'WRITE OFF' },
@@ -54,86 +54,66 @@ export const verificationModeOptions = [
 const validationSchema = yup.object().shape({
     minAge: yup.number().typeError('Min Age must be a number').required('Min Age is required'),
     maxAge: yup.number().typeError('Max Age must be a number').required('Max Age is required'),
-    minMonthlyIncome: yup.number().typeError('Min Monthly Income must be a number').required('Min Monthly Income is required'),
-    minBusinessVintage: yup.number().typeError('Min Business Vintage must be a number').required('Min Business Vintage is required'),
-    employmentTypeAllowed: yup.array().min(1, 'Employment Type Allowed is required').required('Employment Type Allowed is required'),
-    minBureauScore: yup.number().typeError('Min Bureau Score must be a number').required('Min Bureau Score is required'),
-    bureauType: yup.object().nullable().required('Bureau Type is required'),
-    blacklistFlags: yup.array().min(1, 'Blacklist Flags are required').required('Blacklist Flags are required'),
-    minimumDocumentsRequired: yup.array().min(1, 'Minimum Documents Required is required').required('Minimum Documents Required is required'),
-    documentSubmissionMode: yup.object().nullable().required('Document Submission Mode is required'),
-    documentVerificationMode: yup.object().nullable().required('Document Verification Mode is required'),
+    // minMonthlyIncome: yup.number().typeError('Min Monthly Income must be a number').required('Min Monthly Income is required'),
+    // minBusinessVintage: yup.number().typeError('Min Business Vintage must be a number').required('Min Business Vintage is required'),
+    // minBureauScore: yup.number().typeError('Min Bureau Score must be a number').required('Min Bureau Score is required'),
+    coApplicantRequired: yup
+        .string()
+        .oneOf(['yes', 'no'])
+        .required('Co-applicant is required'),
+
+    collateralRequired: yup
+        .string()
+        .oneOf(['yes', 'no'])
+        .required('Collateral is required'),
 });
 
-const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
+const EligibilityCriteria = ({ tabIndex, setTabIndex, totalTabs, status }) => {
     const dispatch = useDispatch();
     const location = useLocation()
+    const { enqueueSnackbar } = useSnackbar();
     const mode = location?.state?.mode
-    const employmentTypes = useSelector((state) => state.employmentTypes.employmentTypes);
+    // const employmentTypes = useSelector((state) => state.employmentTypes.employmentTypes);
     const loading = useSelector((state) => state.employmentTypes.loading);
     const documents = useSelector((state) => state.employmentTypes.documents);
-    const documentLoading = useSelector((state) => state.employmentTypes.loading);
+    // const documentLoading = useSelector((state) => state.employmentTypes.loading);
     const editEligibilityData = useSelector((state) => state.employmentTypes.editEligibilityData);
     const productDetails = useSelector((state) => state.products.productDetails);
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         minAge: editEligibilityData?.minAge || productDetails?.eligibilityCriteria?.minAge || '',
         maxAge: editEligibilityData?.maxAge || productDetails?.eligibilityCriteria?.maxAge || '',
-        minMonthlyIncome: editEligibilityData?.minMonthlyIncome || productDetails?.eligibilityCriteria?.minMonthlyIncome || '',
-        minBusinessVintage: editEligibilityData?.minBusinessVintage || productDetails?.eligibilityCriteria?.minBusinessVintage || '',
-        minBureauScore: editEligibilityData?.minBureauScore || productDetails?.eligibilityCriteria?.minBureauScore || '',
+        // minMonthlyIncome: editEligibilityData?.minMonthlyIncome || productDetails?.eligibilityCriteria?.minMonthlyIncome || '',
+        // minBusinessVintage: editEligibilityData?.minBusinessVintage || productDetails?.eligibilityCriteria?.minBusinessVintage || '',
+        // minBureauScore: editEligibilityData?.minBureauScore || productDetails?.eligibilityCriteria?.minBureauScore || '',
 
-        employmentTypeAllowed:
-            editEligibilityData?.employmentTypeAllowed ||
-            productDetails?.eligibilityCriteria?.employmentTypesAllowed?.map(item => ({
-                id: item.employmentId,
-                name: employmentTypes.find(item => item.id === item.employmentId)?.name || item.employmentId
-            })) || [],
+        coApplicantRequired:
+            (editEligibilityData?.coApplicantRequired ??
+                productDetails?.eligibilityCriteria?.coApplicantRequired)
+                ? 'yes'
+                : 'no',
 
-        blacklistFlags:
-            editEligibilityData?.blacklistFlags ||
-            productDetails?.eligibilityCriteria?.blacklistFlags?.map(flag => ({
-                id: flag,
-                name: blacklistFlagOptions.find(opt => opt.id === flag)?.name || flag
-            })) || [],
+        collateralRequired:
+            (editEligibilityData?.collateralRequired ??
+                productDetails?.eligibilityCriteria?.collateralRequired)
+                ? 'yes'
+                : 'no',
 
-        minimumDocumentsRequired:
-            editEligibilityData?.minimumDocumentsRequired ||
-            productDetails?.eligibilityCriteria?.minDocumentsRequired?.map(doc => ({
-                id: doc.documentId,
-                name: documents.find(d => d.id === doc.documentId)?.name || doc.documentId
-            })) || [],
-
-        documentSubmissionMode:
-            submissionModeOptions.find(opt =>
-                opt.id === editEligibilityData?.documentSubmissionMode?.id
-                || opt.id === productDetails?.eligibilityCriteria?.documentSubmissionModes?.[0]
-            ) || null,
-
-        documentVerificationMode:
-            verificationModeOptions.find(opt =>
-                opt.id === editEligibilityData?.documentVerificationMode?.id
-                || opt.id === productDetails?.eligibilityCriteria?.documentVerificationModes?.[0]
-            ) || null,
     } : {
         minAge: '',
         maxAge: '',
-        minMonthlyIncome: '',
-        minBusinessVintage: '',
-        minBureauScore: '',
-        employmentTypeAllowed: [],
-        blacklistFlags: [],
-        minimumDocumentsRequired: [],
-        bureauType: null,
-        documentSubmissionMode: null,
-        documentVerificationMode: null,
+        // minMonthlyIncome: '',
+        // minBusinessVintage: '',
+        // minBureauScore: '',
+        coApplicantRequired: 'no',
+        collateralRequired: 'no',
     }
 
 
-    useEffect(() => {
-        dispatch(fetchEmploymentTypes());
-        dispatch(fetchDocuments());
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(fetchEmploymentTypes());
+    //     dispatch(fetchDocuments());
+    // }, [dispatch]);
 
     const methods = useForm({
         resolver: yupResolver(validationSchema),
@@ -160,18 +140,48 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
 
 
     const onSubmit = (data) => {
-        if (mode === "EDIT") {
-            dispatch(setEditEligibilityData(data))
-            setTabIndex((prev) => Math.min(prev + 1, 9));
-        } else {
-            dispatch(submitEligibilityCriteria(data, () => {
-                setTabIndex((prev) => Math.min(prev + 1, 9));
-            }));
+        if (mode === "EDIT" && status === "Draft") {
+            dispatch(
+                updateMasterProductDraft({
+                    endpoint: 'updateEligibilityCriteriaDraft',
+                    payload: {
+                        masterProductId: productDetails?.id,
+                        eligibilityCriteria: data,
+                    },
+                })
+            )
+                .unwrap()
+                .then((res) => {
+                    enqueueSnackbar(
+                        res?.message || 'Draft saved successfully',
+                        { variant: 'success' }
+                    );
+
+                  
+                    setTabIndex(prev => Math.min(prev + 1, 9));
+                })
+                .catch((err) => {
+                    enqueueSnackbar(
+                        err?.message || 'Failed to save draft',
+                        { variant: 'error' }
+                    );
+                });
+        }
+        else if (mode === "EDIT") {
+            dispatch(setEligibilityCriteria(data));
+            setTabIndex(prev => Math.min(prev + 1, 9));
+        }
+        else {
+            dispatch(
+                submitEligibilityCriteria(data, () => {
+                    setTabIndex(prev => Math.min(prev + 1, 9));
+                })
+            );
         }
     }
-    useEffect(() => {
-        console.log('editEligibilityData', editEligibilityData);
-    }, [editEligibilityData]);
+    // useEffect(() => {
+    //     console.log('editEligibilityData', editEligibilityData);
+    // }, [editEligibilityData]);
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -186,7 +196,7 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
                     <RHFTextField name="maxAge" id="maxAge" />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                {/* <Grid item xs={12} md={4}>
                     <Label htmlFor="minMonthlyIncome">Min Monthly Income</Label>
                     <RHFTextField name="minMonthlyIncome" id="minMonthlyIncome" />
                 </Grid>
@@ -196,87 +206,59 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex }) => {
                     <RHFTextField name="minBusinessVintage" id="minBusinessVintage" />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
-                    <Label htmlFor="employmentTypeAllowed">Employment Type Allowed</Label>
-                    <RHFAutocomplete
-                        name="employmentTypeAllowed"
-                        id="employmentTypeAllowed"
-                        options={employmentTypes}
-                        loading={loading}
-                        multiple
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                    />
-                </Grid>
 
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="minBureauScore">Min Bureau Score</Label>
                     <RHFTextField name="minBureauScore" id="minBureauScore" />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={4}>
-                    <Label htmlFor="bureauType">Bureau Type</Label>
-                    <RHFAutocomplete
-                        name="bureauType"
-                        id="bureauType"
-                        options={bureauTypeOptions}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                    <Label>Co-Applicant Required</Label>
+                    <Controller
+                        name="coApplicantRequired"
+                        control={methods.control}
+                        render={({ field }) => (
+                            <RadioGroup {...field} row>
+                                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                                <FormControlLabel value="no" control={<Radio />} label="No" />
+                            </RadioGroup>
+                        )}
                     />
                 </Grid>
 
                 <Grid item xs={12} md={4}>
-                    <Label htmlFor="blacklistFlags">Blacklist Flags</Label>
-                    <RHFAutocomplete
-                        name="blacklistFlags"
-                        id="blacklistFlags"
-                        options={blacklistFlagOptions}
-                        multiple
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                    <Label>Collateral Required</Label>
+                    <Controller
+                        name="collateralRequired"
+                        control={methods.control}
+                        render={({ field }) => (
+                            <RadioGroup {...field} row>
+                                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                                <FormControlLabel value="no" control={<Radio />} label="No" />
+                            </RadioGroup>
+                        )}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
-                    <Label htmlFor="minimumDocumentsRequired">Minimum Documents Required</Label>
-                    <RHFAutocomplete
-                        name="minimumDocumentsRequired"
-                        id="minimumDocumentsRequired"
-                        options={documents}
-                        loading={documentLoading}
-                        multiple
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                    />
-                </Grid>
 
-                <Grid item xs={12} md={4}>
-                    <Label htmlFor="documentSubmissionMode">Document Submission Mode</Label>
-                    <RHFAutocomplete
-                        name="documentSubmissionMode"
-                        id="documentSubmissionMode"
-                        options={submissionModeOptions}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                    />
-                </Grid>
 
-                <Grid item xs={12} md={4}>
-                    <Label htmlFor="documentVerificationMode">Document Verification Mode</Label>
-                    <RHFAutocomplete
-                        name="documentVerificationMode"
-                        id="documentVerificationMode"
-                        options={verificationModeOptions}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                    />
-                </Grid>
             </Grid>
 
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
-                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 10</Box>
-                <Button sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
-                <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Next</Button>
+                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / {totalTabs}</Box>
+                {
+                    (mode === "EDIT") && (
+                        < Button
+                            sx={primaryBtnSx}
+                            variant="outlined"
+                            onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
+                            disabled={tabIndex === 0}
+                        >
+                            Back
+                        </Button>
+                    )
+                }
+                <Button variant="contained" sx={primaryBtnSx} type="submit">Next</Button>
             </Box>
         </FormProvider>
     );

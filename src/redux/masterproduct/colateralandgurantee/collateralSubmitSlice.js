@@ -92,7 +92,7 @@ export const submitCollateralData = (formData, callback) => async (dispatch) => 
         };
 
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/masterProduct/createCollateral',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createCollateral`,
             payload,
             {
                 headers: {
@@ -120,7 +120,7 @@ export const fetchOwnershipDocs = () => async (dispatch) => {
         const accessToken = localStorage.getItem('accessToken');
 
         const response = await axios.get(
-            'https://api.earnplus.net/api/v1/associate/ownership/getAllOwnershipDocuments',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/ownership/getAllOwnershipDocuments`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,

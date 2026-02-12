@@ -7,8 +7,8 @@ const initialState = {
   refreshToken: null,
   userModules: [],
   allModules: [],
-  filteredModules: [],
-  loading: false, 
+  // filteredModules: [],
+  loading: false,
   error: null,
 };
 
@@ -22,26 +22,29 @@ const authSlice = createSlice({
       state.accessToken = accessToken;
       state.refreshToken = refreshToken;
       state.userModules = user.modules || [];
+      state.allModules = user.modules || [];
     },
     setAllModules: (state, action) => {
       state.allModules = action.payload;
     },
-    setFilteredModules: (state, action) => {
-      state.filteredModules = action.payload;
-    },
+
+    // setFilteredModules: (state, action) => {
+    //   state.filteredModules = action.payload;
+    // },
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
       state.userModules = [];
       state.allModules = [];
-      state.filteredModules = [];
+
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userId');
-      localStorage.removeItem('filteredModules');
       localStorage.removeItem('user');
+      localStorage.removeItem('modules');
     },
+
 
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -55,7 +58,7 @@ const authSlice = createSlice({
 export const {
   setCredentials,
   setAllModules,
-  setFilteredModules,
+  // setFilteredModules,
   logout,
   setLoading,
   setError,
@@ -68,19 +71,22 @@ export const loginUser = (email, password) => async (dispatch) => {
     dispatch(setError(null));
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/loginAssociateSubAdmin',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/loginAssociateSubAdmin`,
       { email, password }
     );
 
     const { user, accessToken, refreshToken } = response.data.data;
+    console.log(response.data.data);
+
     dispatch(setCredentials({ user, accessToken, refreshToken }));
 
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('userId', user.id);
+    localStorage.setItem('role', user.role);
     localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('modules', JSON.stringify(user.modules || []));
 
-    dispatch(fetchAllModules());
 
     return { success: true };
   } catch (error) {
@@ -93,33 +99,33 @@ export const loginUser = (email, password) => async (dispatch) => {
 };
 
 // Fetch all modules thunk
-export const fetchAllModules = () => async (dispatch, getState) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(setError(null));
+// export const fetchAllModules = (id) => async (dispatch, getState) => {
+//   try {
+//     dispatch(setLoading(true));
+//     dispatch(setError(null));
 
-    const response = await axios.get('https://api.earnplus.net/api/v1/associate/roleModule/getAllModules');
+//     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/roleModule/getModulesByRole/${id}`);
 
-    const allModules = response.data.data || [];
-    dispatch(setAllModules(allModules));
+//     // const allModules = response.data.data || [];
+//     // dispatch(setAllModules(allModules));
 
-    const userModules = getState().auth.userModules || [];
+//     const userModules = getState().auth.userModules || [];
 
-    const filteredModules = allModules.filter((mod) =>
-      userModules.some((userMod) => userMod.path === mod.path)
-    );
+//     // const filteredModules = allModules.filter((mod) =>
+//     //   userModules.some((userMod) => userMod.path === mod.path)
+//     // );
 
-    dispatch(setFilteredModules(filteredModules));
-    // Persist filteredModules in localStorage
-    localStorage.setItem('filteredModules', JSON.stringify(filteredModules));
+//     // dispatch(setFilteredModules(filteredModules));
+//     // Persist filteredModules in localStorage
+//     // localStorage.setItem('filteredModules', JSON.stringify(filteredModules));
 
-  } catch (error) {
-    const errMsg = error?.response?.data?.message || 'Failed to fetch modules';
-    dispatch(setError(errMsg));
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+//   } catch (error) {
+//     const errMsg = error?.response?.data?.message || 'Failed to fetch modules';
+//     dispatch(setError(errMsg));
+//   } finally {
+//     dispatch(setLoading(false));
+//   }
+// };
 
 
 export default authSlice.reducer;

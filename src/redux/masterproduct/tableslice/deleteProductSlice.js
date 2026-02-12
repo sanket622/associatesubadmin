@@ -46,7 +46,7 @@ export const submitDeleteProduct = (productId, reason, callback, enqueueSnackbar
 
   try {
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/createMasterProductDeleteRequest',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProductDeleteRequest/submitMasterProductDeleteRequest`,
       {
         masterProductId: productId,
         reason: reason,
@@ -79,6 +79,39 @@ export const submitDeleteProduct = (productId, reason, callback, enqueueSnackbar
     }
   }
 };
+
+export const submitDeleteVariant = (variantId, reason, callback, enqueueSnackbar) => async (dispatch) => {
+  const accessToken = localStorage.getItem('accessToken');
+  dispatch(deleteProductStart());
+
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProductDeleteRequest/submitVariantProductDeleteRequest`,
+      {
+        variantProductId: variantId,
+        reason,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      dispatch(deleteProductSuccess(response.data));
+      enqueueSnackbar?.('Variant delete request submitted successfully!', { variant: 'success' });
+      callback?.();
+    } else {
+      dispatch(deleteProductFailure(response.data.message));
+      enqueueSnackbar?.(response.data.message, { variant: 'error' });
+    }
+  } catch (error) {
+    dispatch(deleteProductFailure(error.message));
+    enqueueSnackbar?.(error.message, { variant: 'error' });
+  }
+};
+
 
 
 export default deleteProductSlice.reducer;

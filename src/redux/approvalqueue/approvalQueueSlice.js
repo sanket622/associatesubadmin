@@ -55,7 +55,7 @@ export const fetchUpdateRequests = () => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      '/api/v1/associate/masterProduct/getAllMasterProductUpdateRequests',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProductUpdateRequest/getAllMasterProductUpdateRequests`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

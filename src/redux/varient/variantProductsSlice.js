@@ -39,7 +39,7 @@ export const fetchVariantsByProductId = (productId) => async (dispatch) => {
 
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/variantProduct/getAllVariantProductsByProduct/${productId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/getAllVariantProductsByProduct/${productId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

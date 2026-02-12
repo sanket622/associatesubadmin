@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --brand-primary: #F9F9FF;
+  --brand-main-bg: #f6f6f6;
+  --theme-btn-bg: #084E77;
+  --table-btn: #38789E;
+}
+
+body {
+  font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+.cards-bg {
+  background: #dedee1 !important;
+}
+
+.MuiTypography-root.theme-label {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  /* line-height: 16px; */
+  letter-spacing: 0;
+  color: #696969;
+}
+
+.MuiTypography-root.theme-values {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  /* line-height: 20px; */
+  letter-spacing: 0;
+  color: #000000;
+}
+
+.MuiCardHeader-root{
+  background: #084E77;
+  font-size: 13px !important;
+  color: #ffffff;
+  border-radius: 4px;
+}
+.MuiCardHeader-root span{
+  font-size: 16px !important;
+}

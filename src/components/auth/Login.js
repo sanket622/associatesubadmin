@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../auth/redux/auth/authSlice";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import logo from '../../assets/earnlogo.png';
+import logo from '../../assets/AppIcons.svg';
 import backgroundimg from './1.png';
 import { Button, IconButton, InputAdornment } from "@mui/material";
 import { useSnackbar } from 'notistack';
@@ -43,7 +43,7 @@ const Login = () => {
 
   useEffect(() => {
     if (auth?.accessToken) {
-      navigate("/home");
+      navigate("/");
     }
   }, [auth?.accessToken, navigate]);
 
@@ -63,7 +63,7 @@ const Login = () => {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" },
       });
-      navigate("/home");
+      navigate("/");
     } else {
       enqueueSnackbar(result?.payload?.message || "Login failed or Invalid Credentials!", {
         variant: "error",
@@ -145,7 +145,7 @@ const Login = () => {
 
             {/* Submit */}
             <div className="flex justify-center mt-4">
-              <Button fullWidth type="submit" variant="contained" disabled={auth.loading} sx={{ background: "#0000FF", color: "white", px: 12, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }}>{auth.loading ? "Logging In..." : "Log In"}</Button>
+              <Button fullWidth type="submit" variant="contained" disabled={auth.loading} sx={{ background: "btnbg", color: "white", px: 12, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "btnbg" } }}>{auth.loading ? "Logging In..." : "Log In"}</Button>
             </div>
           </FormProvider>
         </div>

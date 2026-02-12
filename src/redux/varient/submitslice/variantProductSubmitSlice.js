@@ -61,10 +61,11 @@ export const submitVariantProduct = (formData, callback) => async (dispatch) => 
       remark: formData.remarks,
       productType: formData.productType.id,
       partnerId,
+      geographyIds: formData.geographyIds,
     };
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/variantProduct/createVariantProduct',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/createVariantProduct`,
       payload,
       {
         headers: {

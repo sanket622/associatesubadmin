@@ -39,8 +39,8 @@ export const fetchScores = () => async (dispatch) => {
     try {
         dispatch(setLoading(true));
         const [internalRes, externalRes] = await Promise.all([
-            axios.get('https://api.earnplus.net/api/v1/associate/scoreVariable/getAllScoreVariables'),
-            axios.get('https://api.earnplus.net/api/v1/associate/externalScore/getAllExternalScores'),
+            axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/scoreVariable/getAllScoreVariables`),
+            axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/externalScore/getAllExternalScores`),
         ]);
 
         dispatch(setInternalScores(internalRes.data.data));

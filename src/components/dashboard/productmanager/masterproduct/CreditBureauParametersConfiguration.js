@@ -1,6 +1,6 @@
-import React from 'react';
-import TextFieldComponent from '../../../subcompotents/TextFieldComponent';
-import AutocompleteFieldComponent from '../../../subcompotents/AutocompleteFieldComponent';
+// import React from 'react';
+// import TextFieldComponent from '../../../subcompotents/TextFieldComponent';
+// import AutocompleteFieldComponent from '../../../subcompotents/AutocompleteFieldComponent';
 import { Box, Button, Grid } from '@mui/material';
 import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
@@ -11,7 +11,14 @@ import { useFormContext, Controller, useForm } from 'react-hook-form';
 import { setEditCreditBureauData, submitCreditBureauConfig } from '../../../../redux/masterproduct/creditbreuconfig/creditBureauConfigSlice';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import { setCreditBureauParameters } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
+import { primaryBtnSx } from '../../../subcompotents/UtilityService';
+import {
+
+    updateMasterProductDraft
+} from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
 
 export const delinquencyOptions = [
     { id: 'NONE', name: 'None' },
@@ -38,17 +45,21 @@ export const blacklistFlagOptions = [
     { id: 'MULTIPLE_ENQUIRIES', name: 'Multiple Enquiries' },
 ];
 
-const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTabIndex, handleNext }) => {
+const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status }) => {
     const location = useLocation()
     const mode = location?.state?.mode
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
 
     const editCreditBureauData = useSelector((state) => state.creditBureauConfig.editCreditBureauData);
     const productDetails = useSelector((state) => state.products.productDetails);
-    console.log(editCreditBureauData);
-    
 
-    
+    const { loading } = useSelector(
+        state => state.updateMasterProductDraft
+    );
+
+
     const findOption = (options, id) => options.find(option => option.id === id) || null;
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
@@ -69,14 +80,14 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
             || productDetails?.creditBureauConfig?.enquiriesLast6Months,
 
         loanDelinquencyAllowed: editCreditBureauData?.loanDelinquencyAllowed
-            || findOption(delinquencyOptions,productDetails?.creditBureauConfig?.loanDelinquencyAllowed,)|| [],
+            || findOption(delinquencyOptions, productDetails?.creditBureauConfig?.loanDelinquencyAllowed,) || [],
 
         bureauFreshnessDays: editCreditBureauData?.bureauDataFreshnessDays
             || productDetails?.creditBureauConfig?.bureauDataFreshnessDays,
 
-        customBureauFlags: editCreditBureauData?.customBureauFlags
-            || findOption(blacklistFlagOptions,productDetails?.creditBureauConfig?.customBureauFlags?.[0])
-            || [],
+        // customBureauFlags: editCreditBureauData?.customBureauFlags
+        //     || findOption(blacklistFlagOptions,productDetails?.creditBureauConfig?.customBureauFlags?.[0])
+        //     || [],
 
         scoreDecayTolerance: editCreditBureauData?.scoreDecayTolerance
             || productDetails?.creditBureauConfig?.scoreDecayTolerance,
@@ -108,7 +119,7 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
             .typeError('Freshness Days must be a number')
             .required('Freshness is required'),
         loanDelinquencyAllowed: yup.object().nullable().required('Loan Delinquency option is required'),
-        customBureauFlags: yup.object().nullable().required('Custom Bureau Flag is required'),
+        // customBureauFlags: yup.object().nullable().required('Custom Bureau Flag is required'),
         scoreDecayTolerance: yup
             .number()
             .typeError('Score Decay Tolerance must be a number')
@@ -129,15 +140,46 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
     } = methods
 
     const onSubmit = (data) => {
-        if (mode === "EDIT") {
-            dispatch(setEditCreditBureauData(data))
-            setTabIndex((prev) => Math.min(prev + 1, 9));
-        } else {
-            dispatch(submitCreditBureauConfig(data, () => {
-                setTabIndex((prev) => Math.min(prev + 1, 9));
-            }));
+        if (mode === "EDIT" && status === "Draft") {
+            dispatch(
+                updateMasterProductDraft({
+                    endpoint: 'updateCreditBureauConfigDraft',
+                    payload: {
+                        masterProductId: productDetails?.id,
+                        creditBureauParameters: data,
+                    },
+                })
+            )
+                .unwrap()
+                .then((res) => {
+                    enqueueSnackbar(
+                        res?.message || 'Draft saved successfully',
+                        { variant: 'success' }
+                    );
+
+                  
+                    setTabIndex(prev => Math.min(prev + 1, totalTabs - 1));
+                })
+                .catch((err) => {
+                    enqueueSnackbar(
+                        err?.message || 'Failed to save draft',
+                        { variant: 'error' }
+                    );
+                });
         }
-    }
+        else if (mode === "EDIT") {
+            dispatch(setCreditBureauParameters(data));
+            setTabIndex(prev => Math.min(prev + 1, totalTabs - 1));
+        }
+        else {
+            dispatch(
+                submitCreditBureauConfig(data, () => {
+                    setTabIndex(prev => Math.min(prev + 1, totalTabs - 1));
+                })
+            );
+        }
+    };
+
 
     const onError = (e) => console.log(e);
 
@@ -176,11 +218,6 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
                 </Grid>
 
                 <Grid item xs={12} md={4}>
-                    <Label htmlFor="bureauFreshnessDays">Bureau Data Freshness (in days)</Label>
-                    <RHFTextField name="bureauFreshnessDays" id="bureauFreshnessDays" />
-                </Grid>
-
-                <Grid item xs={12} md={4}>
                     <Label htmlFor="loanDelinquencyAllowed">Loan Delinquency History Allowed</Label>
                     <RHFAutocomplete
                         name="loanDelinquencyAllowed"
@@ -191,6 +228,13 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
                 </Grid>
 
                 <Grid item xs={12} md={4}>
+                    <Label htmlFor="bureauFreshnessDays">Bureau Data Freshness (in days)</Label>
+                    <RHFTextField name="bureauFreshnessDays" id="bureauFreshnessDays" />
+                </Grid>
+
+
+
+                {/* <Grid item xs={12} md={4}>
                     <Label htmlFor="customBureauFlags">Custom Bureau Flags</Label>
                     <RHFAutocomplete
                         name="customBureauFlags"
@@ -198,7 +242,7 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
                         options={blacklistFlagOptions}
                         getOptionLabel={(option) => option?.name || ''}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="scoreDecayTolerance">Score Decay Tolerance</Label>
@@ -222,42 +266,26 @@ const CreditBureauParametersConfiguration = ({ handleTabChange, tabIndex, setTab
                         color: '#6B6B6B',
                     }}
                 >
-                    {tabIndex + 1} / 10
+                    {tabIndex + 1} / {totalTabs}
                 </Box>
 
 
-                <Button
-                    sx={{
-                        background: "#0000FF",
-                        color: "white",
-                        px: 6,
-                        py: 1,
-                        borderRadius: 2,
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        textTransform: "none",
-                        "&:hover": { background: "#0000FF" },
-                    }}
-                    variant="outlined"
-                    onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
-
-                >
-                    Back
-                </Button>
+                {
+                    (mode === "EDIT") && (
+                        < Button
+                            sx={primaryBtnSx}
+                            variant="outlined"
+                            onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
+                            disabled={tabIndex === 0}
+                        >
+                            Back
+                        </Button>
+                    )
+                }
 
                 <Button
                     variant="contained"
-                    sx={{
-                        background: "#0000FF",
-                        color: "white",
-                        px: 6,
-                        py: 1,
-                        borderRadius: 2,
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        textTransform: "none",
-                        "&:hover": { background: "#0000FF" },
-                    }}
+                    sx={primaryBtnSx}
                     type='submit'
                 >
                     Next

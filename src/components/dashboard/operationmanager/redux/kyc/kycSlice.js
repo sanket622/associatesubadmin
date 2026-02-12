@@ -51,7 +51,7 @@ export const fetchKYCRequests = () => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      'https://api.earnplus.net/api/v1/employee/kyc/getKYCRequest',
+      `${process.env.REACT_APP_BACKEND_URL}/employee/kyc/getKYCRequest`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchKYCListSuccess(response.data.data));
@@ -65,7 +65,7 @@ export const fetchKYCDetail = (id) => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/employee/kyc/getKYCDetails/${id}`,
+      `${process.env.REACT_APP_BACKEND_URL}/employee/kyc/getKYCDetails/${id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchKYCDetailSuccess(response.data.data));

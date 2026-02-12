@@ -1,178 +1,267 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import SendIcon from '@mui/icons-material/Send';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  CircularProgress, IconButton, Pagination, PaginationItem,
-  Button
+  Box, Button, IconButton, Paper, Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography
 } from '@mui/material';
+import CategoryIcon from '@mui/icons-material/Category';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import HistoryIcon from '@mui/icons-material/History';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts, setPage, setRowsPerPage } from '../../../../redux/masterproduct/tableslice/productsSlice';
-import { useNavigate } from 'react-router-dom';
-import DeleteModal from './DeleteModal';
-import { setEditGeneralProductMetaData } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import AddIcon from '@mui/icons-material/Add';
-import { setEditProductparameter } from '../../../../redux/masterproduct/productparameter/financialTermsSlice';
+import { useNavigate } from 'react-router-dom';
+import ReusableTable from '../../../subcompotents/ReusableTable';
+import DeleteModal from './DeleteModal';
+import ApprovalModal from '../../../subcompotents/ApprovalModal';
+import {
+  fetchProducts,
+  setPage,
+  setRowsPerPage
+} from '../../../../redux/masterproduct/tableslice/productsSlice';
+import {
+  setEditGeneralProductMetaData,
+} from '../../../../redux/masterproduct/productmetadata/createProductSlice';
+import {
+  setEditProductparameter,
+} from '../../../../redux/masterproduct/productparameter/financialTermsSlice';
+
+import { submitMasterProductForApproval } from
+  '../../../../redux/masterproduct/createmasterproductrequest/masterProductCreateRequestSlice';
+import { primaryBtnSx } from '../../../subcompotents/UtilityService';
 
 
 const MasterProductTable = () => {
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const dispatch = useDispatch();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [submitProductId, setSubmitProductId] = useState(null);
+
   const {
-    products, loading, error,
-    page, rowsPerPage, totalCount, totalPages
+    products,
+    loading,
+    error,
+    page,
+    rowsPerPage,
+    totalCount,
+    totalPages
   } = useSelector((state) => state.products);
+
 
   useEffect(() => {
     dispatch(fetchProducts(page, rowsPerPage));
   }, [dispatch, page, rowsPerPage]);
 
-  const handleChangePage = (event, value) => {
-    dispatch(setPage(value));
-  };
 
-  const navigate = useNavigate();
+  const columns = [
+    {
+      key: 'sno',
+      label: 'Sno.',
+      render: (_, row, index) =>
+        (page - 1) * rowsPerPage + index + 1
+    },
+    { key: 'productName', label: 'Name' },
+    { key: 'productId', label: 'Product ID' },
+    { key: 'productCode', label: 'Code' },
+    { key: 'status', label: 'Status' },
+
+    {
+      key: 'edit',
+      label: 'Edit',
+      render: (_, row) => (
+        <IconButton
+          sx={{ color: '#084E77' }}
+          onClick={() => {
+            dispatch(setEditGeneralProductMetaData(null));
+            dispatch(setEditProductparameter(null));
+            localStorage.setItem('createdProductId', row.id);
+            navigate(`/createproduct/${row.id}`, { state: { mode: 'EDIT', status: row?.status, } });
+          }}
+        >
+          <EditIcon />
+        </IconButton>
+      ),
+    },
+    {
+      key: 'variant',
+      label: 'View Variant',
+      render: (_, row) => (
+        <IconButton sx={{ color: '#084E77' }} onClick={() => navigate(`/varient-details/${row.id}`)}>
+          <CategoryIcon />
+        </IconButton>
+      ),
+    },
+    {
+      key: 'delete',
+      label: 'Delete',
+      render: (_, row) => (
+        <IconButton color="error" onClick={() => { setSelectedProduct(row); setDeleteModal(true) }}>
+          <DeleteIcon />
+        </IconButton>
+      ),
+    },
+    {
+      key: 'history',
+      label: 'History',
+      render: (_, row) => (
+        <IconButton sx={{ color: '#084E77' }} onClick={() => navigate(`/version-history/${row.id}`)}>
+          <HistoryIcon />
+        </IconButton>
+      ),
+    },
+    {
+      key: 'view',
+      label: 'View',
+      render: (_, row) => (
+        <IconButton sx={{ color: '#084E77' }} onClick={() => navigate(`/view-product/${row.id}`)}>
+          <VisibilityIcon />
+        </IconButton>
+      ),
+    },
+    {
+      key: 'add',
+      label: 'Add Fields',
+      render: (_, row) => (
+        <IconButton sx={{ color: '#084E77' }}
+          onClick={() => {
+            navigate(`/add-fields/${row.id}`, {
+              state: {
+                status: row.status,
+              },
+            });
+          }}
+        >
+          <PlaylistAddIcon />
+        </IconButton>
+      ),
+    },
+    // {
+    //   key: 'gonopolicy',
+    //   label: 'Go/No Policy',
+    //   render: (_, row) => (
+    //     <IconButton sx={{ color: '#084E77' }}
+    //       onClick={() => {
+    //         navigate(`/product-policy/${row.id}`, {
+    //           state: {
+    //             status: row.status,
+    //           },
+    //         });
+    //       }}
+    //     >
+    //       <PlaylistAddIcon />
+    //     </IconButton>
+    //   ),
+    // },
+    // {
+    //   key: 'Bre Policy',
+    //   label: 'Bre Policy',
+    //   render: (_, row) => (
+    //     <IconButton sx={{ color: '#084E77' }}
+    //       onClick={() => {
+    //         navigate(`/productbre-policy/${row.id}`, {
+    //           state: {
+    //             status: row.status,
+    //           },
+    //         });
+    //       }}
+    //     >
+    //       <PlaylistAddIcon />
+    //     </IconButton>
+    //   ),
+    // },
+
+    {
+      key: 'submit',
+      label: 'Approval',
+      render: (_, row) => (
+        <IconButton sx={{ color: '#084E77' }}
+          color="primary"
+          disabled={row.status === 'Active'}
+          onClick={() => {
+            setSubmitProductId(row.id);
+            setConfirmOpen(true);
+          }}
+        >
+          <SendIcon />
+        </IconButton>
+      ),
+    },
+
+
+  ];
+
+
+
+
+  const headerActions = (
+    < Button
+      startIcon={< AddIcon />}
+      sx={primaryBtnSx}
+      onClick={() => navigate('/createproduct')}
+    >
+      Create Product
+    </Button >
+  )
+
+
 
   return (
-    <>
-      <div className="p-6">
-        <h1 className="text-[24px] font-semibold mb-2">Master Products</h1>
-         <div className="p-2 flex justify-end items-center">
-            <div className="mb-2 flex gap-4">
-              <Button startIcon={<AddIcon />} sx={{ background: "#0000FF", color: "white", px: 4, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} onClick={() => navigate('/createproduct')}>
-                Create Product
-              </Button>
-
-            </div>
-          </div>
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-         
-          <TableContainer
-            component={Paper}
-            sx={{
-              overflowX: 'auto',
-              borderRadius: 2,
-              '&::-webkit-scrollbar': { height: '8px' },
-              '&::-webkit-scrollbar-thumb': { backgroundColor: '#0000FF', borderRadius: '4px' },
-              '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1' },
-            }}
-          >
-            <Table>
-              <TableHead sx={{ background: '#F5F5FF' }}>
-                <TableRow>
-                  {['Sno.', 'Name', 'Product ID', 'Code', 'Status', 'Edit', 'Delete', 'History', 'View'].map((header) => (
-                    <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>{header}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center"><CircularProgress /></TableCell>
-                  </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center" style={{ color: 'red' }}>{error}</TableCell>
-                  </TableRow>
-                ) : products.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center">No products found.</TableCell>
-                  </TableRow>
-                ) : (
-                  products.map((prod, index) => (
-                    <TableRow key={prod.id}>
-                      <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{prod.productName}</TableCell>
-                      <TableCell>{prod.productId}</TableCell>
-                      <TableCell>{prod.productCode}</TableCell>
-                      <TableCell>{prod.status}</TableCell>
-
-                      <TableCell>
-                        <IconButton style={{ color: '#0000FF' }} onClick={() => {
-                          dispatch(setEditGeneralProductMetaData(null))
-                          dispatch(setEditProductparameter(null))
-                          navigate(`/createproduct/${prod.id}`, { state: { mode: 'EDIT' } })
-                        }}><EditIcon /></IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton color="error" onClick={() => { setSelectedProduct(prod); setDeleteModal(true) }}><DeleteIcon /></IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => navigate(`/version-history/${prod.id}`)}><HistoryIcon /></IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => navigate(`/view-product/${prod.id}`)}><VisibilityIcon /></IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <div className="px-6 py-4 flex justify-between items-center bg-white">
-            <div className="flex items-center text-gray-500">
-              <span className="mr-2 text-sm">Rows per page:</span>
-              <select
-                value={rowsPerPage}
-                onChange={(e) => {
-                  dispatch(setRowsPerPage(Number(e.target.value)));
-                  dispatch(setPage(1));
-                }}
-                className="border border-gray-300 rounded px-2 py-1 text-sm"
-              >
-                {[5, 10, 25, 50].map((size) => (
-                  <option key={size} value={size}>{size}</option>
-                ))}
-              </select>
-            </div>
-            <div className="text-sm text-gray-500">
-              Showing {(page - 1) * rowsPerPage + 1} to {Math.min(page * rowsPerPage, totalCount)} out of {totalCount} records
-            </div>
-            <div className="flex items-center space-x-2">
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handleChangePage}
-                size="small"
-                shape="rounded"
-                variant="outlined"
-                renderItem={(item) => (
-                  <PaginationItem
-                    components={{ previous: ChevronLeftIcon, next: ChevronRightIcon }}
-                    {...item}
-                    sx={{
-                      minWidth: 32,
-                      height: 32,
-                      borderRadius: '8px',
-                      fontSize: '0.75rem',
-                      px: 0,
-                      color: item.selected ? '#0000FF' : 'black',
-                      borderColor: item.selected ? '#0000FF' : 'transparent',
-                      '&:hover': { borderColor: '#0000FF', backgroundColor: 'transparent' },
-                      fontWeight: item.selected ? 600 : 400,
-                    }}
-                  />
-                )}
-              />
-            </div>
-          </div>
+    <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
+      {/* <Box mb={2}>
+        <div className="flex justify-end items-center">
+          <Button startIcon={<AddIcon />} sx={{ background: "#0000FF", color: "white", px: 4, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} onClick={() => navigate('/createproduct')}>
+            Create Product
+          </Button>
         </div>
-      </div>
+      </Box> */}
+
+      <ReusableTable
+        title="Master Products"
+        columns={columns}
+        data={products}
+        loading={loading}
+        error={error}
+        page={page}
+        // showSearch = {true}
+        // showFilter= {true}
+        headerActions={headerActions}
+        rowsPerPage={rowsPerPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={(newPage) => dispatch(setPage(newPage))}
+        onRowsPerPageChange={(size) => {
+          dispatch(setRowsPerPage(size));
+          dispatch(setPage(1));
+        }}
+      />
+
       {deleteModal && (
         <DeleteModal
-          selectedProduct={selectedProduct}
+          selectedItem={selectedProduct}
+          type="PRODUCT"
           setDeleteModal={setDeleteModal}
         />
       )}
-    </>
+
+      <ApprovalModal
+        open={confirmOpen}
+        entityLabel="product"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          dispatch(submitMasterProductForApproval(submitProductId));
+          setConfirmOpen(false);
+          setSubmitProductId(null);
+        }}
+      />
+
+    </Paper>
   );
 };
 

@@ -32,11 +32,38 @@ import featuresReducer from '../components/dashboard/ERM/redux/varientallocation
 import productAllocationReducer from '../components/dashboard/ERM/redux/varientallocation/productAllocationSlice';
 import allocatedProductsReducer from '../components/dashboard/ERM/redux/varientallocation/allocatedProductsSlice';
 import kycReducer from '../components/dashboard/operationmanager/redux/kyc/kycSlice';
+import productFieldsReducer from
+    '../redux/masterproduct/productFields/productFieldsSlice';
+import fieldManagerReducer from "../redux/masterproduct/productFields/fieldManagerApi";
 
+import pendingLoanReducer from './getPendingLoans/getpendingloanslice';
+import appliedLoanReducer from './getPendingLoans/getappliedloansslice'
 
+import kycApplicantsReducer from '../redux/creditManager/kycApplicantsSlice';
+
+import masterProductUpdateReducer from
+    '../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
+
+import recheckLoanReducer from './getPendingLoans/recheckLoanSlice'
+
+import loanDetailsReducer from '../redux/getPendingLoans/loanDetailsslice';
+import loanManagerHistoryReducer from './getPendingLoans/loanManagerHistorySlice';
+import masterProductCreateRequestReducer from '../redux/masterproduct/createmasterproductrequest/masterProductCreateRequestSlice';
+import variantProductCreateRequestReducer from
+    '../redux/varient/createvariantproductrequest/variantProductCreateRequestSlice';
+
+import updateMasterProductDraftReducer from
+    './masterproduct/masterproductdraftslice/masterproductdraft';
+
+import updateVariantProductDraftReducer from '../redux/varient/variantdraftupdateslice/variantdraftupdateslice';
+
+import variantGoNoGoKeysReducer
+    from "../redux/varient/variantGoNoGoKeysSlice";
+
+import geographyReducer from '../redux/varient/geographySlice';
 export const store = configureStore({
     reducer: {
-        
+
         auth: authReducer,
         employee: employeeReducer,
         roleModule: roleModuleReducer,
@@ -59,6 +86,7 @@ export const store = configureStore({
         variantProductRepaymentSubmit: variantProductRepaymentSubmitReducer,
         variantProducts: variantProductsReducer,
         variantSingle: variantSingleReducer,
+        variantProductCreateRequest: variantProductCreateRequestReducer,
         employerAssignment: employerAssignmentReducer,
         archiveVariant: archiveVariantReducer,
         employerOnboarding: employerOnboardingReducer,
@@ -70,10 +98,23 @@ export const store = configureStore({
         productAllocation: productAllocationReducer,
         allocatedProducts: allocatedProductsReducer,
 
+        masterProductUpdate: masterProductUpdateReducer,
+        masterProductCreateRequest: masterProductCreateRequestReducer,
+        updateMasterProductDraft: updateMasterProductDraftReducer,
         // ++++++++++++ opretation manager +++++++++++++++++
 
+        variantGoNoGoKeys: variantGoNoGoKeysReducer,
+        updateVariantProductDraft: updateVariantProductDraftReducer,
+        geography: geographyReducer,
+
         kyc: kycReducer,
-
-
+        kycApplicants: kycApplicantsReducer,
+        appliedLoans: appliedLoanReducer,
+        pendingLoans: pendingLoanReducer,
+        loanManagerHistory: loanManagerHistoryReducer,
+        productFields: productFieldsReducer,
+        fieldManager: fieldManagerReducer,
+        loanDetails: loanDetailsReducer,
+        recheckLoans: recheckLoanReducer
     },
 });

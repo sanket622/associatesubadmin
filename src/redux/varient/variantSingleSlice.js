@@ -45,7 +45,7 @@ export const fetchVariantProductDetail = (id) => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/variantProduct/getVariantProductDetail/${id}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/getVariantProductDetail/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

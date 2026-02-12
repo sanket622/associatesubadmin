@@ -76,7 +76,7 @@ export const submitVariantProductParameter = (formData, callback) => async (disp
         };
 
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/variantProduct/createVariantProductParameter',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/createVariantProductParameter`,
             payload,
             {
                 headers: {

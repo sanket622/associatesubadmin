@@ -8,6 +8,11 @@ const initialState = {
   purposeCategories: [],
   partners: [],
   geographyStates: [],
+
+  deliveryChannels: [],
+  disbursementModes: [],
+  repaymentModes: [],
+
   loading: false,
   error: null
 };
@@ -39,7 +44,18 @@ const productMetadataSlice = createSlice({
     },
     setGeographyStates: (state, action) => {
       state.geographyStates = action.payload;
-    }
+    },
+
+    setDeliveryChannels: (state, action) => {
+      state.deliveryChannels = action.payload;
+    },
+    setDisbursementModes: (state, action) => {
+      state.disbursementModes = action.payload;
+    },
+    setRepaymentModes: (state, action) => {
+      state.repaymentModes = action.payload;
+    },
+
   }
 });
 
@@ -51,7 +67,10 @@ export const {
   setLoanTypes,
   setPurposeCategories,
   setPartners,
-  setGeographyStates
+  setGeographyStates,
+  setDeliveryChannels,
+  setDisbursementModes,
+  setRepaymentModes
 } = productMetadataSlice.actions;
 
 export const fetchProductMetadata = () => async (dispatch) => {
@@ -64,14 +83,20 @@ export const fetchProductMetadata = () => async (dispatch) => {
       loansRes,
       purposesRes,
       partnersRes,
-      geographyRes
+      geographyRes,
+      deliveryChannelsRes,
+      disbursementModesRes,
+      repaymentModesRes
     ] = await Promise.all([
-      axios.get('https://api.earnplus.net/api/v1/associate/productCategory/getAllProductCategories'),
-      axios.get('https://api.earnplus.net/api/v1/associate/segment/getAllProductSegments'),
-      axios.get('https://api.earnplus.net/api/v1/associate/loan/getAllLoanTypes'),
-      axios.get('https://api.earnplus.net/api/v1/associate/productCategory/getProductPurposes'),
-      axios.get('https://api.earnplus.net/api/v1/associate/partner/getAllProductPartners'),
-      axios.get('https://api.earnplus.net/api/v1/associate/location/getStatesByCountry/ad445591-3574-4a07-9b81-09ffedcc1bb6')
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/productCategory/getAllProductCategories`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/segment/getAllProductSegments`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/loan/getAllLoanTypes`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/productCategory/getProductPurposes`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/partner/getAllProductPartners`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/location/getStatesByCountry/ad445591-3574-4a07-9b81-09ffedcc1bb6`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/deliveryChannel/getAllDeliveryChannels`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/disbursement/getAllDisbursementModes`),
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/repayment/getAllRepaymentModes`)
     ]);
 
     dispatch(setProductCategories(productCategoriesRes.data.data));
@@ -80,6 +105,10 @@ export const fetchProductMetadata = () => async (dispatch) => {
     dispatch(setPurposeCategories(purposesRes.data.data));
     dispatch(setPartners(partnersRes.data.data));
     dispatch(setGeographyStates(geographyRes.data.data));
+    dispatch(setDeliveryChannels(deliveryChannelsRes.data.data));
+    dispatch(setDisbursementModes(disbursementModesRes.data.data));
+    dispatch(setRepaymentModes(repaymentModesRes.data.data));
+
 
   } catch (err) {
     dispatch(setError(err.message));

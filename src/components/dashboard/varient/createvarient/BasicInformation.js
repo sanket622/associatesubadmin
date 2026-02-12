@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Grid,
     Box,
@@ -14,19 +14,25 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchProductMetadata } from '../../../../redux/masterproduct/productmetadata/productMetadataSlice';
-import { fetchProducts } from '../../../../redux/masterproduct/tableslice/productsSlice';
+import { fetchProducts, fetchProductDetails } from '../../../../redux/masterproduct/tableslice/productsSlice';
 import { setEditVarientBasicData, submitVariantProduct } from '../../../../redux/varient/submitslice/variantProductSubmitSlice';
+import { fetchGeographies } from
+    '../../../../redux/varient/geographySlice';
+import { updateVariantProductDraft } from '../../../../redux/varient/variantdraftupdateslice/variantdraftupdateslice';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import { primaryBtnSx } from '../../../subcompotents/UtilityService';
 
 
-const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
+const BasicInformation = ({ setTabIndex, tabIndex, totalTabs, variant }) => {
     const location = useLocation()
+    const { enqueueSnackbar } = useSnackbar();
     const mode = location?.state?.mode
+    const productIdFromState = location?.state?.productId
     const dispatch = useDispatch();
-
     const { partners } = useSelector((state) => state.productMetadata);
-    const { products } = useSelector((state) => state.products);
-
+    const { products, productDetails } = useSelector((state) => state.products);
+    const { geographies } = useSelector((state) => state.geography);
     const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
     const editVarientBasicData = useSelector((state) => state.variantProductSubmit.editVarientBasicData);
 
@@ -36,13 +42,21 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
         { id: 'NA', name: 'Na' },
     ];
 
+
+
+
+
     const BasicInfoSchema = Yup.object().shape({
         linkedProductId: Yup.object().required('Linked Product Master ID is required'),
         productType: Yup.object().required('Product Type is required'),
         variantName: Yup.string().required('Variant Name is required'),
-        variantCode: Yup.string().required('Variant Code is required'),
+        // variantCode: Yup.string().required('Variant Code is required'),
         variantType: Yup.string().required('Variant Type is required'),
         partner: Yup.object().nullable(),
+        geography: Yup.array()
+            .of(Yup.object())
+            .min(1, 'At least one Geography is required')
+            .required(),
         remarks: Yup.string().optional(),
     });
 
@@ -73,25 +87,42 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
             editVarientBasicData?.partner ||
             partners?.find(p => p.id === variantDetail.partnerId) ||
             null,
+        geography:
+            editVarientBasicData?.geography ||
+            geographies?.filter(g =>
+                variantDetail?.geographyIds?.includes(g.id)
+            ) ||
+            [],
 
         remarks:
             editVarientBasicData?.remarks ||
             variantDetail?.remark || '',
 
     } : {
-        linkedProductId: null,
-        productType: null,
+        linkedProductId: productDetails,
+        productType: productType.find(
+            p => p.name === productDetails?.loanType?.name
+        ) || null,
         variantName: '',
         variantCode: '',
         variantType: '',
-        partner: null,
+        partner:
+            partners?.find(
+                p => p.id === productDetails?.productPartner?.id
+            ) || null,
+        geography: [],
         remarks: '',
     };
-
+    useEffect(() => {
+        if (productIdFromState) {
+            dispatch(fetchProductDetails(productIdFromState));
+        }
+    }, [dispatch, productIdFromState]);
 
     useEffect(() => {
         dispatch(fetchProductMetadata());
         dispatch(fetchProducts());
+        dispatch(fetchGeographies());
     }, [dispatch]);
 
     const methods = useForm({
@@ -100,17 +131,51 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
     });
 
     useEffect(() => {
-        if (variantDetail || editVarientBasicData) {
+        if (variantDetail || editVarientBasicData || productIdFromState) {
             reset(defaultValues)
         }
-    }, [variantDetail, editVarientBasicData, products])
+    }, [variantDetail, editVarientBasicData, products, productIdFromState, geographies])
+
+    // console.log(mode, status);
 
     const onSubmit = (data) => {
-        if (mode === "EDIT") {
-            dispatch(setEditVarientBasicData(data))
+
+        const payload = {
+            ...data,
+            geographyIds: data.geography.map(g => g.id),
+        };
+        delete payload.geography;
+
+        if (mode === "EDIT" && variantDetail.status === "Draft") {
+            dispatch(
+                updateVariantProductDraft({
+                    endpoint: 'updateVariantProductDraft',
+                    payload: {
+                        ...payload,
+                        variantProductId: localStorage.getItem('createdVariantId')
+                    },
+                })
+            )
+                .unwrap()
+                .then((res) => {
+                    enqueueSnackbar(
+                        res?.message || 'Draft saved successfully',
+                        { variant: 'success' }
+                    );
+                    setTabIndex(prev => Math.min(prev + 1, 9));
+                })
+                .catch((err) => {
+                    enqueueSnackbar(
+                        err?.message || 'Failed to save draft',
+                        { variant: 'error' }
+                    );
+                });
+        }
+        else if (mode === "EDIT") {
+            dispatch(setEditVarientBasicData(payload))
             setTabIndex((prev) => Math.min(prev + 1, 9));
         } else {
-            dispatch(submitVariantProduct(data, () => {
+            dispatch(submitVariantProduct(payload, () => {
                 setTabIndex((prev) => Math.min(prev + 1, 9));
             }));
         }
@@ -138,12 +203,13 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
                                 options={products || []}
                                 getOptionLabel={(option) => option?.productName || ''}
                                 id="linkedProductId"
+                                disabled
                             />
                         </Grid>
 
                         <Grid item xs={12} md={4}>
                             <Label htmlFor="productType">Product Type</Label>
-                            <RHFAutocomplete name="productType" options={productType} getOptionLabel={(option) => option.name} />
+                            <RHFAutocomplete name="productType" options={productType} getOptionLabel={(option) => option.name} disabled />
                         </Grid>
 
                         <Grid item xs={12} md={4}>
@@ -168,6 +234,18 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
                                 options={partners || []}
                                 getOptionLabel={(option) => option?.name || ''}
                                 id="partner"
+                                disabled
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Label htmlFor="geography">Geography</Label>
+                            <RHFAutocomplete
+                                name="geography"
+                                options={geographies || []}
+                                getOptionLabel={(option) => option?.name || ''}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                multiple
                             />
                         </Grid>
 
@@ -179,9 +257,14 @@ const BasicInformation = ({ setTabIndex, tabIndex, variant }) => {
 
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
-                    <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 4</Box>
-                    <Button sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
-                    <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Next</Button>
+                    <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / {totalTabs}</Box>
+                    {
+                        (mode === "EDIT") && (
+
+                            <Button sx={primaryBtnSx} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
+                        )
+                    }
+                    <Button variant="contained" sx={primaryBtnSx} type="submit">Next</Button>
                 </Box>
             </FormProvider>
         </>

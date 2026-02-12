@@ -1,154 +1,231 @@
-import React, { useEffect } from 'react';
-import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    CircularProgress, Button,
-    IconButton
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import SendIcon from '@mui/icons-material/Send';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchVariantsByProductId } from '../../../redux/varient/variantProductsSlice';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GroupIcon from '@mui/icons-material/Group';
 import ArchiveIcon from '@mui/icons-material/Archive';
-import ArchiveDialog from './ArchiveDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-
+import ReusableTable from '../../subcompotents/ReusableTable';
+import ArchiveDialog from './ArchiveDialog';
+import DeleteModal from '../productmanager/masterproduct/DeleteModal';
+import { primaryBtnSx } from '../../subcompotents/UtilityService';
+import { submitVariantProductForApproval } from '../../../redux/varient/createvariantproductrequest/variantProductCreateRequestSlice';
+import ApprovalModal from '../../subcompotents/ApprovalModal';
 
 const VarientTable = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { productId } = useParams();
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedVariant, setSelectedVariant] = useState(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [submitProductId, setSubmitProductId] = useState(null);
 
-    const [openDialog, setOpenDialog] = React.useState(false);
-    const [selectedVariant, setSelectedVariant] = React.useState(null);
-
-
-    const { variants, loading, error } = useSelector((state) => state.variantProducts);
+    const { variants = [], loading, error } = useSelector(
+        (state) => state.variantProducts || {}
+    );
 
     useEffect(() => {
-        dispatch(fetchVariantsByProductId(productId));
+        if (productId) {
+            dispatch(fetchVariantsByProductId(productId));
+        }
     }, [dispatch, productId]);
 
-    const handleAssignPartner = (variantId) => {
-        navigate(`/assign-partner/${variantId}`);
-    };
+    /* ===================== TABLE COLUMNS ===================== */
+    const columns = [
+        {
+            key: 'sno',
+            label: 'Sno.',
+            render: (_, __, index) => index + 1,
+        },
+        { key: 'variantName', label: 'Name' },
+        { key: 'variantType', label: 'Type' },
+        { key: 'variantCode', label: 'Code' },
+        { key: 'productType', label: 'Product Type' },
 
-    const handleViewAssignedPartner = (variantId) => {
-        navigate(`/assigned-partners/${variantId}`);
-    };
+        {
+            key: 'view',
+            label: 'View Variant',
+            render: (_, row) => (
+                <IconButton
+                    onClick={() => navigate(`/varient-details-single/${row.id}`)}
+                >
+                    <VisibilityIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'assign',
+            label: 'Assign',
+            render: (_, row) => (
+                <IconButton
+                    sx={{ color: '#0000FF' }}
+                    onClick={() => navigate(`/assign-partner/${row.id}`)}
+                >
+                    <PersonAddIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'viewAssigned',
+            label: 'View Assigned',
+            render: (_, row) => (
+                <IconButton
+                    sx={{ color: '#28a745' }}
+                    onClick={() => navigate(`/assigned-partners/${row.id}`)}
+                >
+                    <GroupIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'gonopolicy',
+            label: 'Go/No Policy',
+            render: (_, row) => (
+                <IconButton sx={{ color: '#084E77' }}
+                    onClick={() => {
+                        navigate(`/variant-product-policy/${row.id}`, {
+                            state: {
+                                status: row.status,
+                            },
+                        });
+                    }}
+                >
+                    <PlaylistAddIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'Bre Policy',
+            label: 'Bre Policy',
+            render: (_, row) => (
+                <IconButton sx={{ color: '#084E77' }}
+                    onClick={() => {
+                        navigate(`/variant-bre-policy/${row.id}`, {
+                            state: {
+                                status: row.status,
+                            },
+                        });
+                    }}
+                >
+                    <PlaylistAddIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'archive',
+            label: 'Archive',
+            render: (_, row) => (
+                <IconButton
+                    sx={{ color: 'red' }}
+                    onClick={() => {
+                        setSelectedVariant(row);
+                        setOpenDialog(true);
+                    }}
+                >
+                    <ArchiveIcon />
+                </IconButton>
+            ),
+        },
 
+
+        {
+            key: 'edit',
+            label: 'Edit',
+            render: (_, row) => (
+                <IconButton
+                    sx={{ color: 'green' }}
+                    onClick={() => {
+                        localStorage.setItem('createdVariantId', row?.id);
+                        navigate(`/createvarient/${row.id}`,  { state: { mode: 'EDIT', status: row?.status } })
+                    }
+                    }
+                >
+                    <EditIcon />
+                </IconButton>
+            ),
+        },
+
+        {
+            key: 'delete',
+            label: 'Delete',
+            render: (_, row) => (
+                <IconButton
+                    sx={{ color: 'red' }}
+                    onClick={() => {
+                        setSelectedVariant(row);
+                        setDeleteModal(true);
+                    }}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            ),
+        },
+        {
+            key: 'submit',
+            label: 'Approval',
+            render: (_, row) => (
+                <IconButton sx={{ color: '#084E77' }}
+                    color="primary"
+                    disabled={row.status === 'Active'}
+                    onClick={() => {
+                        setSubmitProductId(row.id);
+                        setConfirmOpen(true);
+                    }}
+                >
+                    <SendIcon />
+                </IconButton>
+            ),
+        },
+    ];
 
     return (
-        <>
-            <div className="p-6">
-                <h1 className="text-[24px] font-semibold mb-2">Variant List</h1>
-                <div className="p-2 flex justify-end items-center">
-                    <div className="mb-2 flex gap-4">
-                        <Button  startIcon={<AddIcon />} sx={{ background: "#0000FF", color: "white", px: 4, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} onClick={() => navigate('/createvarient')}>
-                            Create varient
-                        </Button>
-
-                    </div>
+        <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
+            <Box mb={2}>
+                <div className="flex justify-between items-center">
+                    <Button
+                        startIcon={<ArrowBackIcon />}
+                        variant="outlined"
+                        onClick={() => navigate(-1)}
+                    >
+                        Back
+                    </Button>
+                    <Button
+                        startIcon={<AddIcon />}
+                        sx={primaryBtnSx}
+                        onClick={() =>
+                            navigate('/createvarient', { state: { productId } })
+                        }
+                    >
+                        Create Variant
+                    </Button>
                 </div>
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-                    <TableContainer component={Paper}
-                        sx={{
-                            overflowX: 'auto',
-                            borderRadius: 2,
-                            '&::-webkit-scrollbar': { height: '8px' },
-                            '&::-webkit-scrollbar-thumb': { backgroundColor: '#0000FF', borderRadius: '4px' },
-                            '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1' },
-                        }}>
-                        <Table>
-                            <TableHead sx={{ background: '#F5F5FF' }}>
-                                <TableRow>
-                                    {['Sno.', 'Name', 'Type', 'Code', 'Product Type', 'View Varient', 'Assign', 'View Assigned', 'Archive', 'Edit'].map((header) => (
-                                        <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>{header}</TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} align="center"><CircularProgress /></TableCell>
-                                    </TableRow>
-                                ) : error ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} align="center" style={{ color: 'red' }}>{error}</TableCell>
-                                    </TableRow>
-                                ) : variants.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} align="center">No variants found.</TableCell>
-                                    </TableRow>
-                                ) : (
-                                    variants.map((variant, index) => (
-                                        <TableRow key={variant.id}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{variant.variantName}</TableCell>
-                                            <TableCell>{variant.variantType}</TableCell>
-                                            <TableCell>{variant.variantCode}</TableCell>
-                                            <TableCell>{variant.productType}</TableCell>
-                                            <TableCell>
+            </Box>
 
-                                                <IconButton
-                                                    onClick={() => navigate(`/varient-details-single/${variant.id}`)}
-                                                    title="View Details"
-                                                >
-                                                    <VisibilityIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                            <TableCell>
-                                                <IconButton
-                                                    onClick={() => handleAssignPartner(variant.id)}
-                                                    title="Assign Partner"
-                                                    sx={{ color: '#0000FF' }}
-                                                >
-                                                    <PersonAddIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                            <TableCell>
-                                                <IconButton
-                                                    onClick={() => handleViewAssignedPartner(variant.id)}
-                                                    title="View Assigned Partners"
-                                                    sx={{ color: '#28a745' }}
-                                                >
-                                                    <GroupIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                            <TableCell>
-                                                <IconButton
-                                                    onClick={() => {
-                                                        setSelectedVariant(variant);
-                                                        setOpenDialog(true);
-                                                    }}
 
-                                                    title="Archive"
-                                                    sx={{ color: 'red' }}
-                                                >
-                                                    <ArchiveIcon />
-                                                </IconButton>
+            <ReusableTable
+                title="Variant List"
+                columns={columns}
+                data={variants}
+                loading={loading}
+                error={error}
+                footerText={
+                    variants.length
+                        ? `Total variants: ${variants.length}`
+                        : 'No variants available'
+                }
+            />
 
-                                            </TableCell>
-                                            <TableCell>
-                                                <IconButton
-                                                    onClick={() => navigate(`/createvarient/${variant.id}`, { state: { mode: 'EDIT' } })}
-                                                    title="Edit Variant"
-                                                    sx={{ color: 'green' }}
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                            </TableCell>
 
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </div>
-            </div>
             {selectedVariant && (
                 <ArchiveDialog
                     open={openDialog}
@@ -157,7 +234,26 @@ const VarientTable = () => {
                 />
             )}
 
-        </>
+            {deleteModal && (
+                <DeleteModal
+                    selectedItem={selectedVariant}
+                    type="VARIANT"
+                    setDeleteModal={setDeleteModal}
+                />
+            )}
+
+            <ApprovalModal
+                open={confirmOpen}
+                entityLabel="variant"
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={() => {
+                    dispatch(submitVariantProductForApproval(submitProductId));
+                    setConfirmOpen(false);
+                    setSubmitProductId(null);
+                }}
+            />
+
+        </Paper >
     );
 };
 

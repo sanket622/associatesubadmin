@@ -169,7 +169,7 @@ export const fetchRoles = () => async (dispatch) => {
     dispatch(fetchRolesStart());
     try {
         const token = localStorage.getItem('accessToken');
-        const res = await axios.get(`https://api.earnplus.net/api/v1/associate/roleModule/getAllRoles`, {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/roleModule/getAllRoles`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(fetchRolesSuccess(res.data.data));
@@ -182,7 +182,7 @@ export const fetchModulesByRole = (roleId) => async (dispatch) => {
     dispatch(fetchModulesStart());
     try {
         const token = localStorage.getItem('accessToken');
-        const res = await axios.get(`https://api.earnplus.net/api/v1/associate/roleModule/getModulesByRole/${roleId}`, {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/roleModule/getModulesByRole/${roleId}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(fetchModulesSuccess(res.data.data));
@@ -203,7 +203,7 @@ export const submitAssignRole = (formData) => async (dispatch) => {
             modules: formData.module.map((m) => m.id),
             password: formData.password,
         };
-        await axios.post(`https://api.earnplus.net/api/v1/associate/associateSubAdmin/createAssociateSubAdmin`, payload, {
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/createAssociateSubAdmin`, payload, {
             headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(submitAssignRoleSuccess());
@@ -219,7 +219,7 @@ export const fetchAssociateSubAdmins = (page = 1, limit = 10) => async (dispatch
     dispatch(fetchSubAdminsStart());
     try {
         const token = localStorage.getItem('accessToken');
-        const res = await axios.get(`https://api.earnplus.net/api/v1/associate/associateSubAdmin/getAssociateSubAdmins?page=${page}&limit=${limit}`, {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/getAssociateSubAdmins?page=${page}&limit=${limit}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         dispatch(fetchSubAdminsSuccess(res.data.data));
@@ -234,8 +234,8 @@ export const updateAssociateSubAdmin = (id, updateData) => async (dispatch) => {
     dispatch(updateSubAdminStart());
     try {
         const token = localStorage.getItem('accessToken');
-        const res = await axios.put(
-            `https://api.earnplus.net/api/v1/associate/associateSubAdmin/updateAssociateSubAdmin/${id}`,
+        await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/updateAssociateSubAdmin/${id}`,
             updateData,
             {
                 headers: { Authorization: `Bearer ${token}` },
@@ -254,7 +254,7 @@ export const deleteAssociateSubAdmin = (id) => async (dispatch) => {
     try {
       const token = localStorage.getItem('accessToken');
       await axios.delete(
-        `https://api.earnplus.net/api/v1/associate/associateSubAdmin/deleteSubAdmin/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/deleteSubAdmin/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
          
@@ -273,7 +273,7 @@ export const deleteAssociateSubAdmin = (id) => async (dispatch) => {
     try {
       const token = localStorage.getItem('accessToken');
       await axios.patch(
-        `https://api.earnplus.net/api/v1/associate/associateSubAdmin/deactivateAssociateSubAdmin/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/deactivateAssociateSubAdmin/${id}`,
         { isActive },
         {
           headers: { Authorization: `Bearer ${token}` },

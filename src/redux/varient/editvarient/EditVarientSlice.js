@@ -46,7 +46,7 @@ export const submitEditVariantSubmit = (payload, callback) => async (dispatch) =
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/variantProduct/submitVariantProductUpdateRequest',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/variantProductUpdateRequest/submitVariantProductUpdateRequest`,
             payload,
             {
                 headers: {

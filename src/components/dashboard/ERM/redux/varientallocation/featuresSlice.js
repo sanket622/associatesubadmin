@@ -69,7 +69,7 @@ export const fetchPartners = () => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/getEmployersByAssociateSubAdmin',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/getEmployersByAssociateSubAdmin`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -95,7 +95,7 @@ export const fetchContractTypes = (employerId) => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -117,7 +117,7 @@ export const fetchContractCombinations = (contractTypeId) => async (dispatch) =>
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/contractCombination/getContractCombinationsByContractType/${contractTypeId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/getContractCombinationsByContractType/${contractTypeId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -139,7 +139,7 @@ export const fetchRuleBooks = (comboId) => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/contractCombination/getContractRuleBooks?contractCombinationId=${comboId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/getContractRuleBooks?contractCombinationId=${comboId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -161,7 +161,7 @@ export const fetchAssignedVariants = (employerId) => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/variantProduct/getAssignedVariantProducts/${employerId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/getAssignedVariantProducts/${employerId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }

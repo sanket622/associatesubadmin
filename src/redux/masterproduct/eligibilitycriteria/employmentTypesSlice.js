@@ -64,7 +64,7 @@ export const {
 export const fetchEmploymentTypes = () => async (dispatch) => {
   dispatch(fetchStart());
   try {
-    const response = await axios.get('https://api.earnplus.net/api/v1/associate/employment/getAllEmploymentTypes');
+    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/employment/getAllEmploymentTypes`);
     const options = response.data?.data?.map((item) => ({
       id: item.id,
       name: item.name,
@@ -78,7 +78,7 @@ export const fetchEmploymentTypes = () => async (dispatch) => {
 export const fetchDocuments = () => async (dispatch) => {
   dispatch(fetchStart());
   try {
-    const response = await axios.get('https://api.earnplus.net/api/v1/associate/document/getAllDocuments');
+    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/associate/document/getAllDocuments`);
     const options = response.data?.data?.map((item) => ({
       id: item.id,
       name: item.name,
@@ -98,28 +98,17 @@ export const submitEligibilityCriteria = (data, callback) => async (dispatch) =>
 
     const requestData = {
       masterProductId: productId,
+
       minAge: Number(data.minAge),
       maxAge: Number(data.maxAge),
       minMonthlyIncome: Number(data.minMonthlyIncome),
       minBusinessVintage: Number(data.minBusinessVintage),
       minBureauScore: Number(data.minBureauScore),
 
-      bureauType: typeof data.bureauType === 'string' ? data.bureauType : data.bureauType?.id || '',
-
-      documentSubmissionModes: data.documentSubmissionMode
-        ? [typeof data.documentSubmissionMode === 'string' ? data.documentSubmissionMode : data.documentSubmissionMode.id]
-        : [],
-
-      documentVerificationModes: data.documentVerificationMode
-        ? [typeof data.documentVerificationMode === 'string' ? data.documentVerificationMode : data.documentVerificationMode.id]
-        : [],
-
-      employmentTypesAllowed: Array.isArray(data.employmentTypeAllowed)
-        ? data.employmentTypeAllowed.map(item => typeof item === 'string' ? item : item.id)
-        : data.employmentTypeAllowed
-          ? [typeof data.employmentTypeAllowed === 'string' ? data.employmentTypeAllowed : data.employmentTypeAllowed.id]
-          : [],
+      coApplicantRequired: data.coApplicantRequired === 'yes',
+      collateralRequired: data.collateralRequired === 'yes',
     };
+
 
     // Handle blacklistFlags only if not empty
     if (Array.isArray(data.blacklistFlags) && data.blacklistFlags.length > 0) {
@@ -137,7 +126,7 @@ export const submitEligibilityCriteria = (data, callback) => async (dispatch) =>
 
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/createEligibilityCriteria',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createEligibilityCriteria`,
       requestData,
       {
         headers: {

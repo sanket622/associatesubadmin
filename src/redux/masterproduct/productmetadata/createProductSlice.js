@@ -38,29 +38,21 @@ export const {
   setEditGeneralProductMetaData,
 } = createProductSlice.actions;
 
-export const createGeneralProduct = (formData, callback) => async (dispatch) => {
+export const createGeneralProduct = (payload, callback) => async (dispatch) => {
   dispatch(createProductStart());
+
   try {
     const accessToken = localStorage.getItem('accessToken');
-    const payload = {
-      productName: formData.productName,
-      productDescription: formData.productDescription,
-      productCode: formData.productCode,
-      productCategoryId: formData.subLoanType?.id,
-      loanTypeId: formData.loanType?.id,
-      deliveryChannel: formData.businessSegment?.[0]?.id || '',
-      partnerId: formData.productType?.id,
-      status: formData.status?.id,
-      purposeIds: formData.partnerCode?.map((item) => item.id),
-      segments: formData.segmentType?.map((item) => item.id),
-    };
+
+    console.log("API FINAL PAYLOAD 🚀", payload);
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/createMasterProduct',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createMasterProduct`,
       payload,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
       }
     );
@@ -69,19 +61,59 @@ export const createGeneralProduct = (formData, callback) => async (dispatch) => 
     if (productId) {
       localStorage.setItem('createdProductId', productId);
     }
-    if (callback && typeof callback === "function") {
-      callback()
-    }
+
+    callback?.();
     enqueueSnackbar('Product created successfully!', { variant: 'success' });
     dispatch(createProductSuccess());
+
     return { success: true, data: response.data };
+
   } catch (error) {
     const message =
       error.response?.data?.message || 'Failed to create product';
+
     enqueueSnackbar(message, { variant: 'error' });
     dispatch(createProductFailure(message));
+
     return { success: false, message };
   }
 };
+
+//create master product
+export const submitMasterProductUpdateRequest = (payload, callback) => async (dispatch) => {
+  dispatch(createProductStart());
+
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProductUpdateRequest/submitMasterProductUpdateRequest`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    enqueueSnackbar('Product update request submitted!', { variant: 'success' });
+    dispatch(createProductSuccess());
+    callback?.();
+
+    return { success: true, data: response.data };
+
+  } catch (error) {
+    const message =
+      error.response?.data?.message || 'Failed to submit update request';
+
+    enqueueSnackbar(message, { variant: 'error' });
+    dispatch(createProductFailure(message));
+
+    return { success: false, message };
+  }
+};
+
+
 
 export default createProductSlice.reducer;

@@ -58,12 +58,12 @@ export const submitVariantRepayment = (formData, callback) => async (dispatch) =
       incentiveType: formData.incentiveType?.name || null,
       incentiveValue: Number(formData.incentiveValue),
       payoutMode: formData.payoutMode?.name || null,
-      payoutTimeline: formData.payoutTimeline || '',
+      // payoutTimeline: formData.payoutTimeline || '',
       incentiveReversalConditions: formData.incentiveReversalConditions || '',
     };
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/variantProduct/createVariantProductRepayment',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/createVariantProductRepayment`,
       payload,
       {
         headers: {

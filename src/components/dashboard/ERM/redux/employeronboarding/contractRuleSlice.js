@@ -35,7 +35,7 @@ export const fetchWorkLocations = (employerId) => async (dispatch) => {
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.get(
-            `https://api.earnplus.net/api/v1/associate/contractCombination/getWorkLocationsByEmployerId?employerId=${employerId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/getWorkLocationsByEmployerId?employerId=${employerId}`,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },
             }
@@ -59,7 +59,7 @@ export const submitRuleBook = (payload, callback) => async (dispatch) => {
     try {
         const accessToken = localStorage.getItem('accessToken');
         await axios.post(
-            'https://api.earnplus.net/api/v1/associate/contractCombination/createContractRuleBook',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/createContractRuleBook`,
             payload,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },

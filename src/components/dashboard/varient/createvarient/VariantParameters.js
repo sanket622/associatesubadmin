@@ -18,16 +18,20 @@ import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { setEditVarientParameterData, submitVariantProductParameter } from '../../../../redux/varient/submitslice/variantProductParameterSubmitSlice';
+import { updateVariantProductDraft } from '../../../../redux/varient/variantdraftupdateslice/variantdraftupdateslice';
 import { useLocation } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import { primaryBtnSx } from '../../../subcompotents/UtilityService';
 
 
 
-const VariantParameters = ({ setTabIndex, tabIndex }) => {
-
+const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
     const location = useLocation()
+    const { enqueueSnackbar } = useSnackbar();
     const mode = location?.state?.mode
+    const productIdFromState = location?.state?.productId
     const dispatch = useDispatch();
-
+    const { productDetails } = useSelector((state) => state.products);
     const variantDetail = useSelector((state) => state?.variantSingle?.variantDetail);
     const editVarientParameterData = useSelector((state) => state?.variantProductParameterSubmit?.editVarientParameterData);
 
@@ -55,8 +59,23 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
     ];
 
     const VariantSchema = Yup.object().shape({
-        minimumLoanAmount: Yup.string().required('Minimum Loan Amount is required'),
-        maximumLoanAmount: Yup.string().required('Maximum Loan Amount is required'),
+        minimumLoanAmount: Yup.number()
+            .typeError('Minimum Loan Amount must be a number')
+            .required('Minimum Loan Amount is required')
+            .positive(),
+
+        maximumLoanAmount: Yup.number()
+            .typeError('Maximum Loan Amount must be a number')
+            .required('Maximum Loan Amount is required')
+            .positive()
+            .when('minimumLoanAmount', (min, schema) =>
+                min
+                    ? schema.min(
+                        min,
+                        'Maximum Loan Amount cannot be less than Minimum Loan Amount'
+                    )
+                    : schema
+            ),
         interestRateMin: Yup.string().required('Interest Rate Range (Min) is required'),
         interestRateMax: Yup.string().required('Interest Rate Range (Max) is required'),
         processingFeeValue: Yup.mixed().required('Processing Fee Value is required'),
@@ -64,7 +83,7 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
         latePaymentFeeValue: Yup.string().required('Late Payment Fee Value is required'),
         prepaymentFeeValue: Yup.string().required('Prepayment Fee Value is required'),
         penalInterestRate: Yup.string().required('Penal Interest Rate is required'),
-        penalInterestConditions: Yup.string().required('Penal Interest Conditions is required'),
+        // penalInterestConditions: Yup.string().required('Penal Interest Conditions is required'),
         // coBorrowerRequiredForLowScore: Yup.string().required('Penal Interest Rate Applicable is required'),
         interestRateType: Yup.mixed().required('Interest Rate Type is required'),
         processingFeeType: Yup.mixed().required('Processing Fee Type is required'),
@@ -116,7 +135,7 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
             null,
 
         penalInterestRate: editVarientParameterData?.penalInterestRate || variantDetail?.VariantProductParameter?.penalInterestRate || '',
-        penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail?.VariantProductParameter?.penalInterestConditions || '',
+        // penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail?.VariantProductParameter?.penalInterestConditions || '',
 
         minimumAge: editVarientParameterData?.minimumAge || variantDetail?.VariantProductParameter?.minAge || '',
         maximumAge: editVarientParameterData?.maximumAge || variantDetail?.VariantProductParameter?.maxAge || '',
@@ -125,25 +144,25 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
             editVarientParameterData?.penalInterestRateApplicable ??
             (variantDetail?.VariantProductParameter?.penalInterestApplicable ? 'yes' : 'no'),
     } : {
-        minimumLoanAmount: '',
-        maximumLoanAmount: '',
-        minTenureMonths: '',
-        maxTenureMonths: '',
-        interestRateType: null,
-        interestRateMin: '',
+        minimumLoanAmount: productDetails?.financialTerms?.minLoanAmount,
+        maximumLoanAmount: productDetails?.financialTerms?.maxLoanAmount,
+        minTenureMonths: productDetails?.financialTerms?.minTenureMonths,
+        maxTenureMonths: productDetails?.financialTerms?.maxTenureMonths,
+        interestRateType: interestRateTypes.find(i => i.id === productDetails?.financialTerms?.interestRateType) || null,
+        interestRateMin: productDetails?.financialTerms?.interestRateMin,
         interestRateMax: '',
-        processingFeeType: null,
-        processingFeeValue: '',
-        latePaymentFeeType: null,
-        latePaymentFeeValue: '',
-        prepaymentFeeType: null,
-        prepaymentFeeValue: '',
-        emiFrequency: null,
-        penalInterestRate: '',
-        penalInterestConditions: '',
-        minimumAge: '',
-        maximumAge: '',
-        penalInterestRateApplicable: '',
+        processingFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.processingFeeType) || null,
+        processingFeeValue: productDetails?.financialTerms?.processingFeeValue,
+        latePaymentFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.latePaymentFeeType) || null,
+        latePaymentFeeValue: productDetails?.financialTerms?.latePaymentFeeValue,
+        prepaymentFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.prepaymentFeeType) || null,
+        prepaymentFeeValue: productDetails?.financialTerms?.prepaymentFeeValue,
+        emiFrequency: emiFrequencies.find(i => i.id === productDetails?.financialTerms?.emiFrequency) || null,
+        penalInterestRate: productDetails?.financialTerms?.penalRate,
+        // penalInterestConditions: '',
+        minimumAge: productDetails?.eligibilityCriteria?.minAge,
+        maximumAge: productDetails?.eligibilityCriteria?.maxAge,
+        penalInterestRateApplicable: productDetails?.financialTerms?.penalApplicable ? 'yes' : 'no',
     };
 
 
@@ -164,13 +183,42 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
 
 
     useEffect(() => {
-        if (mode === 'EDIT' && variantDetail?.VariantProductParameter) {
+        if (mode === 'EDIT' && variantDetail?.VariantProductParameter || productIdFromState) {
             reset(defaultValues);
         }
-    }, [variantDetail, editVarientParameterData]);
+    }, [variantDetail, editVarientParameterData, productIdFromState]);
+
+
+
 
     const onSubmit = (data) => {
-        if (mode === "EDIT") {
+
+        if (mode === "EDIT" && variantDetail.status === "Draft") {
+            dispatch(
+                updateVariantProductDraft({
+                    endpoint: 'updateVariantProductParameterDraft',
+                    payload: {
+                        ...data,
+                        variantProductId: localStorage.getItem('createdVariantId')
+                    },
+                })
+            )
+                .unwrap()
+                .then((res) => {
+                    enqueueSnackbar(
+                        res?.message || 'Draft saved successfully',
+                        { variant: 'success' }
+                    );
+                    setTabIndex(prev => Math.min(prev + 1, 9));
+                })
+                .catch((err) => {
+                    enqueueSnackbar(
+                        err?.message || 'Failed to save draft',
+                        { variant: 'error' }
+                    );
+                });
+        }
+        else if (mode === "EDIT") {
             dispatch(setEditVarientParameterData(data))
             setTabIndex((prev) => Math.min(prev + 1, 9));
         } else {
@@ -216,6 +264,7 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                             options={interestRateTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
+                            disabled
                         />
                     </Grid>
 
@@ -237,11 +286,14 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                             options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
+                            disabled
                         />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="processingFeeValue">Processing Fee Value</Label>
+                        <Label htmlFor="processingFeeValue">
+                            Processing Fee Value{watch('processingFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
+                        </Label>
                         <RHFTextField name="processingFeeValue" id="processingFeeValue" />
                     </Grid>
 
@@ -249,12 +301,15 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                         <Label htmlFor="latePaymentFeeType">Late Payment Fee Type</Label>
                         <RHFAutocomplete name="latePaymentFeeType" id="latePaymentFeeType" options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
-                            isOptionEqualToValue={(option, value) => option.id === value.id} />
+                            isOptionEqualToValue={(option, value) => option.id === value.id} disabled />
+
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="latePaymentFeeValue">Late Payment Fee Value</Label>
-                        <RHFTextField name="latePaymentFeeValue" id="latePaymentFeeValue" />
+                        <Label htmlFor="latePaymentFeeValue">
+                            Late Payment Fee Value{watch('latePaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
+                        </Label>
+                        <RHFTextField name="latePaymentFeeValue" />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -265,11 +320,14 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                             options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
+                            disabled
                         />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="prepaymentFeeValue">Prepayment Fee Value</Label>
+                        <Label htmlFor="prepaymentFeeValue">
+                            Prepayment Fee Value{watch('prepaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
+                        </Label>
                         <RHFTextField name="prepaymentFeeValue" id="prepaymentFeeValue" />
                     </Grid>
 
@@ -281,6 +339,7 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                             options={emiFrequencies}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
+                            disabled
                         />
                     </Grid>
 
@@ -289,10 +348,10 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                         <RHFTextField name="penalInterestRate" id="penalInterestRate" />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    {/* <Grid item xs={12} md={4}>
                         <Label htmlFor="penalInterestConditions">Penal Interest Conditions</Label>
                         <RHFTextField name="penalInterestConditions" id="penalInterestConditions" />
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="minimumAge">Minimum Age</Label>
                         <RHFTextField name="minimumAge" id="minimumAge" />
@@ -308,22 +367,26 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                             <Controller
                                 name="penalInterestRateApplicable"
                                 control={methods.control}
+
                                 render={({ field }) => (
                                     <RadioGroup
                                         row
                                         {...field}
                                         id="penalInterestRateApplicable"
                                         sx={{ display: 'flex', justifyContent: 'center' }}
+
                                     >
                                         <FormControlLabel
                                             value="yes"
                                             control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
                                             label="Yes"
+                                            disabled
                                         />
                                         <FormControlLabel
                                             value="no"
                                             control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
                                             label="No"
+                                            disabled
                                         />
                                     </RadioGroup>
                                 )}
@@ -333,9 +396,15 @@ const VariantParameters = ({ setTabIndex, tabIndex }) => {
                 </Grid>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
-                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 4</Box>
-                <Button sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
-                <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Next</Button>
+                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / {totalTabs}</Box>
+
+                {
+                    (mode === "EDIT") && (
+
+                        <Button sx={primaryBtnSx} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
+                    )
+                }
+                <Button variant="contained" sx={primaryBtnSx} type="submit">Next</Button>
             </Box>
         </FormProvider>
 

@@ -11,8 +11,7 @@ const initialState = {
     paymentCycles: [],
     loading: false,
     error: null,
-    success: false,
-    error: null,     
+    success: false,    
     errors: {},  
 };
 
@@ -86,7 +85,7 @@ export const fetchCountries = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
         const res = await axios.get(
-            "https://api.earnplus.net/api/v1/associate/location/getAllCountries",
+            `${process.env.REACT_APP_BACKEND_URL}/associate/location/getAllCountries`,
             { headers: { Authorization: `Bearer ${getToken()}` } }
         );
         const countries = res.data.data.map(c => ({ id: c.id, label: c.countryName }));
@@ -101,7 +100,7 @@ export const fetchCountries = () => async (dispatch) => {
 export const fetchStates = (countryId) => async (dispatch) => {
     try {
         const res = await axios.get(
-            `https://api.earnplus.net/api/v1/associate/location/getStatesByCountry/${countryId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/associate/location/getStatesByCountry/${countryId}`,
             { headers: { Authorization: `Bearer ${getToken()}` } }
         );
         const states = res.data.data.map(s => ({ id: s.id, label: s.stateName }));
@@ -114,7 +113,7 @@ export const fetchStates = (countryId) => async (dispatch) => {
 export const fetchDistricts = (stateId) => async (dispatch) => {
     try {
         const res = await axios.get(
-            `https://api.earnplus.net/api/v1/associate/location/getDistrictsByState/${stateId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/associate/location/getDistrictsByState/${stateId}`,
             { headers: { Authorization: `Bearer ${getToken()}` } }
         );
         const districts = res.data.data.map(d => ({ id: d.id, label: d.districtName }));
@@ -126,7 +125,7 @@ export const fetchDistricts = (stateId) => async (dispatch) => {
 
 export const fetchWorkLocations = () => async (dispatch) => {
     try {
-        const res = await axios.get("https://api.earnplus.net/api/v1/employer/auth/getEmployerWorkLocations", {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployerWorkLocations`, {
             headers: { Authorization: `Bearer ${getToken()}` },
         });
         const formatted = res.data.data.map(loc => ({
@@ -141,7 +140,7 @@ export const fetchWorkLocations = () => async (dispatch) => {
 
 export const fetchPaymentCyclesByContractType = (contractTypeId) => async (dispatch) => {
     console.log(contractTypeId)
-    const getEmployerContractCombinations = "https://api.earnplus.net/api/v1/employer/auth/getEmployerContractCombinations"
+    const getEmployerContractCombinations = `${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployerContractCombinations`
     try {
         const res = await axios.get(`${getEmployerContractCombinations}?contractTypeId=${contractTypeId}`, {
             headers: { Authorization: `Bearer ${getToken()}` },
@@ -160,12 +159,12 @@ export const fetchPaymentCyclesByContractType = (contractTypeId) => async (dispa
 
 export const fetchContractTypes = () => async (dispatch) => {
     try {
-        const res = await axios.get("https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes", {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployerContractTypes`, {
             headers: { Authorization: `Bearer ${getToken()}` },
         });
         const formatted = res.data.data.map(ct => ({
             id: ct.id,
-            label: ct.contractTypeId, // You might want to fetch display name in future
+            label: ct.contractTypeId, 
         }));
         dispatch(setContractTypes(formatted));
     } catch (err) {
@@ -178,7 +177,7 @@ export const submitEmployee = (formData) => async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
 
-    // 🔁 Transform the form data to match API format
+   
     const payload = {
         employeeName: `${formData?.firstName} ${formData?.lastName}`,
         mobile: formData?.mobile,
@@ -209,7 +208,7 @@ export const submitEmployee = (formData) => async (dispatch) => {
 
     try {
         const response = await axios.post(
-          "https://api.earnplus.net/api/v1/employer/auth/addEmployeeByEmployer",
+          `${process.env.REACT_APP_BACKEND_URL}/employer/auth/addEmployeeByEmployer`,
           payload,
           {
             headers: {
@@ -221,10 +220,10 @@ export const submitEmployee = (formData) => async (dispatch) => {
         dispatch(setSuccess(true));
         dispatch(resetForm());
     
-        return response.data; // ✅ Return to support `.unwrap()`
+        return response.data; 
       } catch (err) {
         dispatch(setError(err.message));
-        throw err; // ✅ Re-throw to trigger `.unwrap()` catch
+        throw err; 
       } finally {
         dispatch(setLoading(false));
       }

@@ -74,7 +74,7 @@ export const submitOtherCharges = (formData, callback) => async (dispatch) => {
     });
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/createMasterProductOtherCharges',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createMasterProductOtherCharges`,
       payload,
       {
         headers: { Authorization: `Bearer ${accessToken}` },

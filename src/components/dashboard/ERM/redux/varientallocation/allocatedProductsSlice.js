@@ -44,7 +44,7 @@ export const fetchAllocatedProducts = () => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      'https://api.earnplus.net/api/v1/associate/productAllocation/getAllocatedProductsToEmployers',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/productAllocation/getAllocatedProductsToEmployers`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

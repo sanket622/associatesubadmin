@@ -8,52 +8,99 @@ import Label from '../../../subcompotents/Label';
 import { fetchProductMetadata } from '../../../../redux/masterproduct/productmetadata/productMetadataSlice';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { createGeneralProduct, setEditGeneralProductMetaData } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
+import { createGeneralProduct, setEditGeneralProductMetaData, submitMasterProductUpdateRequest } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import { useSnackbar } from 'notistack';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import { useLocation } from 'react-router-dom';
-import { replaceUnderscore } from '../../../subcompotents/UtilityService';
+import { primaryBtnSx, replaceUnderscore } from '../../../subcompotents/UtilityService';
+import { setGeneralMetadata } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
+import {
 
+    updateMasterProductDraft
+} from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
 
-const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handleNext }) => {
+const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status }) => {
     const location = useLocation()
+    const { enqueueSnackbar } = useSnackbar();
     const mode = location?.state?.mode
     const dispatch = useDispatch();
     const productDetails = useSelector((state) => state.products.productDetails);
+    const { loading } = useSelector(
+        state => state.updateMasterProductDraft
+    );
     const editGeneralProductMetaData = useSelector((state) => state?.createProduct?.editGeneralProductMetaData);
     const generalProductValidationSchema = yup.object().shape({
         productName: yup.string().required('Product Name is required'),
         productDescription: yup.string().required('Product Description is required'),
         subLoanType: yup.object().required('Product Category is required'),
         loanType: yup.object().required('Loan Type is required'),
-        businessSegment: yup.array().min(1, 'At least one Delivery Channel is required'),
+        // businessSegment: yup.array().min(1, 'At least one Delivery Channel is required'),
         productType: yup.object().required('Partner/Program Tag is required'),
-        status: yup.object().required('Status is required'),
+        // status: yup.object().required('Status is required'),
         partnerCode: yup.array().min(1, 'At least one Purpose Category is required'),
         segmentType: yup.array().min(1, 'At least one Segment Type is required'),
+        deliveryChannel: yup.array().min(1, 'At least one Delivery Channel is required'),
+        // disbursementModes: yup.array().min(1, 'At least one Disbursement Mode is required'),
+        // repaymentModes: yup.array().min(1, 'At least one Repayment Mode is required'),
+
         location: yup.array(),
     });
+
+    // console.log("editGeneralProductMetaData", productDetails?.MasterProductSegment?.map(d => ({
+    //     label: d.productSegment?.name,
+    //     value: d.productSegment?.id,
+    // })));
+
+    // const productStatusOptions = [
+    //     { id: 'Draft', name: 'Draft' },
+    //     { id: 'Active', name: 'Active' },
+    //     { id: 'Archived', name: 'Archived' },
+    // ];
+
+
 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         productCode: editGeneralProductMetaData?.productCode || productDetails?.productCode,
         productName: editGeneralProductMetaData?.productName || productDetails?.productName,
         productDescription: editGeneralProductMetaData?.productDescription || productDetails?.productDescription,
+        // status:
+        //     editGeneralProductMetaData?.status ??
+        //     productStatusOptions.find(
+        //         opt => opt.id === productDetails?.status
+        //     ) ??
+        //     null,
         subLoanType: editGeneralProductMetaData?.subLoanType || productDetails?.productCategory,
         loanType: editGeneralProductMetaData?.loanType || productDetails?.loanType,
-        businessSegment: editGeneralProductMetaData?.businessSegment || [{ id: productDetails?.deliveryChannel, name: replaceUnderscore(productDetails?.deliveryChannel) },] || [],
         productType: editGeneralProductMetaData?.productType || productDetails?.productPartner,
-        status: editGeneralProductMetaData?.status || { id: productDetails?.status, name: productDetails?.status },
-        partnerCode: editGeneralProductMetaData?.partnerCode || productDetails?.MasterProductPurpose?.map(item => item?.productPurpose) || [],
-        segmentType: editGeneralProductMetaData?.segmentType || productDetails?.MasterProductSegment?.map(item => item?.productSegment) || [],
-        location: editGeneralProductMetaData?.location || []
+
+        deliveryChannel: editGeneralProductMetaData?.deliveryChannel || productDetails?.MasterProductDeliveryChannel?.map(item => item.deliveryChannel) || [],
+        segmentType:
+            editGeneralProductMetaData?.segmentType ||
+            productDetails?.MasterProductSegment?.map(
+                item => item.productSegment
+            ) ||
+            [],
+
+        partnerCode: editGeneralProductMetaData?.purpose || productDetails?.MasterProductPurpose?.map(item => item.productPurpose) || [],
+        // disbursementModes: editGeneralProductMetaData?.disbursementModes || productDetails?.FinancialDisbursementMode?.map(item => item.disbursementMode) || [],
+        // repaymentModes: editGeneralProductMetaData?.repaymentModes || productDetails?.FinancialRepaymentMode?.map(item => item.RepaymentModes) || [],
+
     } : {
-        partnerCode: [],
+        productCode: '',
+        productName: '',
+        productDescription: '',
+        // status: null,
+        subLoanType: null,
+        loanType: null,
+        productType: null,
+        deliveryChannel: [],
         segmentType: [],
-        businessSegment: [],
-        location: []
-    }
+        partnerCode: [],
+        // disbursementModes: [],
+        // repaymentModes: []
+    };
 
     const methods = useForm({
         resolver: yupResolver(generalProductValidationSchema),
@@ -68,14 +115,16 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
         formState: { errors }
     } = methods
 
-    const values = watch()
-    console.log("values", values);
+    // const values = watch()
+    // console.log("values", values);
 
     useEffect(() => {
+
         if (productDetails || editGeneralProductMetaData) {
             reset(defaultValues)
         }
     }, [productDetails, editGeneralProductMetaData])
+
 
     const {
         productCategories,
@@ -83,39 +132,92 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
         loanTypes,
         purposeCategories,
         partners,
-        geographyStates,
+        // geographyStates,
+        repaymentModes,
+        disbursementModes,
+        deliveryChannels
     } = useSelector((state) => state.productMetadata);
+
+   
+
 
     useEffect(() => {
         dispatch(fetchProductMetadata());
     }, [dispatch]);
 
-    const deliveryChannelOptions = [
-        { id: 'Mobile_App', name: 'Mobile App' },
-        { id: 'Field_Agent', name: 'Field Agent' },
-        { id: 'Call_Center', name: 'Call Center' },
-        { id: 'Embedded_Api', name: 'Embedded API' },
-        { id: 'Partner_Portal', name: 'Partner Portal' },
-        { id: 'Whatsapp_Bot', name: 'WhatsApp Bot' },
-    ];
+    // const deliveryChannelOptions = [
+    //     { id: 'Mobile_App', name: 'Mobile App' },
+    //     { id: 'Field_Agent', name: 'Field Agent' },
+    //     { id: 'Call_Center', name: 'Call Center' },
+    //     { id: 'Embedded_Api', name: 'Embedded API' },
+    //     { id: 'Partner_Portal', name: 'Partner Portal' },
+    //     { id: 'Whatsapp_Bot', name: 'WhatsApp Bot' },
+    // ];
 
-    const productStatusOptions = [
-        { id: 'Draft', name: 'Draft' },
-        { id: 'Active', name: 'Active' },
-        { id: 'Archived', name: 'Archived' },
-    ];
+
+
 
 
     const onSubmit = (data) => {
-        if (mode === "EDIT") {
-            dispatch(setEditGeneralProductMetaData(data))
-            setTabIndex((prev) => Math.min(prev + 1, 9));
-        } else {
-            dispatch(createGeneralProduct(data, () => {
-                setTabIndex((prev) => Math.min(prev + 1, 9));
-            }));
+        // console.log("General Product Metadata Data", data);
+        const payload = {
+            masterProductId: productDetails?.id,
+            reason: "testing",
+            productCode: data?.productCode,
+            productName: data?.productName,
+            productDescription: data?.productDescription,
+
+            productCategoryId: data?.subLoanType?.id,
+            loanTypeId: data?.loanType?.id,
+            partnerId: data.productType.id,
+
+            deliveryChannelIds: data?.deliveryChannel?.map(d => d.id),
+            segments: data?.segmentType?.map(s => s.id),
+            purposeIds: data?.partnerCode?.map(p => p.id),
+            // disbursementModeIds: data?.disbursementModes?.map(d => d.id),
+            // repaymentModeIds: data?.repaymentModes?.map(r => r.id),
+        };
+
+        if (mode === "EDIT" && status === "Draft") {
+            dispatch(
+                updateMasterProductDraft({
+                    endpoint: 'updateMasterProductDraft',
+                    payload,
+                })
+            )
+                .unwrap()
+                .then((res) => {
+                    enqueueSnackbar(
+                        res?.message || 'Draft saved successfully',
+                        { variant: 'success' }
+                    );
+                    setTabIndex(prev => Math.min(prev + 1, 9));
+                })
+                .catch((err) => {
+                    enqueueSnackbar(
+                        err?.message || 'Failed to save draft',
+                        { variant: 'error' }
+                    );
+                });
         }
-    }
+        else if (mode === "EDIT") {
+            dispatch(setGeneralMetadata(payload));
+            setTabIndex(prev => Math.min(prev + 1, 9));
+        }
+        else {
+            dispatch(
+                createGeneralProduct(payload, () => {
+                    setTabIndex(prev => prev + 1);
+                })
+            );
+        }
+    };
+
+
+
+
+
+
     const onError = (e) => console.log(e)
 
     return (
@@ -149,7 +251,9 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
                         multiple
                         options={productSegments}
                         getOptionLabel={(option) => option?.name || ''}
+
                     />
+
                 </Grid>
 
                 <Grid item xs={12} md={4}>
@@ -174,16 +278,17 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
                 </Grid>
 
                 <Grid item xs={12} md={4}>
-                    <Label htmlFor="businessSegment">Delivery Channel</Label>
+                    <Label htmlFor="deliveryChannel">Delivery Channel(S)</Label>
                     <RHFAutocomplete
-                        name="businessSegment"
-                        id="businessSegment"
+                        name="deliveryChannel"
+                        id="deliveryChannel"
                         multiple
-                        options={deliveryChannelOptions}
+                        options={deliveryChannels}
                         getOptionLabel={(option) => option?.name || ''}
                     />
                 </Grid>
 
+                {/* 
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="location">Geography</Label>
                     <RHFAutocomplete
@@ -193,7 +298,7 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
                         options={geographyStates}
                         getOptionLabel={(option) => option?.stateName || ''}
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={4}>
                     <Label htmlFor="productType">Partner/Program Tag</Label>
@@ -205,15 +310,38 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
                     />
                 </Grid>
 
+                {/* <Grid item xs={12} md={4}>
+                    <Label htmlFor="disbursementModes">Disbursement Mode</Label>
+                    <RHFAutocomplete
+                        name="disbursementModes"
+                        id="disbursementModes"
+                        multiple
+                        options={disbursementModes}
+                        getOptionLabel={(option) => option?.name || ''}
+                    />
+                </Grid>
+
                 <Grid item xs={12} md={4}>
+                    <Label htmlFor="repaymentModes">Repayment Mode</Label>
+                    <RHFAutocomplete
+                        name="repaymentModes"
+                        id="repaymentModes"
+                        multiple
+                        options={repaymentModes}
+                        getOptionLabel={(option) => option?.name || ''}
+                    />
+                </Grid> */}
+
+                {/* <Grid item xs={12} md={4}>
                     <Label htmlFor="status">Status</Label>
                     <RHFAutocomplete
                         name="status"
                         id="status"
                         options={productStatusOptions}
                         getOptionLabel={(option) => option?.name || ''}
+
                     />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12}>
                     <Label htmlFor="productDescription">Product Description</Label>
@@ -242,42 +370,34 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
                         color: '#6B6B6B',
                     }}
                 >
-                    {tabIndex + 1} / 10
+                    {tabIndex + 1} / {totalTabs}
                 </Box>
 
 
-                <Button
-                    sx={{
-                        background: "#0000FF",
-                        color: "white",
-                        px: 6,
-                        py: 1,
-                        borderRadius: 2,
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        textTransform: "none",
-                        "&:hover": { background: "#0000FF" },
-                    }}
+                {
+                    (mode === "EDIT") && (
+                        < Button
+                            sx={primaryBtnSx}
+                            variant="outlined"
+                            onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
+                            disabled={tabIndex === 0}
+                        >
+                            Back
+                        </Button>
+                    )
+                }
+                {/* <Button
+                    sx={primaryBtnSx}
                     variant="outlined"
                     onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
                     disabled={tabIndex === 0}
                 >
                     Back
-                </Button>
+                </Button> */}
 
                 <Button
                     variant="contained"
-                    sx={{
-                        background: "#0000FF",
-                        color: "white",
-                        px: 6,
-                        py: 1,
-                        borderRadius: 2,
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        textTransform: "none",
-                        "&:hover": { background: "#0000FF" },
-                    }}
+                    sx={primaryBtnSx}
                     type='submit'
                 >
                     Next
@@ -285,7 +405,7 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, handle
 
 
             </Box>
-        </FormProvider>
+        </FormProvider >
     );
 };
 

@@ -45,10 +45,10 @@ export const submitEditMasterProductSubmit = (payload, callback) => async (dispa
 
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const productId = localStorage.getItem('createdProductId');
+        // const productId = localStorage.getItem('createdProductId');
 
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/masterProduct/submitMasterProductUpdateRequest',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/masterProductUpdateRequest/submitMasterProductUpdateRequest`,
             payload,
             {
                 headers: {
@@ -57,7 +57,7 @@ export const submitEditMasterProductSubmit = (payload, callback) => async (dispa
             }
         );
 
-        enqueueSnackbar('Product Edit successfully!', { variant: 'success' });
+        enqueueSnackbar(response?.data?.message, { variant: 'success' });
         dispatch(submitSuccess(response.data));
 
         if (typeof callback === 'function') callback();

@@ -46,7 +46,7 @@ export const submitProductAllocation = (formData, callback) => async (dispatch) 
     const accessToken = localStorage.getItem('accessToken');
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/productAllocation/allocateProductToEmployer',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/productAllocation/allocateProductToEmployer`,
       formData,
       {
         headers: { Authorization: `Bearer ${accessToken}` },

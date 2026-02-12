@@ -18,21 +18,22 @@ import Label from '../../../subcompotents/Label';
 import FormProvider from '../../../subcompotents/FormProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { submitVariantRepayment } from '../../../../redux/varient/submitslice/variantProductRepaymentSubmit';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { submitEditVariantSubmit } from '../../../../redux/varient/editvarient/EditVarientSlice';
 
-const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
+const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, totalTabs }) => {
     const location = useLocation()
     const mode = location?.state?.mode
     const dispatch = useDispatch();
-
+    const navigate = useNavigate();
+    const { productDetails } = useSelector((state) => state.products);
     const variantDetail = useSelector((state) => state.variantSingle.variantDetail);
     const editTimelyRepaymentData = useSelector((state) => state.variantProductRepaymentSubmit.editTimelyRepaymentData);
     const editVarientBasicData = useSelector((state) => state.variantProductSubmit.editVarientBasicData);
     const editVarientOtherChargesData = useSelector((state) => state.variantProductOtherChargesSubmit.editVarientOtherChargesData);
     const editVarientParameterData = useSelector((state) => state.variantProductParameterSubmit.editVarientParameterData);
 
-    console.log(editVarientOtherChargesData);
+    // console.log(editVarientOtherChargesData);
 
 
     // Dummy dropdown options
@@ -86,8 +87,8 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
         payoutMode: editTimelyRepaymentData?.payoutMode ??
             mapToOption(variantDetail.VariantProductRepayment.payoutMode) ?? null,
 
-        payoutTimeline: editTimelyRepaymentData?.payoutTimeline ??
-            variantDetail.VariantProductRepayment.payoutTimeline ?? '',
+        // payoutTimeline: editTimelyRepaymentData?.payoutTimeline ??
+        //     variantDetail.VariantProductRepayment.payoutTimeline ?? '',
 
         incentiveReversalConditions: editTimelyRepaymentData?.incentiveReversalConditions ??
             variantDetail.VariantProductRepayment.incentiveReversalConditions ?? '',
@@ -98,7 +99,7 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
         incentiveValue: '',
         payoutMode: null,
         payoutTimeline: '',
-        incentiveReversalConditions: '',
+        incentiveReversalConditions: productDetails?.financialTerms?.penalApplicable ? 'yes' : 'no',
     };
 
 
@@ -111,8 +112,8 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
 
     const values = watch()
 
-    console.log(values);
-    
+    // console.log(values);
+
 
 
     // useEffect(() => {
@@ -121,15 +122,17 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
     //     }
     // }, [variantDetail, editTimelyRepaymentData])
 
+    // console.log(editVarientBasicData);
+
     const onSubmit = (data) => {
         if (mode === "EDIT") {
             const payload = {
                 variantProductId: localStorage.getItem('createdVariantId'),
-
+                reason: "Updated fees and charges",
                 productType: editVarientBasicData?.productType?.id || '',
                 variantName: editVarientBasicData?.variantName || '',
                 variantType: editVarientBasicData?.variantType || '',
-                partnerId: editVarientBasicData?.productType?.id || '',
+                partnerId: editVarientBasicData?.partner?.id || '',
                 remark: editVarientBasicData?.remarks || '',
                 rejectionReason: editVarientBasicData?.rejectionReason || '',
 
@@ -176,11 +179,15 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
                 },
             };
 
-            dispatch(submitEditVariantSubmit(payload));
-            console.log("Final Payload", payload);
+            dispatch(submitEditVariantSubmit(payload, () => {
+                navigate(-1);
+            }));
+
 
         } else {
             dispatch(submitVariantRepayment(data, () => {
+                setTabIndex((prev) => Math.min(prev + 1, 9));
+                navigate(-1);
             }));
         }
     };
@@ -201,6 +208,7 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
                                         value="yes"
                                         control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
                                         label="Yes"
+
                                     />
                                     <FormControlLabel
                                         value="no"
@@ -251,10 +259,10 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        {/* <Grid item xs={12} md={4}>
                             <Label htmlFor="payoutTimeline">Payout Timeline</Label>
                             <RHFTextField name="payoutTimeline" id="payoutTimeline" />
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item xs={12}>
                             <Label htmlFor="incentiveReversalConditions">Incentive Reversal Conditions</Label>
@@ -271,9 +279,9 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex }) => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mt: 6, gap: 4 }}>
-                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / 4</Box>
+                <Box sx={{ border: '2px solid #6B6B6B', borderRadius: '12px', px: 2, py: 1, minWidth: 60, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600, fontSize: '16px', color: '#6B6B6B' }}>{tabIndex + 1} / {totalTabs}</Box>
                 <Button sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
-                <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Submit</Button>
+                <Button variant="contained" sx={{ background: "#0000FF", color: "white", px: 6, py: 1, borderRadius: 2, fontSize: "16px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} type="submit">Save</Button>
             </Box>
         </FormProvider>
     );

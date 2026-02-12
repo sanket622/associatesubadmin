@@ -6,7 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
-  repaymentModes: [],   
+  repaymentModes: [],
   disbursementModes: [],
   editProductparameter: null
 };
@@ -64,8 +64,8 @@ export const {
   setEditProductparameter,
 } = financialTermsSlice.actions;
 
-// Submit financial terms thunk (manual)
-export const submitFinancialTerms = (formData,  callback) => async (dispatch) => {
+
+export const submitFinancialTerms = (formData, callback) => async (dispatch) => {
   dispatch(submitStart());
   try {
     const accessToken = localStorage.getItem('accessToken');
@@ -74,24 +74,38 @@ export const submitFinancialTerms = (formData,  callback) => async (dispatch) =>
 
     const payload = {
       masterProductId: productId,
+
       minLoanAmount: Number(formData.minLoanAmount),
       maxLoanAmount: Number(formData.maxLoanAmount),
       minTenureMonths: Number(formData.minTenureMonths),
       maxTenureMonths: Number(formData.maxTenureMonths),
+
       interestRateType: formData.interestRateType?.id,
       interestRateMin: Number(formData.interestMin),
       interestRateMax: Number(formData.interestMax),
+
       processingFeeType: formData.processingFeeType?.id,
       processingFeeValue: Number(formData.processingFeeValue),
+
       latePaymentFeeType: formData.latePaymentFeeType?.id,
       latePaymentFeeValue: Number(formData.latePaymentFeeValue),
+
       prepaymentAllowed: formData.prepaymentRulesAllowed === 'yes',
+
       prepaymentFeeType: formData.prepaymentFeeType?.id,
       prepaymentFeeValue: Number(formData.prepaymentFeeValue),
+
+      overallGst: Number(formData.overallGst),
+
       emiFrequency: formData.emiFrequency?.id,
-      disbursementModeIds: formData.disbursementMode ? [formData.disbursementMode.id] : [],
-      repaymentModeIds: formData.repaymentMode ? [formData.repaymentMode.id] : [],
+
+      penalApplicable: formData.penalApplicable === 'yes',
+      penalRate: Number(formData.penalRate),
+
+      gracePeriod: Number(formData.gracePeriod),
+      renewalFee: Number(formData.renewalFee),
     };
+
 
     // Remove keys with undefined or NaN values
     Object.keys(payload).forEach((key) => {
@@ -101,7 +115,7 @@ export const submitFinancialTerms = (formData,  callback) => async (dispatch) =>
     });
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/createFinancialTerms',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createFinancialTerms`,
       payload,
       {
         headers: {
@@ -112,7 +126,7 @@ export const submitFinancialTerms = (formData,  callback) => async (dispatch) =>
     enqueueSnackbar('Financial terms submitted successfully!', { variant: 'success' });
 
     dispatch(submitSuccess());
-     if(callback && typeof callback === "function"){
+    if (callback && typeof callback === "function") {
       callback()
     }
     return { success: true, data: response.data };

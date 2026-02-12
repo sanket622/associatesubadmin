@@ -62,9 +62,9 @@ export const submitCreditBureauConfig = (formData, callback) => async (dispatch)
             loanDelinquencyAllowed: formData.loanDelinquencyAllowed?.id || formData.loanDelinquencyAllowed,
             bureauDataFreshnessDays: Number(formData.bureauFreshnessDays),
 
-            customBureauFlags: Array.isArray(formData.customBureauFlags)
-                ? formData.customBureauFlags.map(flag => flag.id || flag)
-                : [formData.customBureauFlags?.id || formData.customBureauFlags],
+            // customBureauFlags: Array.isArray(formData.customBureauFlags)
+            //     ? formData.customBureauFlags.map(flag => flag.id || flag)
+            //     : [formData.customBureauFlags?.id || formData.customBureauFlags],
 
             scoreDecayTolerance: Number(formData.scoreDecayTolerance),
         };
@@ -78,7 +78,7 @@ export const submitCreditBureauConfig = (formData, callback) => async (dispatch)
         });
 
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/masterProduct/createCreditBureauConfig',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createCreditBureauConfig`,
             payload,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },

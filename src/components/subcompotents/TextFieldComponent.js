@@ -27,14 +27,14 @@ const TextFieldComponent = ({
       '& .MuiOutlinedInput-root': {
         borderRadius: '10px', // <- Add this
         '&.Mui-focused fieldset': {
-          borderColor: '#0000FF',
+          borderColor: '#084E77',
         },
       },
       '& .MuiOutlinedInput-notchedOutline': {
         borderRadius: '10px', 
       },
       '& .MuiInputLabel-root.Mui-focused': {
-        color: '#0000FF',
+        color: '#084E77',
       },
     }}
     {...rest}

@@ -89,7 +89,7 @@ export const fetchEmployers = () => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   dispatch(fetchEmployersStart());
   try {
-    const response = await axios.get('https://api.earnplus.net/api/v1/employer/auth/getEmployers', {
+    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployers`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     dispatch(fetchEmployersSuccess(response.data?.data || []));
@@ -104,7 +104,7 @@ export const fetchAssignedPartners = (variantId) => async (dispatch) => {
   dispatch(fetchAssignedPartnersStart());
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/variantProduct/getAssignedEmployers/${variantId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/getAssignedEmployers/${variantId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchAssignedPartnersSuccess(response.data?.data || []));
@@ -133,7 +133,7 @@ export const submitAssignment =
       };
 
       const response = await axios.patch(
-        'https://api.earnplus.net/api/v1/associate/variantProduct/assignVariantProductToEmployer',
+        `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/assignVariantProductToEmployer`,
         payload,
         {
           headers: {

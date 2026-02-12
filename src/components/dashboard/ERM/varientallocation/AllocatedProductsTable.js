@@ -55,7 +55,7 @@ const AllocatedProductsTable = () => {
                 </Button>
             </Box>
 
-            {/* Inline Dialog with Form */}
+           
             <Dialog open={openDialog} onClose={handleDialogClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: '10px' } }} >
                 <DialogContent>
                     <VariantAllocationForm onClose={handleDialogClose} />

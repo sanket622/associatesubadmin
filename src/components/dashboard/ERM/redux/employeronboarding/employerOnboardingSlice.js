@@ -104,7 +104,7 @@ export const verifyPanGst = (formData, filterType) => async (dispatch) => {
     };
 
     const response = await axios.patch(
-      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/verifyGSTAndPAN',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/verifyGSTAndPAN`,
       payload,
       {
         headers: {
@@ -163,7 +163,7 @@ export const submitEmployerData = (formData, callback) => async (dispatch) => {
     }
 
     const response = await axios.post(
-      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/addEmployerByAssociateSubAdmin',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/addEmployerByAssociateSubAdmin`,
       submitData,
       {
         headers: {
@@ -189,7 +189,7 @@ export const fetchPartners = () => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      'https://api.earnplus.net/api/v1/associate/associateSubAdmin/getEmployersByAssociateSubAdmin',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/associateSubAdmin/getEmployersByAssociateSubAdmin`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

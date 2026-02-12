@@ -124,7 +124,7 @@ export const fetchProducts = (page, rowsPerPage) => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      'https://api.earnplus.net/api/v1/associate/masterProduct/getAllMasterProducts',
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/getAllMasterProducts`,
       {
         headers: { Authorization: `Bearer ${token}` },
         params: { page, rowsPerPage },
@@ -142,7 +142,7 @@ export const fetchProductDetails = (productId, callback) => async (dispatch) => 
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/masterProduct/getMasterProductDetails/${productId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/getMasterProductDetails/${productId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     // console.log(response);
@@ -160,7 +160,7 @@ export const fetchProductVersions = (productId) => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/masterProduct/getMasterProductVersions/${productId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/getMasterProductVersions/${productId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchProductVersionsSuccess(response.data.data));
@@ -176,7 +176,7 @@ export const fetchVersionDetails = (versionId) => async (dispatch) => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/masterProduct/getMasterProductVersionById/${versionId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/getMasterProductVersionById/${versionId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     dispatch(fetchVersionDetailsSuccess(response.data.data));
@@ -184,5 +184,25 @@ export const fetchVersionDetails = (versionId) => async (dispatch) => {
     dispatch(fetchVersionDetailsFailure(err?.response?.data?.message || 'Failed to fetch version detail'));
   }
 };
+
+
+export const selectProductFormFields = (state) => {
+  const details = state.products.productDetails;
+
+  if (!details || !details.MasterProductFields) {
+    return null;
+  }
+
+  const raw = details.MasterProductFields.fieldsJsonData;
+  if (!raw) return null;
+
+  try {
+    return raw;
+  } catch {
+    return null;
+  }
+};
+
+
 
 export default productsSlice.reducer;

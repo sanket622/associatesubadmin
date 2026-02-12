@@ -51,7 +51,7 @@ export const submitArchive = ({ variantId, reason, reset }, { enqueueSnackbar, o
 
 
             const response = await axios.post(
-                'https://api.earnplus.net/api/v1/associate/variantProduct/createVariantProductDeleteRequest',
+                `${process.env.REACT_APP_BACKEND_URL}/associate/variantProduct/createVariantProductDeleteRequest`,
                 payload,
                 {
                     headers: {

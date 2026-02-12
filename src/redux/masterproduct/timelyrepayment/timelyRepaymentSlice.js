@@ -55,7 +55,7 @@ export const submitTimelyRepayment = (formData, callback) => async dispatch => {
             payload.incentiveReversalConditions = formData.incentiveReversalConditions;
         }
 
-        const response = await axios.post('https://api.earnplus.net/api/v1/associate/masterProduct/createMasterProductRepayment',
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createMasterProductRepayment`,
             payload,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },

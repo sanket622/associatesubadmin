@@ -68,7 +68,7 @@ export const submitPaymentCycle = (employerId, contractTypeId, cycleDataList, ca
             };
 
             const response = await axios.post(
-                'https://api.earnplus.net/api/v1/associate/contractCombination/createContractCombination',
+                `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/createContractCombination`,
                 payload,
                 {
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -92,7 +92,7 @@ export const fetchContractCombinations = (employerId) => async (dispatch) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get(
-      `https://api.earnplus.net/api/v1/associate/contractCombination/getContractCombinations/${employerId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/getContractCombinations/${employerId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -112,7 +112,7 @@ export const fetchContractTypes = (employerId) => async (dispatch) => {
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.get(
-            `https://api.earnplus.net/api/v1/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/employer/auth/getEmployerContractTypes?employerId=${employerId}`,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },
             }
@@ -135,7 +135,7 @@ export const fetchSingleContractCombination = (contractId) => async (dispatch) =
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.get(
-            `https://api.earnplus.net/api/v1/associate/contractCombination/getSingleContractCombination/${contractId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/associate/contractCombination/getSingleContractCombination/${contractId}`,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },
             }

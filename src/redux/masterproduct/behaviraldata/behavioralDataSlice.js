@@ -71,7 +71,7 @@ export const submitBehavioralData = (formData, callback) => async (dispatch) => 
         });
 
         const response = await axios.post(
-            'https://api.earnplus.net/api/v1/associate/masterProduct/createBehavioralData',
+            `${process.env.REACT_APP_BACKEND_URL}/associate/masterProduct/createBehavioralData`,
             payload,
             {
                 headers: { Authorization: `Bearer ${accessToken}` },
