@@ -104,7 +104,7 @@ const DashboardLayout = () => {
                    group flex items-center gap-3 px-5 py-2.5 min-w-0 w-full rounded-lg cursor-pointer
                     transition-all
                    ${isActive
-                      ? 'bg-btnbg font-sans rounded-xl text-white'
+                      ? 'bg-btnbg font-sans rounded-xl'
                       : 'hover:bg-[#0E81C4]/10 hover:text-[#0E81C4] text-[#5B5B5B] rounded-xl'
                     }
                   `}
