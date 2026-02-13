@@ -99,7 +99,7 @@ const ViewSingleVarient = () => {
           fields={[
             { label: 'Min Loan Amount', value: VariantProductParameter?.minLoanAmount },
             { label: 'Max Loan Amount', value: VariantProductParameter?.maxLoanAmount },
-            { label: 'Tenure (Months)', value: `${VariantProductParameter?.minTenureMonths} - ${VariantProductParameter?.maxTenureMonths}` },
+            { label: 'Tenure (Months)', value: `${VariantProductParameter?.minTenure} - ${VariantProductParameter?.maxTenure}` },
             { label: 'Interest Rate', value: `${VariantProductParameter?.interestRateMin}% - ${VariantProductParameter?.interestRateMax}%` },
             { label: 'EMI Frequency', value: VariantProductParameter?.emiFrequency },
             { label: 'Penal Interest Rate', value: VariantProductParameter?.penalInterestRate },

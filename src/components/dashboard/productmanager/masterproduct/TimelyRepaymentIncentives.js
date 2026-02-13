@@ -126,8 +126,8 @@ const TimelyRepaymentIncentives = ({ tabIndex, setTabIndex, }) => {
                 financialTermsUpdate: {
                     minLoanAmount: Number(editProductparameter?.minLoanAmount),
                     maxLoanAmount: Number(editProductparameter?.maxLoanAmount),
-                    minTenureMonths: Number(editProductparameter?.minTenureMonths),
-                    maxTenureMonths: Number(editProductparameter?.maxTenureMonths),
+                    minTenure: Number(editProductparameter?.minTenure),
+                    maxTenure: Number(editProductparameter?.maxTenure),
                     interestRateType: editProductparameter?.interestRateType?.id,
                     interestRateMin: Number(editProductparameter?.interestMin),
                     interestRateMax: Number(editProductparameter?.interestMax),

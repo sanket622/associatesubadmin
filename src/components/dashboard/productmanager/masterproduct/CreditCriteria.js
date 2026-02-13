@@ -240,8 +240,8 @@ const CreditCriteria = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                 financialTermsUpdate: {
                     minLoanAmount: masterProductUpdate.financialTermsUpdate.minLoanAmount,
                     maxLoanAmount: masterProductUpdate.financialTermsUpdate.maxLoanAmount,
-                    minTenureMonths: masterProductUpdate.financialTermsUpdate.minTenureMonths,
-                    maxTenureMonths: masterProductUpdate.financialTermsUpdate.maxTenureMonths,
+                    minTenure: masterProductUpdate.financialTermsUpdate.minTenure,
+                    maxTenure: masterProductUpdate.financialTermsUpdate.maxTenure,
 
                     interestRateType:
                         masterProductUpdate.financialTermsUpdate.interestRateType?.id,

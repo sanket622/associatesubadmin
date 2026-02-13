@@ -118,8 +118,8 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
             parameterUpdate: {
                 minLoanAmount: Number(editVarientParameterData?.minimumLoanAmount || 0),
                 maxLoanAmount: Number(editVarientParameterData?.maximumLoanAmount || 0),
-                minTenureMonths: Number(editVarientParameterData?.minTenureMonths || 0),
-                maxTenureMonths: Number(editVarientParameterData?.maxTenureMonths || 0),
+                minTenure: Number(editVarientParameterData?.minTenure || 0),
+                maxTenure: Number(editVarientParameterData?.maxTenure|| 0),
                 interestRateMin: Number(editVarientParameterData?.interestRateMin || 0),
                 interestRateMax: Number(editVarientParameterData?.interestRateMax || 0),
                 processingFeeValue: Number(editVarientParameterData?.processingFeeValue || 0),

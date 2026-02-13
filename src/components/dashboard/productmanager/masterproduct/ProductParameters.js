@@ -20,6 +20,7 @@ import {
 export const interestRateOptions = [
     { id: 'FLAT', name: 'Flat' },
     { id: 'REDUCING', name: 'Reducing' },
+    {id:'BULLET',name:'Bullet'},
     // { id: ' ZERO', name: 'Zero' },
     // { id: ' CUSTOM', name: 'Custom' },
     // { id: 'HYBRID', name: 'Hybrid' },
@@ -95,8 +96,8 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
         minLoanAmount: num().positive().required('Minimum Loan Amount is required'),
         maxLoanAmount: num().positive().required('Maximum Loan Amount is required'),
 
-        minTenureMonths: num().positive().required('Minimum Tenure is required'),
-        maxTenureMonths: num().positive().required('Maximum Tenure is required'),
+        minTenure: num().positive().required('Minimum Tenure is required'),
+        maxTenure: num().positive().required('Maximum Tenure is required'),
 
         interestRateType: yup.object().required('Interest Rate Type is required'),
 
@@ -140,8 +141,8 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
     const defaultValues = (productDetails && mode === "EDIT") ? {
         minLoanAmount: editProductparameter?.minLoanAmount || productDetails?.financialTerms?.minLoanAmount,
         maxLoanAmount: editProductparameter?.maxLoanAmount || productDetails?.financialTerms?.maxLoanAmount,
-        minTenureMonths: editProductparameter?.minTenureMonths || productDetails?.financialTerms?.minTenureMonths,
-        maxTenureMonths: editProductparameter?.maxTenureMonths || productDetails?.financialTerms?.maxTenureMonths,
+        minTenure: editProductparameter?.minTenure || productDetails?.financialTerms?.minTenure,
+        maxTenure: editProductparameter?.maxTenure || productDetails?.financialTerms?.maxTenure,
 
         interestRateType: findOption(
             interestRateOptions,
@@ -296,13 +297,13 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="minTenureMonths">Minimum Tenure (Months)</Label>
-                        <RHFTextField name="minTenureMonths" />
+                        <Label htmlFor="minTenure">Minimum Tenure (Months)</Label>
+                        <RHFTextField name="minTenure" />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="maxTenureMonths">Maximum Tenure (Months)</Label>
-                        <RHFTextField name="maxTenureMonths" />
+                        <Label htmlFor="maxTenure">Maximum Tenure (Months)</Label>
+                        <RHFTextField name="maxTenure" />
                     </Grid>
 
 
@@ -331,7 +332,7 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
 
                     <Grid item xs={12} md={4}>
                         Processing Fee Value{watch('processingFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
-                        <RHFTextField name="processingFeeValue" />
+                        <RHFTextField name="processingFeeValue" disabled={watch('processingFeeType')?.id === 'NONE'} />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -341,7 +342,7 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
 
                     <Grid item xs={12} md={4}>
                         Late Payment Fee Value{watch('latePaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
-                        <RHFTextField name="latePaymentFeeValue" />
+                        <RHFTextField name="latePaymentFeeValue" disabled={watch('latePaymentFeeType')?.id === 'NONE'} />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -351,7 +352,7 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
 
                     <Grid item xs={12} md={4}>
                         Prepayment Fee Value{watch('prepaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
-                        <RHFTextField name="prepaymentFeeValue" />
+                        <RHFTextField name="prepaymentFeeValue"/>
                     </Grid>
 
                     {/* <Grid item xs={12} md={4}>

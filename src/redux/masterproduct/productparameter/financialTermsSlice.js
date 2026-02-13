@@ -77,8 +77,8 @@ export const submitFinancialTerms = (formData, callback) => async (dispatch) => 
 
       minLoanAmount: Number(formData.minLoanAmount),
       maxLoanAmount: Number(formData.maxLoanAmount),
-      minTenureMonths: Number(formData.minTenureMonths),
-      maxTenureMonths: Number(formData.maxTenureMonths),
+      minTenure: Number(formData.minTenure),
+      maxTenure: Number(formData.maxTenure),
 
       interestRateType: formData.interestRateType?.id,
       interestRateMin: Number(formData.interestMin),

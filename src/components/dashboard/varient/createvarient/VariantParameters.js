@@ -42,6 +42,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
         { id: 'REDUCING', name: 'Reducing' },
         { id: 'ZERO', name: 'Zero' },
         { id: 'CUSTOM', name: 'Custom' },
+        {id:'BULLET',name:'Bullet'}
     ];
 
     const feeTypes = [
@@ -97,8 +98,8 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
     const defaultValues = (mode === 'EDIT' && variantDetail?.VariantProductParameter) ? {
         minimumLoanAmount: editVarientParameterData?.minimumLoanAmount || variantDetail?.VariantProductParameter?.minLoanAmount || '',
         maximumLoanAmount: editVarientParameterData?.maximumLoanAmount || variantDetail?.VariantProductParameter?.maxLoanAmount || '',
-        minTenureMonths: editVarientParameterData?.minTenureMonths || variantDetail?.VariantProductParameter?.minTenureMonths || '',
-        maxTenureMonths: editVarientParameterData?.maxTenureMonths || variantDetail?.VariantProductParameter?.maxTenureMonths || '',
+        minTenure: editVarientParameterData?.minTenure || variantDetail?.VariantProductParameter?.minTenure || '',
+        maxTenure: editVarientParameterData?.maxTenure || variantDetail?.VariantProductParameter?.maxTenure || '',
 
         interestRateType:
             editVarientParameterData?.interestRateType ||
@@ -146,8 +147,8 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
     } : {
         minimumLoanAmount: productDetails?.financialTerms?.minLoanAmount,
         maximumLoanAmount: productDetails?.financialTerms?.maxLoanAmount,
-        minTenureMonths: productDetails?.financialTerms?.minTenureMonths,
-        maxTenureMonths: productDetails?.financialTerms?.maxTenureMonths,
+        minTenure: productDetails?.financialTerms?.minTenure,
+        maxTenure: productDetails?.financialTerms?.maxTenure,
         interestRateType: interestRateTypes.find(i => i.id === productDetails?.financialTerms?.interestRateType) || null,
         interestRateMin: productDetails?.financialTerms?.interestRateMin,
         interestRateMax: '',
@@ -247,12 +248,12 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="maxTenureMonths">Maximum Tenure Months</Label>
-                        <RHFTextField name="maxTenureMonths" id="maxTenureMonths" />
+                        <Label htmlFor="maxTenure">Maximum Tenure Months</Label>
+                        <RHFTextField name="maxTenure" id="maxTenure" />
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="minTenureMonths">Minimum Tenure Months</Label>
-                        <RHFTextField name="minTenureMonths" id="minTenureMonths" />
+                        <Label htmlFor="minTenure">Minimum Tenure Months</Label>
+                        <RHFTextField name="minTenure" id="minTenure" />
                     </Grid>
 
 
@@ -294,7 +295,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                         <Label htmlFor="processingFeeValue">
                             Processing Fee Value{watch('processingFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
                         </Label>
-                        <RHFTextField name="processingFeeValue" id="processingFeeValue" />
+                        <RHFTextField name="processingFeeValue" id="processingFeeValue" disabled={watch('processingFeeType')?.id === 'NONE'} />
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -309,7 +310,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                         <Label htmlFor="latePaymentFeeValue">
                             Late Payment Fee Value{watch('latePaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
                         </Label>
-                        <RHFTextField name="latePaymentFeeValue" />
+                        <RHFTextField name="latePaymentFeeValue" disabled={watch('latePaymentFeeType')?.id === 'NONE'}/>
                     </Grid>
 
                     <Grid item xs={12} md={4}>
