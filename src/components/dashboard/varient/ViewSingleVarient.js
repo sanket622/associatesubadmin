@@ -109,8 +109,8 @@ const ViewSingleVarient = () => {
         <Section
           title="Other Charges"
           fields={[
-            { label: 'Cheque Bounce Charge', value: VariantProductOtherCharges?.chequeBounceCharge },
-            { label: 'Duplicate NOC Charge', value: VariantProductOtherCharges?.dublicateNocCharge },
+            { label: 'Cheque Bounce Charge', value: VariantProductOtherCharges?.bounceCharge },
+            { label: 'Duplicate NOC Charge', value: VariantProductOtherCharges?.nocCharge },
             { label: 'Furnishing Charge', value: VariantProductOtherCharges?.furnishingCharge },
             { label: 'Revocation', value: VariantProductOtherCharges?.revocation },
             { label: 'Stamp Duty', value: VariantProductOtherCharges?.stampDutyCharge },

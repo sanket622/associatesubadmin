@@ -69,12 +69,12 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         perTransactionFee: editVarientOtherChargesData?.perTransactionFee ?? null,
         perTransactionAmount: editVarientOtherChargesData?.perTransactionAmount ?? '',
     } : {
-        chequeBounceCharges: productDetails?.masterProductOtherCharges?.chequeBounceCharge,
+        bounceCharge: productDetails?.masterProductOtherCharges?.bounceCharge,
         duplicateNocCharges: productDetails?.masterProductOtherCharges?.dublicateNocCharge,
         statementCharges: productDetails?.masterProductOtherCharges?.chequeSwapCharge,
         chequeSwappingCharges: '',
         ecsCharges: productDetails?.masterProductOtherCharges?.revocation,
-        documentCopyCharges: productDetails?.masterProductOtherCharges?.documentCopyCharge,
+        documentCharge: productDetails?.masterProductOtherCharges?.documentCharge,
         stampDutyCharges: productDetails?.masterProductOtherCharges?.stampDutyCharge,
         nocIssuanceCharges: productDetails?.masterProductOtherCharges?.nocCharge,
         legalCharges: '',
@@ -154,8 +154,18 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                 updateVariantProductDraft({
                     endpoint: 'updateVariantProductOtherChargesDraft',
                     payload: {
-                        ...payload,
-                        variantProductId: localStorage.getItem('createdVariantId')
+                        variantProductId: localStorage.getItem('createdVariantId'),
+                        otherCharges: {
+                            bounceCharge: Number(data?.bounceCharge || 0),
+                            dublicateNocCharge: Number(data?.duplicateNocCharges || 0),
+                            furnishingCharge: Number(data?.statementCharges || 0),
+                            chequeSwapCharge: Number(data?.chequeSwappingCharges || 0),
+                            revocation: Number(data?.ecsCharges || 0),
+                            documentCharge: Number(data?.documentCharge || 0),
+                            stampDutyCharge: Number(data?.stampDutyCharges || 0),
+                            nocCharge: Number(data?.nocIssuanceCharges || 0),
+                            incidentalCharge: Number(data?.legalCharges || 0),
+                        },
                     },
                 })
             )
@@ -175,13 +185,11 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                 });
         }
         else if (mode === "EDIT") {
-            dispatch(submitEditVariantSubmit(payload, () => {
-                navigate(-1);
-            }));
+            dispatch(seteditVarientOtherChargesData(data));
+            setTabIndex((prev) => Math.min(prev + 1, 9));
         } else {
             dispatch(submitVariantOtherCharges(data, () => {
                 setTabIndex((prev) => Math.min(prev + 1, 9));
-                navigate(-1);
             }));
         }
     };

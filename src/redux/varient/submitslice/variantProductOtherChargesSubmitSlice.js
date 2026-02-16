@@ -54,12 +54,12 @@ export const submitVariantOtherCharges = (formData, callback) => async (dispatch
 
     const payload = {
       variantProductId: variantId,
-      chequeBounceCharge: Number(formData.chequeBounceCharges),
+      bounceCharge: Number(formData.chequeBounceCharges),
       dublicateNocCharge: Number(formData.duplicateNocCharges),
       furnishingCharge: Number(formData.statementCharges),
       chequeSwapCharge: Number(formData.chequeSwappingCharges),
       revocation: Number(formData.ecsCharges),
-      documentCopyCharge: Number(formData.documentCopyCharges),
+      documentCharge: Number(formData.documentCopyCharges),
       stampDutyCharge: Number(formData.stampDutyCharges),
       nocCharge: Number(formData.nocIssuanceCharges),
       incidentalCharge: Number(formData.legalCharges),

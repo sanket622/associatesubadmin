@@ -55,12 +55,10 @@ export const submitOtherCharges = (formData, callback) => async (dispatch) => {
 
     const payload = {
       masterProductId,
-      chequeBounceCharge: Number(formData.chequeBounceCharge),
-      dublicateNocCharge: Number(formData.dublicateNocCharge),
+      bounceCharge: Number(formData.bounceCharge),
       furnishingCharge: Number(formData.furnishingCharge),
-      chequeSwapCharge: Number(formData.chequeSwapCharge),
       revocation: Number(formData.revocation),
-      documentCopyCharge: Number(formData.documentCopyCharge),
+      documentCharge: Number(formData.documentCharge),
       stampDutyCharge: Number(formData.stampDutyCharge),
       nocCharge: Number(formData.nocCharge),
       incidentalCharge: Number(formData.incidentalCharge),

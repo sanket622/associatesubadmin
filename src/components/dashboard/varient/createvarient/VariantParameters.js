@@ -199,8 +199,25 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                 updateVariantProductDraft({
                     endpoint: 'updateVariantProductParameterDraft',
                     payload: {
-                        ...data,
-                        variantProductId: localStorage.getItem('createdVariantId')
+                        variantProductId: localStorage.getItem('createdVariantId'),
+                        parameters: {
+                            minLoanAmount: Number(data.minimumLoanAmount),
+                            maxLoanAmount: Number(data.maximumLoanAmount),
+                            minTenure: Number(data.minTenure),
+                            maxTenure: Number(data.maxTenure),
+                            interestRateType: data.interestRateType?.id || '',
+                            interestRateMin: Number(data.interestRateMin),
+                            interestRateMax: Number(data.interestRateMax),
+                            processingFeeType: data.processingFeeType?.id || '',
+                            processingFeeValue: data.processingFeeType?.id === 'NONE' ? 0 : Number(data.processingFeeValue),
+                            latePaymentFeeType: data.latePaymentFeeType?.id || '',
+                            latePaymentFeeValue: data.latePaymentFeeType?.id === 'NONE' ? 0 : Number(data.latePaymentFeeValue),
+                            prepaymentFeeType: data.prepaymentFeeType?.id || '',
+                            prepaymentFeeValue: data.prepaymentFeeType?.id === 'NONE' ? 0 : Number(data.prepaymentFeeValue),
+                            emiFrequency: data.emiFrequency?.id || '',
+                            minAge: Number(data.minimumAge),
+                            maxAge: Number(data.maximumAge),
+                        },
                     },
                 })
             )
@@ -265,7 +282,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                             options={interestRateTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
-                            disabled
                         />
                     </Grid>
 
@@ -287,7 +303,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                             options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
-                            disabled
                         />
                     </Grid>
 
@@ -302,8 +317,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                         <Label htmlFor="latePaymentFeeType">Late Payment Fee Type</Label>
                         <RHFAutocomplete name="latePaymentFeeType" id="latePaymentFeeType" options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
-                            isOptionEqualToValue={(option, value) => option.id === value.id} disabled />
-
+                            isOptionEqualToValue={(option, value) => option.id === value.id}/>
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -321,7 +335,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                             options={feeTypes}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
-                            disabled
                         />
                     </Grid>
 
@@ -329,7 +342,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                         <Label htmlFor="prepaymentFeeValue">
                             Prepayment Fee Value{watch('prepaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
                         </Label>
-                        <RHFTextField name="prepaymentFeeValue" id="prepaymentFeeValue" />
+                        <RHFTextField name="prepaymentFeeValue" id="prepaymentFeeValue" disabled={watch('prepaymentFeeType')?.id === 'NONE'}/>
                     </Grid>
 
                     <Grid item xs={12} md={4}>
@@ -340,7 +353,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                             options={emiFrequencies}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
-                            disabled
                         />
                     </Grid>
 

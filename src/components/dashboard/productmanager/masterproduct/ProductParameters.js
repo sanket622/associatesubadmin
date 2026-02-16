@@ -352,7 +352,7 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
 
                     <Grid item xs={12} md={4}>
                         Prepayment Fee Value{watch('prepaymentFeeType')?.id === 'PERCENTAGE' ? ' (%)' : ''}
-                        <RHFTextField name="prepaymentFeeValue"/>
+                        <RHFTextField name="prepaymentFeeValue" disabled={watch('prepaymentFeeType')?.id === 'NONE'}/>
                     </Grid>
 
                     {/* <Grid item xs={12} md={4}>
