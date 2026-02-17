@@ -38,51 +38,32 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
 
     const OtherChargesSchema = Yup.object().shape({
         chequeBounceCharges: requiredNumber(),
-        duplicateNocCharges: requiredNumber(),
         statementCharges: requiredNumber(),
-        chequeSwappingCharges: requiredNumber(),
         ecsCharges: requiredNumber(),
         documentCopyCharges: requiredNumber(),
         stampDutyCharges: requiredNumber(),
         nocIssuanceCharges: requiredNumber(),
         legalCharges: requiredNumber(),
-        // subscriptionGst: requiredNumber(),
-        // gstOnTransactionFee: requiredNumber(),
     });
     console.log(productDetails);
 
 
     const defaultValues = (mode === "EDIT" && variantDetail) ? {
-        chequeBounceCharges: editVarientOtherChargesData?.chequeBounceCharges ?? variantDetail?.VariantProductOtherCharges?.chequeBounceCharge ?? '',
-        duplicateNocCharges: editVarientOtherChargesData?.duplicateNocCharges ?? variantDetail?.VariantProductOtherCharges?.dublicateNocCharge ?? '',
+        chequeBounceCharges: editVarientOtherChargesData?.chequeBounceCharges ?? variantDetail?.VariantProductOtherCharges?.bounceCharge ?? '',
         statementCharges: editVarientOtherChargesData?.statementCharges ?? variantDetail?.VariantProductOtherCharges?.furnishingCharge ?? '',
-        chequeSwappingCharges: editVarientOtherChargesData?.chequeSwappingCharges ?? variantDetail?.VariantProductOtherCharges?.chequeSwapCharge ?? '',
         ecsCharges: editVarientOtherChargesData?.ecsCharges ?? variantDetail?.VariantProductOtherCharges?.revocation ?? '',
-        documentCopyCharges: editVarientOtherChargesData?.documentCopyCharges ?? variantDetail?.VariantProductOtherCharges?.documentCopyCharge ?? '',
+        documentCopyCharges: editVarientOtherChargesData?.documentCopyCharges ?? variantDetail?.VariantProductOtherCharges?.documentCharge ?? '',
         stampDutyCharges: editVarientOtherChargesData?.stampDutyCharges ?? variantDetail?.VariantProductOtherCharges?.stampDutyCharge ?? '',
         nocIssuanceCharges: editVarientOtherChargesData?.nocIssuanceCharges ?? variantDetail?.VariantProductOtherCharges?.nocCharge ?? '',
         legalCharges: editVarientOtherChargesData?.legalCharges ?? variantDetail?.VariantProductOtherCharges?.incidentalCharge ?? '',
-
-        subscriptionGst: editVarientOtherChargesData?.subscriptionGst ?? '',
-        gstOnTransactionFee: editVarientOtherChargesData?.gstOnTransactionFee ?? '',
-        subscriptionFee: editVarientOtherChargesData?.subscriptionFee ?? '',
-        perTransactionFee: editVarientOtherChargesData?.perTransactionFee ?? null,
-        perTransactionAmount: editVarientOtherChargesData?.perTransactionAmount ?? '',
     } : {
-        bounceCharge: productDetails?.masterProductOtherCharges?.bounceCharge,
-        duplicateNocCharges: productDetails?.masterProductOtherCharges?.dublicateNocCharge,
-        statementCharges: productDetails?.masterProductOtherCharges?.chequeSwapCharge,
-        chequeSwappingCharges: '',
-        ecsCharges: productDetails?.masterProductOtherCharges?.revocation,
-        documentCharge: productDetails?.masterProductOtherCharges?.documentCharge,
-        stampDutyCharges: productDetails?.masterProductOtherCharges?.stampDutyCharge,
-        nocIssuanceCharges: productDetails?.masterProductOtherCharges?.nocCharge,
-        legalCharges: '',
-        subscriptionGst: '',
-        gstOnTransactionFee: '',
-        subscriptionFee: '',
-        perTransactionFee: null,
-        perTransactionAmount: '',
+        chequeBounceCharges: productDetails?.masterProductOtherCharges?.bounceCharge ?? '',
+        statementCharges: productDetails?.masterProductOtherCharges?.furnishingCharge ?? '',
+        ecsCharges: productDetails?.masterProductOtherCharges?.revocation ?? '',
+        documentCopyCharges: productDetails?.masterProductOtherCharges?.documentCharge ?? '',
+        stampDutyCharges: productDetails?.masterProductOtherCharges?.stampDutyCharge ?? '',
+        nocIssuanceCharges: productDetails?.masterProductOtherCharges?.nocCharge ?? '',
+        legalCharges: productDetails?.masterProductOtherCharges?.incidentalCharge ?? '',
     };
 
     const methods = useForm({
@@ -137,12 +118,10 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
             },
 
             otherChargesUpdate: {
-                chequeBounceCharge: Number(data?.chequeBounceCharges || 0),
-                dublicateNocCharge: Number(data?.duplicateNocCharges || 0),
+                bounceCharge: Number(data?.chequeBounceCharges || 0),
                 furnishingCharge: Number(data?.statementCharges || 0),
-                chequeSwapCharge: Number(data?.chequeSwappingCharges || 0),
                 revocation: Number(data?.ecsCharges || 0),
-                documentCopyCharge: Number(data?.documentCopyCharges || 0),
+                documentCharge: Number(data?.documentCopyCharges || 0),
                 stampDutyCharge: Number(data?.stampDutyCharges || 0),
                 nocCharge: Number(data?.nocIssuanceCharges || 0),
                 incidentalCharge: Number(data?.legalCharges || 0),
@@ -156,12 +135,10 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                     payload: {
                         variantProductId: localStorage.getItem('createdVariantId'),
                         otherCharges: {
-                            bounceCharge: Number(data?.bounceCharge || 0),
-                            dublicateNocCharge: Number(data?.duplicateNocCharges || 0),
+                            bounceCharge: Number(data?.chequeBounceCharges || 0),
                             furnishingCharge: Number(data?.statementCharges || 0),
-                            chequeSwapCharge: Number(data?.chequeSwappingCharges || 0),
                             revocation: Number(data?.ecsCharges || 0),
-                            documentCharge: Number(data?.documentCharge || 0),
+                            documentCharge: Number(data?.documentCopyCharges || 0),
                             stampDutyCharge: Number(data?.stampDutyCharges || 0),
                             nocCharge: Number(data?.nocIssuanceCharges || 0),
                             incidentalCharge: Number(data?.legalCharges || 0),
@@ -209,16 +186,8 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                         <RHFTextField name="chequeBounceCharges" id="chequeBounceCharges" />
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="duplicateNocCharges">Charges for Duplicate NOC</Label>
-                        <RHFTextField name="duplicateNocCharges" id="duplicateNocCharges" />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
                         <Label htmlFor="statementCharges">Statement Charges - 2nd Time</Label>
                         <RHFTextField name="statementCharges" id="statementCharges" />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <Label htmlFor="chequeSwappingCharges">Cheque Swapping Charges</Label>
-                        <RHFTextField name="chequeSwappingCharges" id="chequeSwappingCharges" />
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="ecsCharges">Revocation of ECS/ACH Charges</Label>
