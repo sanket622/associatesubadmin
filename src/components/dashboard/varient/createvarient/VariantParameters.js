@@ -35,8 +35,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
     const variantDetail = useSelector((state) => state?.variantSingle?.variantDetail);
     const editVarientParameterData = useSelector((state) => state?.variantProductParameterSubmit?.editVarientParameterData);
 
-    // console.log(variantDetail.VariantProductParameter.processingFeeValue, editVarientParameterData?.processingFeeValue);
-
     const interestRateTypes = [
         { id: 'FLAT', name: 'Flat' },
         { id: 'REDUCING', name: 'Reducing' },
@@ -83,9 +81,6 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
         latePaymentFeeType: Yup.object().required('Late Payment Fee Type is required'),
         latePaymentFeeValue: Yup.string().required('Late Payment Fee Value is required'),
         prepaymentFeeValue: Yup.string().required('Prepayment Fee Value is required'),
-        penalInterestRate: Yup.string().required('Penal Interest Rate is required'),
-        // penalInterestConditions: Yup.string().required('Penal Interest Conditions is required'),
-        // coBorrowerRequiredForLowScore: Yup.string().required('Penal Interest Rate Applicable is required'),
         interestRateType: Yup.mixed().required('Interest Rate Type is required'),
         processingFeeType: Yup.mixed().required('Processing Fee Type is required'),
         prepaymentFeeType: Yup.mixed().required('Prepayment Fee Type is required'),
@@ -135,15 +130,8 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
             findOption(emiFrequencies, variantDetail?.VariantProductParameter?.emiFrequency, 'id') ||
             null,
 
-        penalInterestRate: editVarientParameterData?.penalInterestRate || variantDetail?.VariantProductParameter?.penalInterestRate || '',
-        // penalInterestConditions: editVarientParameterData?.penalInterestConditions || variantDetail?.VariantProductParameter?.penalInterestConditions || '',
-
         minimumAge: editVarientParameterData?.minimumAge || variantDetail?.VariantProductParameter?.minAge || '',
         maximumAge: editVarientParameterData?.maximumAge || variantDetail?.VariantProductParameter?.maxAge || '',
-
-        penalInterestRateApplicable:
-            editVarientParameterData?.penalInterestRateApplicable ??
-            (variantDetail?.VariantProductParameter?.penalInterestApplicable ? 'yes' : 'no'),
     } : {
         minimumLoanAmount: productDetails?.financialTerms?.minLoanAmount,
         maximumLoanAmount: productDetails?.financialTerms?.maxLoanAmount,
@@ -159,11 +147,8 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
         prepaymentFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.prepaymentFeeType) || null,
         prepaymentFeeValue: productDetails?.financialTerms?.prepaymentFeeValue,
         emiFrequency: emiFrequencies.find(i => i.id === productDetails?.financialTerms?.emiFrequency) || null,
-        penalInterestRate: productDetails?.financialTerms?.penalRate,
-        // penalInterestConditions: '',
         minimumAge: productDetails?.eligibilityCriteria?.minAge,
         maximumAge: productDetails?.eligibilityCriteria?.maxAge,
-        penalInterestRateApplicable: productDetails?.financialTerms?.penalApplicable ? 'yes' : 'no',
     };
 
 
@@ -357,54 +342,12 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="penalInterestRate">Penal Interest Rate (% p.a.)</Label>
-                        <RHFTextField name="penalInterestRate" id="penalInterestRate" />
-                    </Grid>
-
-                    {/* <Grid item xs={12} md={4}>
-                        <Label htmlFor="penalInterestConditions">Penal Interest Conditions</Label>
-                        <RHFTextField name="penalInterestConditions" id="penalInterestConditions" />
-                    </Grid> */}
-                    <Grid item xs={12} md={4}>
                         <Label htmlFor="minimumAge">Minimum Age</Label>
                         <RHFTextField name="minimumAge" id="minimumAge" />
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="maximumAge">Maximum Age</Label>
                         <RHFTextField name="maximumAge" id="maximumAge" />
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <FormControl component="fieldset">
-                            <Label htmlFor="penalInterestRateApplicable">Penal Interest Rate Applicable?</Label>
-                            <Controller
-                                name="penalInterestRateApplicable"
-                                control={methods.control}
-
-                                render={({ field }) => (
-                                    <RadioGroup
-                                        row
-                                        {...field}
-                                        id="penalInterestRateApplicable"
-                                        sx={{ display: 'flex', justifyContent: 'center' }}
-
-                                    >
-                                        <FormControlLabel
-                                            value="yes"
-                                            control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
-                                            label="Yes"
-                                            disabled
-                                        />
-                                        <FormControlLabel
-                                            value="no"
-                                            control={<Radio sx={{ color: '#0000FF', '&.Mui-checked': { color: '#0000FF' } }} />}
-                                            label="No"
-                                            disabled
-                                        />
-                                    </RadioGroup>
-                                )}
-                            />
-                        </FormControl>
                     </Grid>
                 </Grid>
             </Box>
