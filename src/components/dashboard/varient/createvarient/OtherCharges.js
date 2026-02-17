@@ -40,7 +40,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         chequeBounceCharges: requiredNumber(),
         statementCharges: requiredNumber(),
         ecsCharges: requiredNumber(),
-        documentCopyCharges: requiredNumber(),
+        documentCharge: requiredNumber(),
         stampDutyCharges: requiredNumber(),
         nocIssuanceCharges: requiredNumber(),
         legalCharges: requiredNumber(),
@@ -52,7 +52,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         chequeBounceCharges: editVarientOtherChargesData?.chequeBounceCharges ?? variantDetail?.VariantProductOtherCharges?.bounceCharge ?? '',
         statementCharges: editVarientOtherChargesData?.statementCharges ?? variantDetail?.VariantProductOtherCharges?.furnishingCharge ?? '',
         ecsCharges: editVarientOtherChargesData?.ecsCharges ?? variantDetail?.VariantProductOtherCharges?.revocation ?? '',
-        documentCopyCharges: editVarientOtherChargesData?.documentCopyCharges ?? variantDetail?.VariantProductOtherCharges?.documentCharge ?? '',
+        documentCharge: editVarientOtherChargesData?.documentCharge ?? variantDetail?.VariantProductOtherCharges?.documentCharge ?? '',
         stampDutyCharges: editVarientOtherChargesData?.stampDutyCharges ?? variantDetail?.VariantProductOtherCharges?.stampDutyCharge ?? '',
         nocIssuanceCharges: editVarientOtherChargesData?.nocIssuanceCharges ?? variantDetail?.VariantProductOtherCharges?.nocCharge ?? '',
         legalCharges: editVarientOtherChargesData?.legalCharges ?? variantDetail?.VariantProductOtherCharges?.incidentalCharge ?? '',
@@ -60,7 +60,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         chequeBounceCharges: productDetails?.masterProductOtherCharges?.bounceCharge ?? '',
         statementCharges: productDetails?.masterProductOtherCharges?.furnishingCharge ?? '',
         ecsCharges: productDetails?.masterProductOtherCharges?.revocation ?? '',
-        documentCopyCharges: productDetails?.masterProductOtherCharges?.documentCharge ?? '',
+        documentCharge: productDetails?.masterProductOtherCharges?.documentCharge ?? '',
         stampDutyCharges: productDetails?.masterProductOtherCharges?.stampDutyCharge ?? '',
         nocIssuanceCharges: productDetails?.masterProductOtherCharges?.nocCharge ?? '',
         legalCharges: productDetails?.masterProductOtherCharges?.incidentalCharge ?? '',
@@ -85,7 +85,6 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
     }, [variantDetail, editVarientOtherChargesData])
 
     const onSubmit = (data) => {
-
         const payload = {
             variantProductId: localStorage.getItem('createdVariantId'),
             reason: "Updated fees and charges",
@@ -121,7 +120,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                 bounceCharge: Number(data?.chequeBounceCharges || 0),
                 furnishingCharge: Number(data?.statementCharges || 0),
                 revocation: Number(data?.ecsCharges || 0),
-                documentCharge: Number(data?.documentCopyCharges || 0),
+                documentCharge: Number(data?.documentCharge || 0),
                 stampDutyCharge: Number(data?.stampDutyCharges || 0),
                 nocCharge: Number(data?.nocIssuanceCharges || 0),
                 incidentalCharge: Number(data?.legalCharges || 0),
@@ -129,16 +128,18 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         };
 
         if (mode === "EDIT" && variantDetail.status === "Draft") {
+            const variantId = localStorage.getItem('createdVariantId');
+            const masterProductId = variantDetail?.masterProductId || editVarientBasicData?.productType?.id;
             dispatch(
                 updateVariantProductDraft({
                     endpoint: 'updateVariantProductOtherChargesDraft',
                     payload: {
-                        variantProductId: localStorage.getItem('createdVariantId'),
+                        variantProductId: variantId,
                         otherCharges: {
                             bounceCharge: Number(data?.chequeBounceCharges || 0),
                             furnishingCharge: Number(data?.statementCharges || 0),
                             revocation: Number(data?.ecsCharges || 0),
-                            documentCharge: Number(data?.documentCopyCharges || 0),
+                            documentCharge: Number(data?.documentCharge || 0),
                             stampDutyCharge: Number(data?.stampDutyCharges || 0),
                             nocCharge: Number(data?.nocIssuanceCharges || 0),
                             incidentalCharge: Number(data?.legalCharges || 0),
@@ -152,7 +153,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                         res?.message || 'Draft saved successfully',
                         { variant: 'success' }
                     );
-                    setTabIndex(prev => Math.min(prev + 1, 9));
+                    navigate(`/varient-details/${masterProductId}`);
                 })
                 .catch((err) => {
                     enqueueSnackbar(
@@ -162,11 +163,14 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                 });
         }
         else if (mode === "EDIT") {
-            dispatch(seteditVarientOtherChargesData(data));
-            setTabIndex((prev) => Math.min(prev + 1, 9));
+            const masterProductId = variantDetail?.masterProductId || editVarientBasicData?.productType?.id;
+            dispatch(submitEditVariantSubmit(payload, () => {
+                navigate(`/varient-details/${masterProductId}`);
+            }));
         } else {
+            const masterProductId = productDetails?.id;
             dispatch(submitVariantOtherCharges(data, () => {
-                setTabIndex((prev) => Math.min(prev + 1, 9));
+                navigate(`/varient-details/${masterProductId}`);
             }));
         }
     };
@@ -194,8 +198,8 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                         <RHFTextField name="ecsCharges" id="ecsCharges" />
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="documentCopyCharges">Document Copy Charges</Label>
-                        <RHFTextField name="documentCopyCharges" id="documentCopyCharges" />
+                        <Label htmlFor="documentCharge">Document Charges</Label>
+                        <RHFTextField name="documentCharge" id="documentCharge" />
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="stampDutyCharges">Stamp Duty Charges</Label>
@@ -302,7 +306,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                         <Button sx={primaryBtnSx} variant="outlined" onClick={() => setTabIndex(prev => Math.max(prev - 1, 0))} disabled={tabIndex === 0}>Back</Button>
                     )
                 }
-                <Button variant="contained" sx={primaryBtnSx} type="submit">Next</Button>
+                <Button variant="contained" sx={primaryBtnSx} type="submit">Save</Button>
             </Box>
         </FormProvider>
     )

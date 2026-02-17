@@ -57,7 +57,7 @@ export const submitVariantOtherCharges = (formData, callback) => async (dispatch
       bounceCharge: Number(formData.chequeBounceCharges),
       furnishingCharge: Number(formData.statementCharges),
       revocation: Number(formData.ecsCharges),
-      documentCharge: Number(formData.documentCopyCharges),
+      documentCharge: Number(formData.documentCharge),
       stampDutyCharge: Number(formData.stampDutyCharges),
       nocCharge: Number(formData.nocIssuanceCharges),
       incidentalCharge: Number(formData.legalCharges),

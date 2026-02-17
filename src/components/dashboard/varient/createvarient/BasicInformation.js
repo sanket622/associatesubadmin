@@ -85,13 +85,11 @@ const BasicInformation = ({ setTabIndex, tabIndex, totalTabs, variant }) => {
 
         partner:
             editVarientBasicData?.partner ||
-            partners?.find(p => p.id === variantDetail.partnerId) ||
+            partners?.find(p => p.id === variantDetail?.partnerId) ||
             null,
         geography:
             editVarientBasicData?.geography ||
-            geographies?.filter(g =>
-                variantDetail?.geographyIds?.includes(g.id)
-            ) ||
+            variantDetail?.VariantProductGeography?.map(vpg => vpg.geography) ||
             [],
 
         remarks:
@@ -134,7 +132,7 @@ const BasicInformation = ({ setTabIndex, tabIndex, totalTabs, variant }) => {
         if (variantDetail || editVarientBasicData || productIdFromState) {
             reset(defaultValues)
         }
-    }, [variantDetail, editVarientBasicData, products, productIdFromState, geographies])
+    }, [variantDetail, editVarientBasicData, products, productIdFromState, geographies, partners])
 
     // console.log(mode, status);
 
@@ -151,8 +149,11 @@ const BasicInformation = ({ setTabIndex, tabIndex, totalTabs, variant }) => {
                 updateVariantProductDraft({
                     endpoint: 'updateVariantProductDraft',
                     payload: {
-                        ...payload,
-                        variantProductId: localStorage.getItem('createdVariantId')
+                        variantProductId: localStorage.getItem('createdVariantId'),
+                        variantName: data.variantName,
+                        remark: data.remarks,
+                        partnerId: data.partner?.id || '',
+                        geographyIds: data.geography.map(g => g.id),
                     },
                 })
             )
