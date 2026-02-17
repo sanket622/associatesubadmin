@@ -139,7 +139,7 @@ const VariantParameters = ({ setTabIndex, tabIndex, totalTabs }) => {
         maxTenure: productDetails?.financialTerms?.maxTenure,
         interestRateType: interestRateTypes.find(i => i.id === productDetails?.financialTerms?.interestRateType) || null,
         interestRateMin: productDetails?.financialTerms?.interestRateMin,
-        interestRateMax: '',
+        interestRateMax: productDetails?.financialTerms?.interestRateMax,
         processingFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.processingFeeType) || null,
         processingFeeValue: productDetails?.financialTerms?.processingFeeValue,
         latePaymentFeeType: feeTypes.find(i => i.id === productDetails?.financialTerms?.latePaymentFeeType) || null,
