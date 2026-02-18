@@ -37,7 +37,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         Yup.number().typeError('Must be a number').required('Required');
 
     const OtherChargesSchema = Yup.object().shape({
-        chequeBounceCharges: requiredNumber(),
+        bounceCharge: requiredNumber(),
         statementCharges: requiredNumber(),
         ecsCharges: requiredNumber(),
         documentCharge: requiredNumber(),
@@ -49,7 +49,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
 
 
     const defaultValues = (mode === "EDIT" && variantDetail) ? {
-        chequeBounceCharges: editVarientOtherChargesData?.chequeBounceCharges ?? variantDetail?.VariantProductOtherCharges?.bounceCharge ?? '',
+        bounceCharge: editVarientOtherChargesData?.bounceCharge ?? variantDetail?.VariantProductOtherCharges?.bounceCharge ?? '',
         statementCharges: editVarientOtherChargesData?.statementCharges ?? variantDetail?.VariantProductOtherCharges?.furnishingCharge ?? '',
         ecsCharges: editVarientOtherChargesData?.ecsCharges ?? variantDetail?.VariantProductOtherCharges?.revocation ?? '',
         documentCharge: editVarientOtherChargesData?.documentCharge ?? variantDetail?.VariantProductOtherCharges?.documentCharge ?? '',
@@ -57,7 +57,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
         nocIssuanceCharges: editVarientOtherChargesData?.nocIssuanceCharges ?? variantDetail?.VariantProductOtherCharges?.nocCharge ?? '',
         legalCharges: editVarientOtherChargesData?.legalCharges ?? variantDetail?.VariantProductOtherCharges?.incidentalCharge ?? '',
     } : {
-        chequeBounceCharges: productDetails?.masterProductOtherCharges?.bounceCharge ?? '',
+        bounceCharge: productDetails?.masterProductOtherCharges?.bounceCharge ?? '',
         statementCharges: productDetails?.masterProductOtherCharges?.furnishingCharge ?? '',
         ecsCharges: productDetails?.masterProductOtherCharges?.revocation ?? '',
         documentCharge: productDetails?.masterProductOtherCharges?.documentCharge ?? '',
@@ -85,39 +85,39 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
     }, [variantDetail, editVarientOtherChargesData])
 
     const onSubmit = (data) => {
+        const geographyIds = editVarientBasicData?.geography?.map(g => g.id) || 
+                            variantDetail?.VariantProductGeography?.map(vpg => vpg.geography.id) || [];
+        
         const payload = {
             variantProductId: localStorage.getItem('createdVariantId'),
             reason: "Updated fees and charges",
-            productType: editVarientBasicData?.productType?.id || '',
-            variantName: editVarientBasicData?.variantName || '',
-            variantType: editVarientBasicData?.variantType || '',
-            partnerId: editVarientBasicData?.partner?.id || '',
-            remark: editVarientBasicData?.remarks || '',
-            rejectionReason: editVarientBasicData?.rejectionReason || '',
+            variantName: editVarientBasicData?.variantName || variantDetail?.variantName || '',
+            productType: editVarientBasicData?.productType?.id || variantDetail?.productType || '',
+            partnerId: editVarientBasicData?.partner?.id || variantDetail?.partnerId || '',
+            remark: editVarientBasicData?.remarks || variantDetail?.remark || '',
+            geographyIds: geographyIds,
 
             parameterUpdate: {
-                minLoanAmount: Number(editVarientParameterData?.minimumLoanAmount || 0),
-                maxLoanAmount: Number(editVarientParameterData?.maximumLoanAmount || 0),
-                minTenure: Number(editVarientParameterData?.minTenure || 0),
-                maxTenure: Number(editVarientParameterData?.maxTenure|| 0),
-                interestRateMin: Number(editVarientParameterData?.interestRateMin || 0),
-                interestRateMax: Number(editVarientParameterData?.interestRateMax || 0),
-                processingFeeValue: Number(editVarientParameterData?.processingFeeValue || 0),
-                processingFeeType: editVarientParameterData?.processingFeeType?.id || '',
-                latePaymentFeeType: editVarientParameterData?.latePaymentFeeType?.id || '',
-                latePaymentFeeValue: Number(editVarientParameterData?.latePaymentFeeValue || 0),
-                penalInterestApplicable: editVarientParameterData?.penalInterestRateApplicable === 'yes',
-                prepaymentFeeValue: Number(editVarientParameterData?.prepaymentFeeValue || 0),
-                penalInterestRate: Number(editVarientParameterData?.penalInterestRate || 0),
-                minAge: Number(editVarientParameterData?.minimumAge || 0),
-                maxAge: Number(editVarientParameterData?.maximumAge || 0),
-                interestRateType: editVarientParameterData?.interestRateType?.id || '',
-                prepaymentFeeType: editVarientParameterData?.prepaymentFeeType?.id || '',
-                emiFrequency: editVarientParameterData?.emiFrequency?.id || '',
+                minLoanAmount: Number(editVarientParameterData?.minimumLoanAmount || variantDetail?.VariantProductParameter?.minLoanAmount || 0),
+                maxLoanAmount: Number(editVarientParameterData?.maximumLoanAmount || variantDetail?.VariantProductParameter?.maxLoanAmount || 0),
+                minTenure: Number(editVarientParameterData?.minTenure || variantDetail?.VariantProductParameter?.minTenure || 0),
+                maxTenure: Number(editVarientParameterData?.maxTenure || variantDetail?.VariantProductParameter?.maxTenure || 0),
+                interestRateType: editVarientParameterData?.interestRateType?.id || variantDetail?.VariantProductParameter?.interestRateType || '',
+                interestRateMin: Number(editVarientParameterData?.interestRateMin || variantDetail?.VariantProductParameter?.interestRateMin || 0),
+                interestRateMax: Number(editVarientParameterData?.interestRateMax || variantDetail?.VariantProductParameter?.interestRateMax || 0),
+                processingFeeType: editVarientParameterData?.processingFeeType?.id || variantDetail?.VariantProductParameter?.processingFeeType || '',
+                processingFeeValue: Number(editVarientParameterData?.processingFeeValue || variantDetail?.VariantProductParameter?.processingFeeValue || 0),
+                latePaymentFeeType: editVarientParameterData?.latePaymentFeeType?.id || variantDetail?.VariantProductParameter?.latePaymentFeeType || '',
+                latePaymentFeeValue: Number(editVarientParameterData?.latePaymentFeeValue || variantDetail?.VariantProductParameter?.latePaymentFeeValue || 0),
+                emiFrequency: editVarientParameterData?.emiFrequency?.id || variantDetail?.VariantProductParameter?.emiFrequency || '',
+                prepaymentFeeType: editVarientParameterData?.prepaymentFeeType?.id || variantDetail?.VariantProductParameter?.prepaymentFeeType || '',
+                prepaymentFeeValue: Number(editVarientParameterData?.prepaymentFeeValue || variantDetail?.VariantProductParameter?.prepaymentFeeValue || 0),
+                minAge: Number(editVarientParameterData?.minimumAge || variantDetail?.VariantProductParameter?.minAge || 0),
+                maxAge: Number(editVarientParameterData?.maximumAge || variantDetail?.VariantProductParameter?.maxAge || 0),
             },
 
             otherChargesUpdate: {
-                bounceCharge: Number(data?.chequeBounceCharges || 0),
+                bounceCharge: Number(data?.bounceCharge || 0),
                 furnishingCharge: Number(data?.statementCharges || 0),
                 revocation: Number(data?.ecsCharges || 0),
                 documentCharge: Number(data?.documentCharge || 0),
@@ -136,7 +136,7 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
                     payload: {
                         variantProductId: variantId,
                         otherCharges: {
-                            bounceCharge: Number(data?.chequeBounceCharges || 0),
+                            bounceCharge: Number(data?.bounceCharge || 0),
                             furnishingCharge: Number(data?.statementCharges || 0),
                             revocation: Number(data?.ecsCharges || 0),
                             documentCharge: Number(data?.documentCharge || 0),
@@ -186,8 +186,8 @@ const OtherCharges = ({ setTabIndex, tabIndex, totalTabs, status }) => {
             <Box>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={4}>
-                        <Label htmlFor="chequeBounceCharges">Cheque Bounce Charges</Label>
-                        <RHFTextField name="chequeBounceCharges" id="chequeBounceCharges" />
+                        <Label htmlFor="bounceCharge">Cheque Bounce Charges</Label>
+                        <RHFTextField name="bounceCharge" id="bounceCharge" />
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Label htmlFor="statementCharges">Statement Charges - 2nd Time</Label>

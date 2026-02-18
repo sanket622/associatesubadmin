@@ -51,6 +51,7 @@ const VarientTable = () => {
         { key: 'variantType', label: 'Type' },
         { key: 'variantCode', label: 'Code' },
         { key: 'productType', label: 'Product Type' },
+        { key: 'status', label: 'Status' },
 
         {
             key: 'view',

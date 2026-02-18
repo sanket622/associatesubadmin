@@ -437,7 +437,7 @@ const ViewDetailsOperationManager = () => {
   const formJson = LoanFormData?.formJsonData || {};
   const {
     basicDetails = {},
-    documents = {},
+    document_uploads = {},
   } = formJson;
 
   const role = approver?.role?.roleName;
@@ -877,6 +877,7 @@ const ViewDetailsOperationManager = () => {
   const viewData = useMemo(() => {
     const dynamicTabs = Object.entries(formJson || {})
       .filter(([key]) => key.trim() !== 'documents')
+      .sort(([, a], [, b]) => (a?.order || 999) - (b?.order || 999))
       .map(([sectionKey, sectionData]) => {
         const cleanSectionKey = sectionKey.trim();
 
@@ -885,7 +886,9 @@ const ViewDetailsOperationManager = () => {
           type: 'keyValue',
           data: Object.entries(sectionData || {}).reduce(
             (acc, [k, v]) => {
-              acc[formatLabel(k.trim())] = v ?? '-';
+              if (k !== 'order') {
+                acc[formatLabel(k.trim())] = v ?? '-';
+              }
               return acc;
             },
             {}
@@ -943,10 +946,12 @@ const ViewDetailsOperationManager = () => {
         {
           label: 'Documents',
           type: 'documents',
-          data: Object.entries(documents || {}).map(([key, value]) => ({
-            name: formatLabel(key),
-            filePath: value,
-          })),
+          data: Object.entries(document_uploads || {})
+            .filter(([key]) => key !== 'order')
+            .map(([key, value]) => ({
+              name: formatLabel(key),
+              filePath: value,
+            })),
         },
 
         ...(
@@ -1061,7 +1066,7 @@ const ViewDetailsOperationManager = () => {
     };
   }, [
     formJson,
-    documents,
+    document_uploads,
     employee,
     loanCode,
     LoanVkycData,
@@ -1329,18 +1334,36 @@ const ViewDetailsOperationManager = () => {
     const activeTabData = viewData.tabs[activeTab];
 
     if (activeTabData.type === 'keyValue') {
+      const sectionKey = viewData.tabs[activeTab]?.label?.toLowerCase().replace(/ /g, '_');
+      const isDocumentSection = sectionKey === 'document_uploads';
+
       return (
         <Grid container spacing={3} mt={1}>
-          {Object.entries(activeTabData.data).map(([k, v]) => (
-            <Grid item xs={12} md={4} key={k}>
-              <Typography className="theme-label">
-                {k}
-              </Typography>
-              <Typography className="theme-values">
-                {formatDateTime(v)}
-              </Typography>
-            </Grid>
-          ))}
+          {Object.entries(activeTabData.data).map(([k, v]) => {
+            const isDocPath = isDocumentSection && typeof v === 'string' && v.startsWith('/uploads/');
+            
+            return (
+              <Grid item xs={12} md={4} key={k}>
+                <Typography className="theme-label">
+                  {k}
+                </Typography>
+                {isDocPath ? (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<VisibilityOutlinedIcon />}
+                    onClick={() => window.open(`${MEDIA_BASE}${v}`, '_blank')}
+                  >
+                    View
+                  </Button>
+                ) : (
+                  <Typography className="theme-values">
+                    {formatDateTime(v)}
+                  </Typography>
+                )}
+              </Grid>
+            );
+          })}
         </Grid>
       );
     }
