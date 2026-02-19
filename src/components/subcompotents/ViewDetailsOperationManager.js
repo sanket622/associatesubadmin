@@ -39,6 +39,8 @@ import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalance
 import DescriptionIcon from '@mui/icons-material/Description';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -1336,11 +1338,13 @@ const ViewDetailsOperationManager = () => {
     if (activeTabData.type === 'keyValue') {
       const sectionKey = viewData.tabs[activeTab]?.label?.toLowerCase().replace(/ /g, '_');
       const isDocumentSection = sectionKey === 'document_uploads';
+      const isConsentSection = sectionKey === 'declarations_and_consent';
 
       return (
         <Grid container spacing={3} mt={1}>
           {Object.entries(activeTabData.data).map(([k, v]) => {
             const isDocPath = isDocumentSection && typeof v === 'string' && v.startsWith('/uploads/');
+            const isBoolean = typeof v === 'boolean';
             
             return (
               <Grid item xs={12} md={4} key={k}>
@@ -1356,6 +1360,17 @@ const ViewDetailsOperationManager = () => {
                   >
                     View
                   </Button>
+                ) : isBoolean || isConsentSection ? (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    {v ? (
+                      <CheckBoxIcon sx={{ color: '#4CAF50', fontSize: 28 }} />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon sx={{ color: '#9E9E9E', fontSize: 28 }} />
+                    )}
+                    <Typography className="theme-values">
+                      {v ? 'Yes' : 'No'}
+                    </Typography>
+                  </Box>
                 ) : (
                   <Typography className="theme-values">
                     {formatDateTime(v)}
