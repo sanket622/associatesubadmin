@@ -4,6 +4,9 @@ import { fetchPartners } from '../redux/employeronboarding/employerOnboardingSli
 import { CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
+const NEUTRAL_ACCENT = '#1F2937';
+const NEUTRAL_HEADER_BG = '#F3F4F6';
+
 const PartnerTable = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -22,14 +25,14 @@ const PartnerTable = () => {
                     overflowX: 'auto',
                     borderRadius: 2,
                     '&::-webkit-scrollbar': { height: '8px' },
-                    '&::-webkit-scrollbar-thumb': { backgroundColor: '#0000FF', borderRadius: '4px' },
+                    '&::-webkit-scrollbar-thumb': { backgroundColor: '#9CA3AF', borderRadius: '4px' },
                     '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1' },
                 }}>
                     <Table>
-                        <TableHead sx={{ background: '#F5F5FF' }}>
+                        <TableHead sx={{ background: NEUTRAL_HEADER_BG }}>
                             <TableRow>
                                 {['Sno.','Employer Id', 'Name', 'Email', 'Mobile', 'Contract Types', 'Status', 'Assign'].map((header) => (
-                                    <TableCell key={header} sx={{ fontSize: '14px', color: '#0000FF' }}>{header}</TableCell>
+                                    <TableCell key={header} sx={{ fontSize: '14px', color: NEUTRAL_ACCENT }}>{header}</TableCell>
                                 ))}
 
                             </TableRow>
@@ -60,7 +63,7 @@ const PartnerTable = () => {
                                                 <ul style={{ listStyle: 'none' }}>
                                                     {partner.EmployerContractType.map((contract, index) => (
                                                         <li key={index} style={{ position: 'relative', paddingLeft: '12px', marginBottom: '4px' }}>
-                                                            <span style={{ position: 'absolute', left: 0, top: '6px', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#0000FF', display: 'inline-block' }} />
+                                                            <span style={{ position: 'absolute', left: 0, top: '6px', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6B7280', display: 'inline-block' }} />
                                                             <span style={{ fontSize: '14px', color: '#333' }}>{contract.contractType.name}</span>
                                                         </li>
                                                     ))}
@@ -78,7 +81,7 @@ const PartnerTable = () => {
                                             </span>
                                         </TableCell>
                                         <TableCell>
-                                            <Button sx={{ background: "#0000FF", color: "white", px: 2, borderRadius: 2, fontSize: "14px", fontWeight: 500, textTransform: "none", "&:hover": { background: "#0000FF" } }} onClick={() => navigate(`/payment-cycle-list/${partner.id}`)} title="View Details">
+                                            <Button sx={{ background: NEUTRAL_ACCENT, color: 'white', px: 2, borderRadius: 2, fontSize: '14px', fontWeight: 500, textTransform: 'none', '&:hover': { background: '#111827' } }} onClick={() => navigate(`/payment-cycle-list/${partner.id}`)} title="View Details">
                                                 Asign
                                             </Button>
                                         </TableCell>

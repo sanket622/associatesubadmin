@@ -46,7 +46,8 @@ const CreateProduct = () => {
 
     // const handleTabChange = (_, newValue) => setTabIndex(newValue);
     const handleTabChange = (_, newValue) => {
-        return;
+        if (!isEditMode) return;
+        setTabIndex(newValue);
     };
 
 
@@ -54,7 +55,7 @@ const CreateProduct = () => {
         if (mode === "EDIT" && productId) {
             dispatch(fetchProductDetails(productId));
         }
-    }, [productId])
+    }, [mode, productId, dispatch])
 
     const tabs = [
         'General product metadata',

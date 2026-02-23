@@ -96,7 +96,7 @@ const Disbursements = () => {
 
     const columns = [
         { key: 'customerId', label: 'Customer ID' },
-        { key: 'employeeName', label: 'Employee Name' },
+        { key: 'employeeName', label: 'Customer Name' },
         { key: 'email', label: 'Email' },
         { key: 'mobile', label: 'Mobile' },
         { key: 'firstName', label: 'First Name' },

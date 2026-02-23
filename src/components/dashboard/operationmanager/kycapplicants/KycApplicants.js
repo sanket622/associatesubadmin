@@ -110,14 +110,13 @@ const KycApplicants = () => {
         if (!Array.isArray(details)) return [];
 
         return details.map((loan) => {
-            const basic = loan.LoanFormData?.formJsonData?.basicDetails || {};
-
+        
             return {
                 id: loan.id,
                 customerId: loan?.employee?.customEmployeeId || '—',
                 // customerId: loan.customerId,
-                customerName: `${basic.firstName || ''} ${basic.lastName || ''}`.trim() || '—',
-                mobile: basic.phone || '—',
+                customerName: `${loan.employee.employeeName || ''}`,
+                mobile: loan.employee.mobile || '—',
                 loanCode: loan.loanCode || '—',
                 videoKyc: loan.vkycStatus === 'LINK_GENERATED' ? 'Completed' : 'Pending',
                 documents: loan.LoanFormData?.formJsonData?.documents ? 'Completed' : 'Pending',

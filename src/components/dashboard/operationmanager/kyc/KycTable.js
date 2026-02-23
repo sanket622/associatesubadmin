@@ -41,7 +41,7 @@ const KycTable = () => {
                         <TableHead sx={{ background: '#F5F5FF' }}>
                             <TableRow>
                                 <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Employee ID</TableCell>
-                                <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Employee Name</TableCell>
+                                <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Customer Name</TableCell>
                                 <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Mobile</TableCell>
                                 <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Employer</TableCell>
                                 <TableCell sx={{ fontSize: '14px', color: '#0000FF' }}>Status</TableCell>

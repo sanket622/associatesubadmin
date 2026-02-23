@@ -31,7 +31,7 @@ const KYCDetailView = () => {
 
       <div className="bg-white border rounded-xl p-5 my-6 grid grid-cols-1 md:grid-cols-2 gap-y-4">
         <div><span className="font-semibold">Customer ID</span><br />{data.id}</div>
-        <div><span className="font-semibold">Employee Name</span><br />{data.employee.employeeName}</div>
+        <div><span className="font-semibold">Customer Name</span><br />{data.employee.employeeName}</div>
         <div><span className="font-semibold">Employer</span><br />{data.employee.employer.name}</div>
         <div><span className="font-semibold">Mobile Number</span><br />{data.employee.mobile}</div>
         <div><span className="font-semibold">Employee ID</span><br />{data.employee.customEmployeeId}</div>

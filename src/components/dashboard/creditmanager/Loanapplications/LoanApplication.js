@@ -201,6 +201,7 @@ const LoanApplication = () => {
         return {
             id: loan.id,
             customerId: loan?.employee?.customEmployeeId || '—',
+            loanCode: loan?.loanCode || '-',
             employeeName: employee.employeeName || '-',
             email: employee.email || '-',
             mobile: employee.mobile || '-',
@@ -227,11 +228,10 @@ const LoanApplication = () => {
 
     const columns = [
         { key: 'customerId', label: 'Customer ID' },
-        { key: 'employeeName', label: 'Employee Name' },
+        { key: 'loanCode', label: 'Loan ID' },
+        { key: 'employeeName', label: 'Customer Name' },
         { key: 'email', label: 'Email' },
         { key: 'mobile', label: 'Mobile' },
-        { key: 'firstName', label: 'First Name' },
-        { key: 'lastName', label: 'Last Name' },
         // { key: 'pan', label: 'PAN' },
         // {
         //     key: 'aadhar',

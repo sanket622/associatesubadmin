@@ -40,6 +40,9 @@ const legalTypeOptions = [
     { label: 'Sole Proprietor', value: 'Sole_Proprietor' },
 ];
 
+const NEUTRAL_ACCENT = '#1F2937';
+const NEUTRAL_TAB_BG = '#F3F4F6';
+
 export default function EmployerOnboardingTabs() {
     const [tabIndex, setTabIndex] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
@@ -106,7 +109,7 @@ export default function EmployerOnboardingTabs() {
                 {filePreviews[fieldName] && (
                     <Typography variant="body2" sx={{ mr: 2, maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{filePreviews[fieldName].name}</Typography>
                 )}
-                <Button variant="outlined" fullWidth component="label" sx={{ height: '40px', bgcolor: '#fff', color: '#0000FF' }}><UploadFile sx={{ mr: 1 }} />Upload<input hidden type="file" onChange={(e) => handleFileChange(e, fieldName)} /></Button>
+                <Button variant="outlined" fullWidth component="label" sx={{ height: '40px', bgcolor: '#fff', color: NEUTRAL_ACCENT, borderColor: '#D1D5DB' }}><UploadFile sx={{ mr: 1 }} />Upload<input hidden type="file" onChange={(e) => handleFileChange(e, fieldName)} /></Button>
             </Box>
         </Box>
     );
@@ -135,9 +138,9 @@ export default function EmployerOnboardingTabs() {
             <h1 className="text-[24px] font-semibold my-3 flex gap-2">Partner Onboarding </h1>
             <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit, onError)}>
                 <Box sx={{ width: '100%', boxShadow: 3  }}>
-                    <Tabs variant="fullWidth" value={tabIndex} onChange={(e, val) => setTabIndex(val)} indicatorColor="primary" scrollButtons="auto" textColor="inherit" sx={{ backgroundColor: '#F5F5FF', '& .MuiTabs-indicator': { backgroundColor: '#0000FF' }, '& .MuiTab-root': { color: '#424242', textTransform: 'capitalize', whiteSpace: 'normal', lineHeight: 1.2, minHeight: 'auto', }, '& .Mui-selected': { color: '#0000FF' } }} >
-                        <Tab label="Add Employer Profile" sx={{ fontWeight: 700, fontSize: 16, color: tabIndex === 0 ? '#0000FF' : '#000', textTransform: 'none' }} />
-                        <Tab label="Upload Required Documents" sx={{ fontWeight: 700, fontSize: 16, color: tabIndex === 1 ? '#0000FF' : '#000', textTransform: 'none' }} />
+                    <Tabs variant="fullWidth" value={tabIndex} onChange={(e, val) => setTabIndex(val)} scrollButtons="auto" textColor="inherit" sx={{ backgroundColor: NEUTRAL_TAB_BG, '& .MuiTabs-indicator': { backgroundColor: NEUTRAL_ACCENT }, '& .MuiTab-root': { color: '#4B5563', textTransform: 'capitalize', whiteSpace: 'normal', lineHeight: 1.2, minHeight: 'auto', }, '& .Mui-selected': { color: NEUTRAL_ACCENT } }} >
+                        <Tab label="Add Employer Profile" sx={{ fontWeight: 700, fontSize: 16, color: tabIndex === 0 ? NEUTRAL_ACCENT : '#111827', textTransform: 'none' }} />
+                        <Tab label="Upload Required Documents" sx={{ fontWeight: 700, fontSize: 16, color: tabIndex === 1 ? NEUTRAL_ACCENT : '#111827', textTransform: 'none' }} />
                     </Tabs>
                     <Box sx={{ width: '100%', typography: 'body1', p: 3, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, bgcolor: '#fff', color: '#000' }}>
                         {tabIndex === 0 && (
@@ -158,7 +161,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* PAN (Entity) */}
                                     <Grid item xs={12} md={6}>
                                         <Label>PAN (Entity)</Label>
-                                        <RHFTextField name="pan" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: '#0000FF', color: '#fff', height: '25px' }} onClick={() => handleVerify('pan')}>Verify</Button></InputAdornment> }} />
+                                        <RHFTextField name="pan" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: NEUTRAL_ACCENT, color: '#fff', height: '25px', '&:hover': { bgcolor: '#111827' } }} onClick={() => handleVerify('pan')}>Verify</Button></InputAdornment> }} />
 
                                     </Grid>
 
@@ -177,7 +180,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* Admin Email ID */}
                                     <Grid item xs={12} md={6}>
                                         <Label>Admin Email ID</Label>
-                                        <RHFTextField name="adminEmail" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: '#0000FF', color: '#fff', height: '25px' }}>Verify</Button></InputAdornment> }} />
+                                        <RHFTextField name="adminEmail" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: NEUTRAL_ACCENT, color: '#fff', height: '25px', '&:hover': { bgcolor: '#111827' } }}>Verify</Button></InputAdornment> }} />
 
                                     </Grid>
 
@@ -190,7 +193,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* GSTIN (Optional) */}
                                     <Grid item xs={12} md={6}>
                                         <Label>GSTIN (Optional)</Label>
-                                        <RHFTextField name="gstin" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: '#0000FF', color: '#fff', height: '25px' }} onClick={() => handleVerify('gst')}>Verify</Button></InputAdornment> }} />
+                                        <RHFTextField name="gstin" InputProps={{ endAdornment: <InputAdornment position="end"><Button variant="contained" size="small" sx={{ bgcolor: NEUTRAL_ACCENT, color: '#fff', height: '25px', '&:hover': { bgcolor: '#111827' } }} onClick={() => handleVerify('gst')}>Verify</Button></InputAdornment> }} />
                                     </Grid>
 
                                     {/* Portal */}
@@ -204,7 +207,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* <Button variant="outlined" sx={{ color: '#0000FF', borderColor: '#0000FF' }}>Save as Draft</Button> */}
                                     <Button
                                         variant="contained"
-                                        sx={{ bgcolor: '#0000FF' }}
+                                        sx={{ bgcolor: NEUTRAL_ACCENT, '&:hover': { bgcolor: '#111827' } }}
                                         onClick={handleSubmit(handleFirstTabSubmit, (errors) => {
                                             console.log("Validation errors in Tab 0:", errors);
                                         })}
@@ -249,7 +252,7 @@ export default function EmployerOnboardingTabs() {
                                     {/* <Button variant="outlined" sx={{ color: '#0000FF', borderColor: '#0000FF' }}>Save as Draft</Button> */}
                                     <Button
                                         variant="contained"
-                                        sx={{ bgcolor: '#0000FF' }}
+                                        sx={{ bgcolor: NEUTRAL_ACCENT, '&:hover': { bgcolor: '#111827' } }}
                                         onClick={handleSubmit(handleSecondTabSubmit)}
                                     >
                                         Save
@@ -259,7 +262,7 @@ export default function EmployerOnboardingTabs() {
                         )}
 
                         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-                            <DialogTitle sx={{ fontWeight: 'bold', color: '#0000FF', fontSize: 20 }}>Partner & Contact Summary</DialogTitle>
+                            <DialogTitle sx={{ fontWeight: 'bold', color: NEUTRAL_ACCENT, fontSize: 20 }}>Partner & Contact Summary</DialogTitle>
                             <DialogContent>
                                 <Box px={2} py={1}>
                                     <Grid container spacing={2}>
@@ -274,7 +277,7 @@ export default function EmployerOnboardingTabs() {
                                     <Button sx={{ textTransform: 'none' }} variant="outlined" color="error" onClick={() => setOpenDialog(false)}>
                                         Cancel
                                     </Button>
-                                    <Button variant="contained" sx={{ bgcolor: '#0000FF', textTransform: 'none' }} onClick={handleFinalSubmit}>
+                                    <Button variant="contained" sx={{ bgcolor: NEUTRAL_ACCENT, textTransform: 'none', '&:hover': { bgcolor: '#111827' } }} onClick={handleFinalSubmit}>
                                         Send Welcome Email & Activate EMS Account
                                     </Button>
                                 </Box>
