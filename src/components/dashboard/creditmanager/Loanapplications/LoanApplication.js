@@ -70,13 +70,45 @@ const LoanApplication = () => {
             setKycLoadingId(loan.id);
 
             const employee = loan.employee || {};
-            const formData = loan.LoanFormData?.formJsonData || {};
+            const basicDetails = loan.LoanFormData?.formJsonData?.basicDetails || {};
+
+            let firstName = (basicDetails.firstName || employee.employeeName || '').trim();
+            let lastName = (basicDetails.lastName || '').trim();
+            let mobile = (basicDetails.phone || employee.mobile || '').toString().trim();
+            let email = (basicDetails.email || employee.email || '').trim();
+
+            if (!firstName || !lastName || !mobile || !email) {
+                const detailsRes = await axios.get(
+                    `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/manager/getLoanDetails/${loan.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const detailsData = detailsRes?.data?.data || {};
+                const detailsEmployee = detailsData?.employee || {};
+                const detailsBasic = detailsData?.LoanFormData?.formJsonData?.basicDetails || {};
+
+                firstName = (firstName || detailsBasic.firstName || detailsEmployee.employeeName || '').trim();
+                lastName = (lastName || detailsBasic.lastName || '').trim();
+                mobile = (mobile || detailsBasic.phone || detailsEmployee.mobile || '').toString().trim();
+                email = (email || detailsBasic.email || detailsEmployee.email || '').trim();
+            }
+
+            if (!firstName || !lastName || !mobile || !email) {
+                enqueueSnackbar('Unable to generate VKYC link: customer basic details are incomplete.', {
+                    variant: 'error',
+                });
+                return;
+            }
 
             const payload = {
-                firstName: formData.name || employee.employeeName || '',
-                lastName: formData.lastName || '',
-                mobile: Number(employee.mobile),
-                email: employee.email || '',
+                firstName,
+                lastName,
+                mobile: Number(mobile),
+                email,
             };
 
             const res = await axios.post(
