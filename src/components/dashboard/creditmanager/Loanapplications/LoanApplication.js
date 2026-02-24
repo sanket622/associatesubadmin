@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import {
@@ -37,6 +37,8 @@ const LoanApplication = () => {
     const [kycLoadingId, setKycLoadingId] = useState(null);
     const [generatedKycIds, setGeneratedKycIds] = useState({});
     const [loadingRowId, setLoadingRowId] = useState(null);
+    const [appliedFilters, setAppliedFilters] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
     // const [approveModalOpen, setApproveModalOpen] = useState(false);
     // const [selectedLoanId, setSelectedLoanId] = useState(null);
     // const [action, setAction] = useState('APPROVE');
@@ -193,7 +195,96 @@ const LoanApplication = () => {
     };
 
 
-    const tableData = loans.map((loan) => {
+    const filteredLoans = useMemo(() => {
+        const hasFilters = appliedFilters && Object.keys(appliedFilters).length > 0;
+        const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+        const hasSearch = normalizedSearchTerm.length > 0;
+
+        if (!hasFilters && !hasSearch) {
+            return loans;
+        }
+
+        const toTimestamp = (value) => {
+            if (!value) return null;
+            const ts = new Date(value).setHours(0, 0, 0, 0);
+            return Number.isNaN(ts) ? null : ts;
+        };
+
+        const amountInRange = (amount, range) => {
+            if (!range || !Number.isFinite(amount)) return true;
+            if (range === '0-1L') return amount >= 0 && amount <= 100000;
+            if (range === '1-5L') return amount > 100000 && amount <= 500000;
+            if (range === '5L+') return amount > 500000;
+            return true;
+        };
+
+        return loans.filter((loan) => {
+            const formData = loan.LoanFormData?.formJsonData || {};
+            const loanDetails = formData.loanDetails || {};
+            const basicDetails = formData.basicDetails || {};
+            const employee = loan.employee || {};
+
+            const amount = Number(loanDetails.loanAmount);
+            const amountRangeValue = appliedFilters.amountRange?.value;
+            if (amountRangeValue && !amountInRange(amount, amountRangeValue)) {
+                return false;
+            }
+
+            const loanTypeValue = appliedFilters.loanType?.value?.toLowerCase();
+            if (loanTypeValue) {
+                const productName = (loan.masterProduct?.productName || '').toLowerCase();
+                const productType = (loan.masterProduct?.loanType || '').toLowerCase();
+                if (!productName.includes(loanTypeValue) && !productType.includes(loanTypeValue)) {
+                    return false;
+                }
+            }
+
+            const assignedToValue = appliedFilters.assignedTo?.value?.toLowerCase();
+            if (assignedToValue) {
+                const assignedRoleName = (
+                    loan.assignedTo?.role?.roleName ||
+                    loan.assignedTo?.role ||
+                    loan.assignedTo?.name ||
+                    ''
+                ).toLowerCase();
+                if (!assignedRoleName.includes(assignedToValue)) {
+                    return false;
+                }
+            }
+
+            const createdAtTs = toTimestamp(
+                loan.createdAt || loan.created_at || loanDetails.createdAt || formData.createdAt
+            );
+            const fromTs = toTimestamp(appliedFilters.dateFrom);
+            const toTs = toTimestamp(appliedFilters.dateTo);
+            if (fromTs && createdAtTs && createdAtTs < fromTs) return false;
+            if (toTs && createdAtTs && createdAtTs > toTs) return false;
+
+            if (normalizedSearchTerm) {
+                const searchableText = [
+                    loan?.employee?.customEmployeeId,
+                    loan?.loanCode,
+                    employee.employeeName,
+                    employee.email,
+                    employee.mobile,
+                    basicDetails.firstName,
+                    basicDetails.lastName,
+                    basicDetails.panNumber,
+                ]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase();
+
+                if (!searchableText.includes(normalizedSearchTerm)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }, [loans, appliedFilters, searchTerm]);
+
+    const tableData = filteredLoans.map((loan) => {
         const formData = loan.LoanFormData?.formJsonData || {};
         const basicDetails = formData.basicDetails || {};
         const employee = loan.employee || {};
@@ -220,8 +311,8 @@ const LoanApplication = () => {
 
 
     const handleApplyFilter = (filters) => {
-        console.log('Filters:', filters);
-
+        setAppliedFilters(filters || {});
+        dispatch(setPage(1));
     };
 
 
@@ -361,6 +452,8 @@ const LoanApplication = () => {
                 loading={loading}
                 error={error}
                 showSearch
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
                 showFilter
                 onFilterClick={() => setOpenFilter(true)}
 

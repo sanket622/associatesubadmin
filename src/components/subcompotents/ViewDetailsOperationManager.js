@@ -440,9 +440,65 @@ const ViewDetailsOperationManager = () => {
   const {
     basicDetails = {},
     document_uploads = {},
+    documents = {},
   } = formJson;
 
   const role = approver?.role?.roleName;
+
+  const normalizeDocumentRows = useMemo(() => {
+    const preferredSource =
+      Object.keys(document_uploads || {}).length > 0
+        ? document_uploads
+        : documents;
+
+    const extractPaths = (value) => {
+      if (!value) return [];
+
+      if (typeof value === 'string') return [value];
+
+      if (Array.isArray(value)) {
+        return value
+          .flatMap((item) => extractPaths(item))
+          .filter(Boolean);
+      }
+
+      if (typeof value === 'object') {
+        const candidate =
+          value.filePath ||
+          value.path ||
+          value.url ||
+          value.docUrl ||
+          value.documentUrl ||
+          value.uploadUrl;
+
+        return candidate ? [candidate] : [];
+      }
+
+      return [];
+    };
+
+    return Object.entries(preferredSource || {})
+      .filter(([key]) => key !== 'order')
+      .flatMap(([key, value]) => {
+        const filePaths = extractPaths(value);
+
+        return filePaths.map((filePath, index) => ({
+          name:
+            filePaths.length > 1
+              ? `${formatLabel(key)} ${index + 1}`
+              : formatLabel(key),
+          filePath,
+        }));
+      });
+  }, [document_uploads, documents]);
+
+  const getDocumentUrl = (filePath = '') => {
+    if (!filePath) return '';
+    if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
+      return filePath;
+    }
+    return `${MEDIA_BASE}${filePath}`;
+  };
 
   const handleFetchCreditReportAndOpenModal = async () => {
     try {
@@ -878,7 +934,10 @@ const ViewDetailsOperationManager = () => {
 
   const viewData = useMemo(() => {
     const dynamicTabs = Object.entries(formJson || {})
-      .filter(([key]) => key.trim() !== 'documents')
+      .filter(
+        ([key]) =>
+          key.trim() !== 'documents' && key.trim() !== 'document_uploads'
+      )
       .sort(([, a], [, b]) => (a?.order || 999) - (b?.order || 999))
       .map(([sectionKey, sectionData]) => {
         const cleanSectionKey = sectionKey.trim();
@@ -948,12 +1007,7 @@ const ViewDetailsOperationManager = () => {
         {
           label: 'Documents',
           type: 'documents',
-          data: Object.entries(document_uploads || {})
-            .filter(([key]) => key !== 'order')
-            .map(([key, value]) => ({
-              name: formatLabel(key),
-              filePath: value,
-            })),
+          data: normalizeDocumentRows,
         },
 
         ...(
@@ -1068,7 +1122,7 @@ const ViewDetailsOperationManager = () => {
     };
   }, [
     formJson,
-    document_uploads,
+    normalizeDocumentRows,
     employee,
     loanCode,
     LoanVkycData,
@@ -1403,7 +1457,7 @@ const ViewDetailsOperationManager = () => {
                       },
                     }}
                     onClick={() =>
-                      window.open(`${MEDIA_BASE}${row.filePath}`, '_blank')
+                      window.open(getDocumentUrl(row.filePath), '_blank')
                     }
                   >
                     <VisibilityOutlinedIcon color="primary" />
@@ -1417,7 +1471,7 @@ const ViewDetailsOperationManager = () => {
                     }}
                     onClick={async () => {
                       try {
-                        const response = await fetch(`${MEDIA_BASE}${row.filePath}`);
+                        const response = await fetch(getDocumentUrl(row.filePath));
                         const blob = await response.blob();
 
                         const url = window.URL.createObjectURL(blob);

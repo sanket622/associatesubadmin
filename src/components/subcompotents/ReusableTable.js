@@ -28,6 +28,8 @@ const ReusableTable = ({
     loading,
     error,
     showSearch,
+    searchValue = '',
+    onSearchChange,
     showFilter,
     onFilterClick,
     footerText = '',
@@ -85,6 +87,8 @@ const ReusableTable = ({
                         <TextField
                             size="small"
                             placeholder="Search"
+                            value={searchValue}
+                            onChange={(e) => onSearchChange?.(e.target.value)}
                             InputProps={{
                                 startAdornment: <SearchIcon fontSize="small" />,
                             }}
