@@ -52,16 +52,15 @@ import ReusableTable from './ReusableTable';
 import ReAssignModal from '../dashboard/creditmanager/ReAssignModal';
 import DisbursementModal from '../dashboard/disbursalmanager/DisbursementModal';
 import DisbursalAssignModal from '../dashboard/disbursalmanager/DisbursalAssignModal';
-
 import {
   fetchLoanDetailsById,
   resetLoanDetails,
 } from '../../redux/getPendingLoans/loanDetailsslice';
+import { fetchKycApplicantDetails } from '../../redux/creditManager/kycApplicantsSlice';
 import { formatDateTime, hasPermission, ROLE_PERMISSIONS, formatCrifSummary, canViewCreditTab, formatLabel, canViewVkycTab, canViewOtherDocsTab, canViewAATab, canViewLoanApprovedTab, canViewAddBankDetailsTab, canShowLoanApproveButton, canViewSignedDocuments, canViewDisbursalPreview, getAssignToRoles, formatDateVkyc, primaryBtnSx, canViewEmiRepaymentsTab, canViewAgreementTab, canViewBSATxn, canViewBrePolicyTab } from './UtilityService';
 import axios from 'axios';
 import PaymentApprovalModal from '../dashboard/approvalmanager/PaymentApprovalModal';
 import ENachModal from './ENachModal';
-
 
 const MEDIA_BASE = process.env.REACT_APP_BACKEND_MEDIA;
 const isVideoFile = (url = '') =>
@@ -202,7 +201,16 @@ const ViewDetailsOperationManager = () => {
     LoanApplicationLogs = [],
     LoanEmiDetails,
     LoanRepaymentSchedule = [],
+    LoanFinancialData = [],
   } = loanData || {};
+  
+  const [selectedBank, setSelectedBank] = useState(LoanFinancialData?.[0]?.id || null);
+
+  useEffect(() => {
+    if (LoanFinancialData?.length > 0 && !selectedBank) {
+      setSelectedBank(LoanFinancialData[0].id);
+    }
+  }, [LoanFinancialData, selectedBank]);
   // console.log(creditApproved);
   const bsaTxnData = loanData?.LoanCreditData || null;
   const accountNumber =
@@ -720,7 +728,13 @@ const ViewDetailsOperationManager = () => {
 
       setModalType(null);
       setKycForm({ status: '', comment: '' });
-      refreshLoanData();
+      
+      if (source === 'KYC_APPLICANTS') {
+        dispatch(fetchKycApplicantDetails({ page: 1, limit: 10 }));
+        navigate(-1);
+      } else {
+        refreshLoanData();
+      }
     } catch (err) {
       enqueueSnackbar(
         err?.response?.data?.message || 'Failed to submit KYC',
@@ -968,7 +982,7 @@ const ViewDetailsOperationManager = () => {
             {
               label: 'Account aggregator',
               type: 'aa',
-              data: LoanCreditData,
+              data: { LoanFinancialData },
             },
           ]
           : []),
@@ -1701,176 +1715,21 @@ const ViewDetailsOperationManager = () => {
 
 
     if (activeTabData.type === 'aa') {
-      const aa = activeTabData.data;
-      const account = aa?.statementJson?.Account;
+      const selectedBankData = LoanFinancialData?.find(bank => bank.id === selectedBank);
+      const account = selectedBankData?.statementJson?.Account;
       const summary = account?.Summary;
       const holder = account?.Profile?.Holders?.Holder;
-      // const transactions = account?.Transactions?.Transaction || [];
-      const transactions =
-        LoanCreditData?.statementJson?.Account?.Transactions?.Transaction || [];
-
-      const transactionColumns = [
-        {
-          key: 'txnId',
-          label: 'Txn ID',
-        },
-        // {
-        //   key: 'valueDate',
-        //   label: 'Value Date',
-        //  render: (v) => renderSafeValue(v),
-        // },
-        {
-          key: 'transactionTimestamp',
-          label: 'Transaction Date',
-          render: (v) => renderSafeValue(v),
-        },
-        {
-          key: 'mode',
-          label: 'Mode',
-        },
-        {
-          key: 'narration',
-          label: 'Narration',
-        },
-        {
-          key: 'type',
-          label: 'Type',
-        },
-        {
-          key: 'amount',
-          label: 'Amount',
-        },
-        {
-          key: 'currentBalance',
-          label: 'Current Balance',
-        },
-        {
-          key: 'reference',
-          label: 'Reference',
-        },
-      ];
-
+      const transactions = account?.Transactions?.Transaction || [];
 
       return (
         <Box mt={2}>
-          {/* Buttons */}
-          {/* <Stack direction="row" spacing={2} mb={3}>
-            {aa?.lastOneYearStatementPdf && (
-              <Button
-                variant="contained"
-                onClick={() =>
-                  window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${aa.lastOneYearStatementPdf}`,
-                    '_blank'
-                  )
-                }
-              >
-                View 1 Year Statement
-              </Button>
-            )}
-
-            {aa?.lastSixMonthStatementPdf && (
-              <Button
-                variant="outlined"
-                onClick={() =>
-                  window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${aa.lastSixMonthStatementPdf}`,
-                    '_blank'
-                  )
-                }
-              >
-                View 6 Month Statement
-              </Button>
-            )}
-          </Stack> */}
-
-          {/* Account Summary */}
-          {/* Account Summary */}
-          <Box
-            display="flex"
-            justifyContent="flex-end"
-            gap={2}
-            mb={2}
-          >
-
-
-
-            <Button
-              variant="contained"
-              sx={primaryBtnSx}
-              onClick={handleSendAARedirection}
-              disabled={isSendRedirectionDisabled}
-            >
-              {camsStatus ? camsStatus : 'Send Redirection Link'}
-            </Button>
-
-            {userRole !== 'Finance' && (
-              <Button
-                variant="outlined"
-                sx={primaryBtnSx}
-                onClick={handleFetchPeriodicData}
-              >
-                Fetch Periodic Data
-              </Button>
-            )}
-
-          </Box>
-
-          <Card sx={{ mb: 3 }}>
-            <CardHeader title=" Account Summary" />
-            <CardContent>
-              {/* Heading */}
-              {/* <Typography variant="h6" mb={2}>
-                Account Summary
-              </Typography> */}
-
-              {/* Summary Fields */}
-              <Grid container spacing={2}>
-                {summary &&
-                  Object.entries(summary).map(([key, value]) => (
-                    <Grid item xs={12} sm={6} md={4} key={key}>
-                      <Typography className="theme-label">
-                        {formatLabel(key)}
-                      </Typography>
-                      <Typography className="theme-values">
-                        {renderSafeValue(value)}
-                      </Typography>
-                    </Grid>
-                  ))}
-              </Grid>
-            </CardContent>
-          </Card>
-
-
-
-
-          {/* Holder Info */}
-          <Card sx={{ mb: 3 }}>
-            <CardHeader title="Account Holder" />
-            <CardContent>
-              {/* <Typography variant="h6" mb={2}>Account Holder</Typography> */}
-              <Grid container spacing={2}>
-                {Object.entries(holder || {}).map(([k, v]) => (
-                  <Grid item xs={12} md={4} key={k}>
-                    <Typography className="theme-label">
-                      {formatLabel(k)}
-                    </Typography>
-                    <Typography className="theme-values">
-                      {renderSafeValue(v)}
-                    </Typography>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
-
           <Box display="flex" gap={2} mb={2}>
             {LoanCreditData?.lastSixMonthStatementPdf && (
               <Button
                 sx={primaryBtnSx}
                 onClick={() =>
                   window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${aa.lastSixMonthStatementPdf}`,
+                    `${process.env.REACT_APP_BACKEND_MEDIA}${LoanCreditData.lastSixMonthStatementPdf}`,
                     '_blank'
                   )
                 }
@@ -1884,7 +1743,7 @@ const ViewDetailsOperationManager = () => {
                 sx={primaryBtnSx}
                 onClick={() =>
                   window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${aa.lastOneYearStatementPdf}`,
+                    `${process.env.REACT_APP_BACKEND_MEDIA}${LoanCreditData.lastOneYearStatementPdf}`,
                     '_blank'
                   )
                 }
@@ -1894,64 +1753,74 @@ const ViewDetailsOperationManager = () => {
             )}
           </Box>
 
-
-          {/* Transactions Table */}
-          {/* <Typography variant="h6" mb={1}>Transactions</Typography> */}
-          <Paper sx={{ p: 2, borderRadius: 2 }}>
-            <Box mb={3}>
-              <Paper sx={{ p: 3, borderRadius: 2 }}>
-                {/* Header */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
-                  <Box>
-                    <Typography className="theme-label">FI Type</Typography>
-                    <Typography className="theme-values">
-                      {statementData?.type}
-                    </Typography>
-                  </Box>
-
-                  <Box>
-                    <Typography className="theme-label">Account Number</Typography>
-                    <Typography className="theme-values">
-                      {statementData?.maskedAccNumber}
-                    </Typography>
-                  </Box>
-
-                  <Box textAlign="right">
-                    <Typography className="theme-label">Statement From</Typography>
-                    <Typography className="theme-values">
-                      {renderSafeValue(statementData?.Transactions?.startDate)}
-                    </Typography>
-
-                    <Typography className="theme-label" mt={1}>
-                      Statement To
-                    </Typography>
-                    <Typography className="theme-values">
-                      {renderSafeValue(statementData?.Transactions?.endDate)}
-                    </Typography>
-                  </Box>
-                </Box>
-
-
-
-                {/* Account Info */}
-
-              </Paper>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Box display="flex" gap={2} alignItems="center">
+              <Button variant="contained" sx={primaryBtnSx} onClick={handleSendAARedirection} disabled={isSendRedirectionDisabled}>
+                {camsStatus || 'Send Redirection Link'}
+              </Button>
+              <Typography variant="body2" color="text.secondary">
+                {LoanFinancialData?.length || 0} {LoanFinancialData?.length === 1 ? 'Account' : 'Accounts'} Linked
+              </Typography>
             </Box>
-            {/* <Typography variant="subtitle1" fontWeight={600} mb={2}>
-              TRANSACTIONS
-            </Typography> */}
+            {userRole !== 'Finance' && (
+              <Button variant="outlined" sx={primaryBtnSx} onClick={handleFetchPeriodicData}>Fetch Periodic Data</Button>
+            )}
+          </Box>
 
-            <ReusableTable
-              title=" TRANSACTIONS"
-              columns={transactionColumns}
-              data={transactions}
-              loading={false}
-              showSearch={false}
-              showFilter={false}
-            />
-          </Paper>
+          {LoanFinancialData?.length > 0 && (
+            <Grid container spacing={2} mb={3}>
+              {LoanFinancialData.map((bank) => {
+                const isSelected = selectedBank === bank.id;
+                return (
+                  <Grid item xs={12} sm={6} md={3} key={bank.id}>
+                    <Card sx={{ cursor: 'pointer', background: isSelected ? '#003366' : 'white', color: isSelected ? 'white' : '#333', borderRadius: 3, minHeight: 140, border: isSelected ? '3px solid #003366' : '1px solid #e0e0e0', boxShadow: isSelected ? '0 8px 16px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)', transition: 'all 0.3s', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 16px rgba(0,0,0,0.2)' } }} onClick={() => setSelectedBank(bank.id)}>
+                      <CardContent sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <Box>
+                          <Typography variant="caption" sx={{ opacity: 0.9, textTransform: 'uppercase', letterSpacing: 1 }}>{bank.statementJson?.Account?.Summary?.type || 'Account'}</Typography>
+                          <Typography variant="h6" fontWeight={700} mt={0.5}>{bank.fipName}</Typography>
+                          <Typography variant="body2" sx={{ opacity: 0.85, mt: 1, letterSpacing: 1 }}>{bank.statementJson?.Account?.maskedAccNumber || 'XXXXXXXXXXXX'}</Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" sx={{ opacity: 0.8 }}>Balance</Typography>
+                          <Typography variant="h6" fontWeight={600}>₹{bank.statementJson?.Account?.Summary?.currentBalance || '0'}</Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
 
+          {selectedBankData && (
+            <>
+              <Grid container spacing={2} mb={3}>
+                <Grid item xs={12} sm={6} md={3}><Card sx={{ background: 'white', border: '1px solid #e0e0e0', borderRadius: 2 }}><CardContent><Typography variant="body2" color="text.secondary" mb={1}>Current Balance</Typography><Typography variant="h5" fontWeight={700} color="text.primary">₹{summary?.currentBalance || '0'}</Typography></CardContent></Card></Grid>
+                <Grid item xs={12} sm={6} md={3}><Card sx={{ background: 'white', border: '1px solid #e0e0e0', borderRadius: 2 }}><CardContent><Box display="flex" alignItems="center" gap={1} mb={1}><Typography variant="body2" color="text.secondary">Avg Monthly Balance</Typography><Typography>📊</Typography></Box><Typography variant="h5" fontWeight={700} color="text.primary">₹{summary?.currentBalance || '0'}</Typography></CardContent></Card></Grid>
+                <Grid item xs={12} sm={6} md={3}><Card sx={{ background: 'white', border: '1px solid #e0e0e0', borderRadius: 2 }}><CardContent><Box display="flex" alignItems="center" gap={1} mb={1}><Typography variant="body2" color="text.secondary">Total Credit</Typography><Typography>⬆</Typography></Box><Typography variant="h5" fontWeight={700} color="text.primary">₹{transactions.filter(t => t.type === 'CREDIT').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2)}</Typography></CardContent></Card></Grid>
+                <Grid item xs={12} sm={6} md={3}><Card sx={{ background: 'white', border: '1px solid #e0e0e0', borderRadius: 2 }}><CardContent><Box display="flex" alignItems="center" gap={1} mb={1}><Typography variant="body2" color="text.secondary">Total Debit</Typography><Typography>⬇</Typography></Box><Typography variant="h5" fontWeight={700} color="text.primary">₹{transactions.filter(t => t.type === 'DEBIT').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2)}</Typography></CardContent></Card></Grid>
+              </Grid>
 
+              <Card sx={{ mb: 3 }}><CardHeader title={`Account Summary - ${selectedBankData.fipName}`} /><CardContent><Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Statement Period</Typography><Typography className="theme-values">{renderSafeValue(account?.Transactions?.startDate)} to {renderSafeValue(account?.Transactions?.endDate)}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">FI Type</Typography><Typography className="theme-values">{account?.type || '-'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Account Type</Typography><Typography className="theme-values">{summary?.type || '-'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Status</Typography><Typography className="theme-values">{summary?.status || '-'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Current Balance</Typography><Typography className="theme-values">₹{summary?.currentBalance || '0'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Branch</Typography><Typography className="theme-values">{summary?.branch || '-'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">IFSC Code</Typography><Typography className="theme-values">{summary?.ifscCode || '-'}</Typography></Grid>
+                <Grid item xs={12} sm={6} md={4}><Typography className="theme-label">Opening Date</Typography><Typography className="theme-values">{renderSafeValue(summary?.openingDate)}</Typography></Grid>
+              </Grid></CardContent></Card>
+
+              <Card sx={{ mb: 3 }}><CardHeader title="Account Holder Details" /><CardContent><Grid container spacing={2}>
+                {Object.entries(holder || {}).map(([k, v]) => (<Grid item xs={12} md={4} key={k}><Typography className="theme-label">{formatLabel(k)}</Typography><Typography className="theme-values">{renderSafeValue(v)}</Typography></Grid>))}
+              </Grid></CardContent></Card>
+            </>
+          )}
+
+          {selectedBankData && transactions?.length > 0 && (
+            <Paper sx={{ p: 2, borderRadius: 2 }}><ReusableTable title="Statement Transactions" columns={[{ key: 'txnId', label: 'Txn ID' }, { key: 'transactionTimestamp', label: 'Transaction Date', render: (v) => renderSafeValue(v) }, { key: 'mode', label: 'Mode' }, { key: 'narration', label: 'Narration' }, { key: 'type', label: 'Type' }, { key: 'amount', label: 'Amount' }, { key: 'currentBalance', label: 'Current Balance' }, { key: 'reference', label: 'Reference' }]} data={transactions} loading={false} showSearch={false} showFilter={false} /></Paper>
+          )}
         </Box>
       );
     }
