@@ -1,7 +1,10 @@
 
-import { Tabs, Tab } from '@mui/material';
+import { Tabs, Tab, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 const ReusableTabs = ({ tabs, activeTab, setActiveTab }) => {
-    const isScrollable = tabs.length > 7;
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isScrollable = isMobile;
     return (
         <>
             <Tabs
@@ -19,19 +22,18 @@ const ReusableTabs = ({ tabs, activeTab, setActiveTab }) => {
                 sx={{
                     minHeight: 'unset',
                     '& .MuiTabs-flexContainer': {
-                        // gap: 1,
                         width: '100%',
                     },
                     '& .MuiTab-root': {
                         textTransform: 'none',
                         fontSize: 16,
                         minHeight: 'unset',
+                        minWidth: 0,
+                        flex: isScrollable ? '0 0 auto' : '1 1 0',
+                        whiteSpace: 'normal',
+                        lineHeight: 1.2,
                         color: '#6B7280',
                         backgroundColor: '#084E770A',
-                        // flex: 1,          
-                        // minWidth: 0,      
-                        // px: 2,
-                        // whiteSpace: 'nowrap',
                     },
                     '& .Mui-selected': {
                         color: '#084E77',
@@ -46,7 +48,7 @@ const ReusableTabs = ({ tabs, activeTab, setActiveTab }) => {
                 }}
             >
 
-                {tabs.map((tab, index) => (
+                {tabs.map((tab) => (
                     <Tab key={tab.label} label={tab.label} />
                 ))}
             </Tabs>

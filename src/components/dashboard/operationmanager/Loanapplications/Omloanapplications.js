@@ -222,21 +222,24 @@ const OmLoanApplications = () => {
             label: 'KYC Link',
             render: (_, row) => {
                 const loan = loans.find((l) => l.id === row.id);
+                const isLoading = kycLoadingId === row.id;
                 const isGenerated =
-                    loan?.vkycStatus !== 'NOT_INITIATED'
+                    loan?.vkycStatus !== 'NOT_INITIATED' || Boolean(generatedKycIds[row.id]);
 
                 return (
                     <Button
                         size="small"
                         variant="contained"
-                        disabled={isGenerated}
+                        disabled={isGenerated || isLoading}
                         onClick={() => handleGenerateKyc(loan)}
                         sx={{
                             background: 'var(--table-btn)',
                             textTransform: 'none',
                         }}
                     >
-                        {isGenerated ? 'Generated' : 'Send KYC Link'}
+                        {isLoading ? (
+                            <CircularProgress size={16} color="inherit" />
+                        ) : isGenerated ? 'Generated' : 'Send KYC Link'}
                     </Button>
                 );
             },

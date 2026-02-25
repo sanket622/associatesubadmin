@@ -74,7 +74,7 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <aside
         className={`
-    fixed top-[70px] left-0 z-50
+    fixed top-[70px] left-0 z-[1000]
     h-[calc(100vh-70px)]
     bg-brand font-sans shadow-lg border-r border-gray-200
     transition-transform duration-300
@@ -127,7 +127,8 @@ const DashboardLayout = () => {
       <main
         className={`
     transition-all duration-300
-    pt-[90px] px-6
+    mt-[70px] h-[calc(100vh-70px)] pt-5 px-6
+    relative z-0
    
     overflow-y-auto
 

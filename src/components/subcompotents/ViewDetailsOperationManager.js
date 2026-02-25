@@ -56,6 +56,10 @@ import {
   fetchLoanDetailsById,
   resetLoanDetails,
 } from '../../redux/getPendingLoans/loanDetailsslice';
+import {
+  fetchCustomerReviewDetails,
+  resetCustomerReviewDetails,
+} from '../../redux/getPendingLoans/customerReviewDetailsSlice';
 import { fetchKycApplicantDetails } from '../../redux/creditManager/kycApplicantsSlice';
 import { formatDateTime, hasPermission, ROLE_PERMISSIONS, formatCrifSummary, canViewCreditTab, formatLabel, canViewVkycTab, canViewOtherDocsTab, canViewAATab, canViewLoanApprovedTab, canViewAddBankDetailsTab, canShowLoanApproveButton, canViewSignedDocuments, canViewDisbursalPreview, getAssignToRoles, formatDateVkyc, primaryBtnSx, canViewEmiRepaymentsTab, canViewAgreementTab, canViewBSATxn, canViewBrePolicyTab } from './UtilityService';
 import axios from 'axios';
@@ -95,6 +99,9 @@ const ViewDetailsOperationManager = () => {
 
   const { data: loanData, loading, error } = useSelector(
     (state) => state.loanDetails
+  );
+  const { data: customerReviewData } = useSelector(
+    (state) => state.customerReviewDetails
   );
   // console.log(loanData?.variantId);
   const userRole = localStorage.getItem('role');
@@ -154,6 +161,7 @@ const ViewDetailsOperationManager = () => {
 
     return () => {
       dispatch(resetLoanDetails());
+      dispatch(resetCustomerReviewDetails());
     };
   }, [loanId, dispatch, navigate]);
 
@@ -402,8 +410,8 @@ const ViewDetailsOperationManager = () => {
     camsStatus === 'CONSENT_RECEIVED' ||
     camsStatus === 'LINK_GENERATED';
 
-  const extractVkycDetails = (LoanVkycData) => {
-    const vkycJson = LoanVkycData?.vkycJson;
+  const extractVkycDetails = (vkycSource) => {
+    const vkycJson = vkycSource?.vkycJson || vkycSource?.vkycData?.vkycJson;
 
     if (!vkycJson || typeof vkycJson !== 'object') return null;
 
@@ -450,8 +458,24 @@ const ViewDetailsOperationManager = () => {
     document_uploads = {},
     documents = {},
   } = formJson;
+  const customerId =
+    loanData?.customerId ||
+    loanData?.employee?.customerId ||
+    loanData?.employee?.id ||
+    loanData?.employeeId ||
+    basicDetails?.customerId ||
+    null;
 
   const role = approver?.role?.roleName;
+
+  useEffect(() => {
+    if (!customerId) {
+      dispatch(resetCustomerReviewDetails());
+      return;
+    }
+
+    dispatch(fetchCustomerReviewDetails(customerId));
+  }, [customerId, dispatch]);
 
   const normalizeDocumentRows = useMemo(() => {
     const preferredSource =
@@ -508,7 +532,7 @@ const ViewDetailsOperationManager = () => {
     return `${MEDIA_BASE}${filePath}`;
   };
 
-  const handleFetchCreditReportAndOpenModal = async () => {
+  const fetchCreditReportForCustomer = async () => {
     try {
       const token = localStorage.getItem('accessToken');
 
@@ -522,9 +546,7 @@ const ViewDetailsOperationManager = () => {
         }
       );
 
-      if (res?.data?.success) {
-        setScReassignOpen(true);
-      } else {
+      if (!res?.data?.success) {
         enqueueSnackbar(res?.data?.message || 'Failed to fetch credit report', {
           variant: 'error',
         });
@@ -535,6 +557,11 @@ const ViewDetailsOperationManager = () => {
         { variant: 'error' }
       );
     }
+  };
+
+  const handleFetchCreditReportAndOpenModal = () => {
+    setScReassignOpen(true);
+    fetchCreditReportForCustomer();
   };
 
   const handleOpenAgreementModal = async () => {
@@ -971,7 +998,14 @@ const ViewDetailsOperationManager = () => {
         };
       });
 
-    const vkycDetails = extractVkycDetails(LoanVkycData);
+    const vkycSource = customerReviewData?.vkyc?.vkycData || LoanVkycData;
+    const vkycDetails = extractVkycDetails(vkycSource);
+    const dedupeSummaryRows = Object.entries(customerReviewData?.dedupe?.summary || {}).map(
+      ([field, value]) => ({
+        field: formatLabel(field),
+        value: value ?? '-',
+      })
+    );
     return {
       name: employee?.employeeName || '-',
       loanId: loanCode || '-',
@@ -1038,7 +1072,7 @@ const ViewDetailsOperationManager = () => {
 
         ...(
           showAllTabs ||
-            (canViewVkycTab(userRole, LoanVkycData) && vkycDetails)
+            (canViewVkycTab(userRole, vkycSource) && vkycDetails)
             ? [
               {
                 label: 'VKYC',
@@ -1048,6 +1082,19 @@ const ViewDetailsOperationManager = () => {
             ]
             : []
         ),
+
+        ...(showAllTabs || customerReviewData?.dedupe
+          ? [
+            {
+              label: 'D-Dupe',
+              type: 'ddupe',
+              data: {
+                summary: dedupeSummaryRows,
+                loans: customerReviewData?.dedupe?.loans || [],
+              },
+            },
+          ]
+          : []),
 
 
         ...(showAllTabs || canViewCreditTab(LoanCreditData)
@@ -1140,6 +1187,7 @@ const ViewDetailsOperationManager = () => {
     employee,
     loanCode,
     LoanVkycData,
+    customerReviewData,
     LoanCreditData,
     userRole,
     LoanOtherDocs,
@@ -1709,6 +1757,52 @@ const ViewDetailsOperationManager = () => {
               </Grid>
             ))}
           </Grid>
+        </Box>
+      );
+    }
+
+    if (activeTabData.type === 'ddupe') {
+      return (
+        <Box mt={2}>
+          <Paper sx={{ p: 2, borderRadius: 2, mb: 3 }}>
+            <ReusableTable
+              title="Loan History Summary"
+              columns={[
+                { key: 'field', label: 'Field' },
+                { key: 'value', label: 'Value' },
+              ]}
+              data={activeTabData?.data?.summary || []}
+              showSearch={false}
+              showFilter={false}
+            />
+          </Paper>
+
+          <Paper sx={{ p: 2, borderRadius: 2 }}>
+            <ReusableTable
+              title="Loan History"
+              columns={[
+                { key: 'loanCode', label: 'Loan Code' },
+                { key: 'loanStatus', label: 'Loan Status' },
+                { key: 'internalStatus', label: 'Internal Status' },
+                { key: 'customerStatus', label: 'Customer Status' },
+                { key: 'vkycStatus', label: 'VKYC Status' },
+                { key: 'crifScore', label: 'CRIF Score' },
+                {
+                  key: 'createdAt',
+                  label: 'Created At',
+                  render: (value) => formatDateTime(value),
+                },
+                {
+                  key: 'updatedAt',
+                  label: 'Updated At',
+                  render: (value) => formatDateTime(value),
+                },
+              ]}
+              data={activeTabData?.data?.loans || []}
+              showSearch={false}
+              showFilter={false}
+            />
+          </Paper>
         </Box>
       );
     }
@@ -3033,7 +3127,7 @@ const ViewDetailsOperationManager = () => {
   }
 
   return (
-    <Paper elevation={3}>
+    <Paper elevation={3} sx={{ overflow: 'hidden' }}>
       <Box p={3}>
         <Box
           display="flex"

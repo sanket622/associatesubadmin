@@ -93,7 +93,7 @@ function Navbar() {
   };
 
   return (
-    <div className="bg-brand w-full shadow-md fixed top-0 left-0  h-[70px] flex items-center px-6 z-50">
+    <div className="bg-brand w-full shadow-md fixed top-0 left-0 h-[70px] flex items-center px-6 z-[2000]">
       <div className="flex justify-between items-center w-full px-6">
         <img src={logo} alt="logo" className="h-14 object-contain" />
 

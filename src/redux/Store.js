@@ -48,6 +48,7 @@ import recheckLoanReducer from './getPendingLoans/recheckLoanSlice'
 
 import loanDetailsReducer from '../redux/getPendingLoans/loanDetailsslice';
 import loanManagerHistoryReducer from './getPendingLoans/loanManagerHistorySlice';
+import customerReviewDetailsReducer from './getPendingLoans/customerReviewDetailsSlice';
 import masterProductCreateRequestReducer from '../redux/masterproduct/createmasterproductrequest/masterProductCreateRequestSlice';
 import variantProductCreateRequestReducer from
     '../redux/varient/createvariantproductrequest/variantProductCreateRequestSlice';
@@ -115,6 +116,7 @@ export const store = configureStore({
         productFields: productFieldsReducer,
         fieldManager: fieldManagerReducer,
         loanDetails: loanDetailsReducer,
+        customerReviewDetails: customerReviewDetailsReducer,
         recheckLoans: recheckLoanReducer
     },
 });
