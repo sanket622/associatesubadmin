@@ -126,6 +126,8 @@ const ViewDetailsOperationManager = () => {
   const [agreements, setAgreements] = useState([]);
   const [showAgreementTable, setShowAgreementTable] = useState(false);
   const [showSixMonthExcel, setShowSixMonthExcel] = useState(false);
+  const [verifyAccountLoading, setVerifyAccountLoading] = useState(false);
+  const [bankVerificationResult, setBankVerificationResult] = useState(null);
   const [breResult, setBreResult] = useState(
     loanData?.LoanBreScoaring || null
   );
@@ -395,6 +397,13 @@ const ViewDetailsOperationManager = () => {
 
 
   const hasBankDetails = Boolean(LoanBankDetails?.id);
+  const bankVerificationFromDetails = Boolean(
+    LoanBankDetails?.isVerified ??
+    LoanBankDetails?.isAccountVerified ??
+    LoanBankDetails?.verified
+  );
+  const isBankVerified = bankVerificationFromDetails || Boolean(bankVerificationResult?.success);
+  const bankVerificationLabel = isBankVerified ? 'Verified' : 'Not Verified';
   const statementData = LoanCreditData?.statementJson?.Account;
   const esignDocs = LoanEsignDocuments || [];
 
@@ -721,6 +730,70 @@ const ViewDetailsOperationManager = () => {
       );
     } finally {
       setAgreementLoading(false);
+    }
+  };
+
+  const handleVerifyBankAccount = async () => {
+    const bankId = LoanBankDetails?.id;
+
+    if (!bankId) {
+      enqueueSnackbar('Bank details are missing. Please add bank details first.', {
+        variant: 'warning',
+      });
+      return;
+    }
+
+    try {
+      setVerifyAccountLoading(true);
+      const token = localStorage.getItem('accessToken');
+
+      const verifyUrl = `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/verifyBank/verifyBankAccount/${bankId}`;
+      const authHeaders = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      let res;
+      try {
+        res = await axios.post(verifyUrl, {}, authHeaders);
+      } catch (postError) {
+        const postStatus = postError?.response?.status;
+        if (postStatus === 404 || postStatus === 405) {
+          res = await axios.get(verifyUrl, authHeaders);
+        } else {
+          throw postError;
+        }
+      }
+
+      const apiSuccess = Boolean(res?.data?.success);
+      const statusFromData = res?.data?.data?.status;
+      const isVerified =
+        typeof statusFromData === 'boolean' ? statusFromData : apiSuccess;
+      const message =
+        res?.data?.message ||
+        (isVerified ? 'Bank account verified successfully' : 'Bank account verification failed');
+
+      setBankVerificationResult({
+        success: isVerified,
+        message,
+      });
+
+      enqueueSnackbar(message, {
+        variant: isVerified ? 'success' : 'error',
+      });
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || 'Unable to verify bank account';
+
+      setBankVerificationResult({
+        success: false,
+        message,
+      });
+
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setVerifyAccountLoading(false);
     }
   };
 
@@ -2650,27 +2723,48 @@ const ViewDetailsOperationManager = () => {
       return (
         <Box mt={2}>
           {userRole !== 'Disbursal' && (
-            <Button
-              variant="contained"
-              startIcon={<AccountBalanceWalletOutlinedIcon />}
-              onClick={() => setOpenDisbursement(true)}
-              // disabled={hasBankDetails}
-              sx={primaryBtnSx}
+            <Box display="flex" gap={1.5} flexWrap="wrap">
+              <Button
+                variant="contained"
+                startIcon={<AccountBalanceWalletOutlinedIcon />}
+                onClick={() => setOpenDisbursement(true)}
+                // disabled={hasBankDetails}
+                sx={primaryBtnSx}
+              >
+                Add Bank Details
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleVerifyBankAccount}
+                disabled={!hasBankDetails || verifyAccountLoading || isBankVerified}
+                sx={primaryBtnSx}
+              >
+                {verifyAccountLoading ? <CircularProgress size={20} color="inherit" /> : (isBankVerified ? 'Verified' : 'Verify Account')}
+              </Button>
+            </Box>
+          )}
+
+          {bankVerificationResult && (
+            <Alert
+              severity={bankVerificationResult.success ? 'success' : 'error'}
+              sx={{ mt: 2 }}
             >
-              Add Bank Details
-            </Button>
+              {bankVerificationResult.success
+                ? `Verification completed: ${bankVerificationResult.message}`
+                : `Verification failed: ${bankVerificationResult.message}`}
+            </Alert>
           )}
 
           {LoanBankDetails && (
             <Grid container spacing={2} mt={3}>
-              {Object.entries(LoanBankDetails)
+              {[['accountVerification', bankVerificationLabel], ...Object.entries(LoanBankDetails)]
                 .filter(([key]) =>
-                  !['id', 'applicationId', 'createdAt', 'updatedAt'].includes(key)
+                  !['id', 'applicationId', 'createdAt', 'updatedAt', 'isVerified', 'isAccountVerified', 'verified'].includes(key)
                 )
                 .map(([key, value]) => (
                   <Grid item xs={12} sm={6} key={key}>
                     <Typography className="theme-label">
-                      {key.replace(/([A-Z])/g, ' $1')}
+                      {key === 'accountVerification' ? 'Account Verification' : key.replace(/([A-Z])/g, ' $1')}
                     </Typography>
                     <Typography className="theme-values">
                       {value || '-'}

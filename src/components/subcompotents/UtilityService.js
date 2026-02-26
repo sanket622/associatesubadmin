@@ -264,7 +264,15 @@ export const canViewLoanApprovedTab = (role, loanApprovedData) => {
 };
 
 
-export const BANK_DETAILS_ALLOWED_ROLES = ['Finance', 'Disbursal'];
+export const BANK_DETAILS_ALLOWED_ROLES = [
+    'Ops',
+    'Ops_Manager',
+    'Operation_Manager',
+    'Senior_Ops',
+    'Credit_1',
+    'Finance',
+    'Disbursal',
+];
 
 export const canViewAddBankDetailsTab = (role) => {
     return BANK_DETAILS_ALLOWED_ROLES.includes(role);
