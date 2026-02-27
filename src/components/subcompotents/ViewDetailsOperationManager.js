@@ -203,6 +203,7 @@ const ViewDetailsOperationManager = () => {
     LoanOtherDocs = [],
     approver,
     LoanCamsData,
+    LoanCamsConsent = [],
     LoanApprovedData,
     LoanEsignDocuments,
     LoanCharges,
@@ -930,9 +931,16 @@ const ViewDetailsOperationManager = () => {
     try {
       setAaLoading(true);
       const token = localStorage.getItem('accessToken');
+      const consent = LoanCamsConsent?.find(c => c.purpose === 'TRANSACTION_FETCH');
+      const consentId = consent?.consentId;
+
+      if (!consentId) {
+        enqueueSnackbar('Consent ID not found', { variant: 'error' });
+        return;
+      }
 
       const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/aggregator/fetchPeriodicData/${loanId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/aggregator/fetchPeriodicData/${consentId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
