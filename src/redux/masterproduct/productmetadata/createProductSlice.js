@@ -97,7 +97,6 @@ export const submitMasterProductUpdateRequest = (payload, callback) => async (di
       }
     );
 
-    enqueueSnackbar('Product update request submitted!', { variant: 'success' });
     dispatch(createProductSuccess());
     callback?.();
 

@@ -2767,7 +2767,7 @@ const ViewDetailsOperationManager = () => {
             <Grid container spacing={2} mt={3}>
               {[['accountVerification', bankVerificationLabel], ...Object.entries(LoanBankDetails)]
                 .filter(([key]) =>
-                  !['id', 'applicationId', 'createdAt', 'updatedAt', 'isVerified', 'isAccountVerified', 'verified'].includes(key)
+                  !['id', 'applicationId', 'createdAt', 'updatedAt', 'isVerified', 'isAccountVerified', 'verified', 'txnSuccess', 'isAccountValid', 'isNameMatched'].includes(key)
                 )
                 .map(([key, value]) => (
                   <Grid item xs={12} sm={6} key={key}>
@@ -2779,6 +2779,48 @@ const ViewDetailsOperationManager = () => {
                     </Typography>
                   </Grid>
                 ))}
+              
+              <Grid item xs={12} sm={6}>
+                <Typography className="theme-label">Transaction Success</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  {LoanBankDetails.txnSuccess ? (
+                    <CheckBoxIcon sx={{ color: '#4CAF50', fontSize: 28 }} />
+                  ) : (
+                    <CheckBoxOutlineBlankIcon sx={{ color: '#9E9E9E', fontSize: 28 }} />
+                  )}
+                  <Typography className="theme-values">
+                    {LoanBankDetails.txnSuccess ? 'Yes' : 'No'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography className="theme-label">Account Valid</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  {LoanBankDetails.isAccountValid ? (
+                    <CheckBoxIcon sx={{ color: '#4CAF50', fontSize: 28 }} />
+                  ) : (
+                    <CheckBoxOutlineBlankIcon sx={{ color: '#9E9E9E', fontSize: 28 }} />
+                  )}
+                  <Typography className="theme-values">
+                    {LoanBankDetails.isAccountValid ? 'Yes' : 'No'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography className="theme-label">Name Matched</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  {LoanBankDetails.isNameMatched ? (
+                    <CheckBoxIcon sx={{ color: '#4CAF50', fontSize: 28 }} />
+                  ) : (
+                    <CheckBoxOutlineBlankIcon sx={{ color: '#9E9E9E', fontSize: 28 }} />
+                  )}
+                  <Typography className="theme-values">
+                    {LoanBankDetails.isNameMatched ? 'Yes' : 'No'}
+                  </Typography>
+                </Box>
+              </Grid>
             </Grid>
           )}
 

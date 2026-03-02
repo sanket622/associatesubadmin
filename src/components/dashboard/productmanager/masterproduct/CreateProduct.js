@@ -2,13 +2,10 @@
 import React, { useEffect } from 'react';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { Box, Tab, Tabs, Button, Typography, Alert, Paper } from '@mui/material';
+import { Box, Tab, Tabs, Alert, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import GeneralProductMetadata from './GeneralProductMetadata';
 import ProductParameters from './ProductParameters';
 import EligibilityCriteria from './EligibilityCriteria';
-import { useForm, FormProvider } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import CreditBureauParametersConfiguration from './CreditBureauParametersConfiguration';
 // import FinancialStatementParameters from './FinancialStatementParameters';
 // import BehavioralTransactionDataParameters from './BehavioralTransactionDataParameters';
@@ -34,12 +31,13 @@ import { fetchProductDetails } from '../../../../redux/masterproduct/tableslice/
 import { useDispatch } from 'react-redux';
 
 
-const CreateProduct = () => {
-    const { productId } = useParams()
+const CreateProduct = ({ mode: modeProp, status: statusProp, productId: productIdProp, isDialog = false, onEditSuccess }) => {
+    const { productId: routeProductId } = useParams()
     const dispatch = useDispatch()
     const location = useLocation()
-    const mode = location.state?.mode || null;
-    const status = location.state?.status || null;
+    const mode = modeProp ?? location.state?.mode ?? null;
+    const status = statusProp ?? location.state?.status ?? null;
+    const productId = productIdProp ?? routeProductId;
     const isEditMode = mode === 'EDIT';
 
     const [tabIndex, setTabIndex] = React.useState(0);
@@ -66,10 +64,11 @@ const CreateProduct = () => {
         'Credit Criteria',
     ];
     const totalTabs = tabs?.length;
+    const useDropdownTabs = isDialog && isEditMode;
 
     return (
         <>
-            <div className="p-4 bg-white rounded-lg shadow-md">
+            <div className={isDialog ? '' : 'p-4 bg-white rounded-lg shadow-md'}>
                 <Box
                     display="flex"
                     alignItems="center"
@@ -109,56 +108,77 @@ const CreateProduct = () => {
 
                 </Box>
                 <Box sx={{ width: '100%' }}>
-                    <Paper>
-                        <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" variant="fullWidth" scrollButtons="auto" textColor="inherit" TabIndicatorProps={{
-                            sx: {
-                                height: 2,
-                                backgroundColor: '#084E77',
-                            },
-                        }}
-                            sx={{
-                                minHeight: 'unset',
-                                '& .MuiTabs-flexContainer': {
-                                    // gap: 1,
-                                    width: '100%',
+                    {useDropdownTabs ? (
+                        <Box sx={{ maxWidth: 380 }}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="edit-tab-select-label">Select Tab</InputLabel>
+                                <Select
+                                    labelId="edit-tab-select-label"
+                                    id="edit-tab-select"
+                                    value={tabIndex}
+                                    label="Select Tab"
+                                    onChange={(e) => setTabIndex(Number(e.target.value))}
+                                >
+                                    {tabs.map((label, index) => (
+                                        <MenuItem key={label} value={index}>
+                                            {label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    ) : (
+                        <Paper>
+                            <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" variant="fullWidth" scrollButtons="auto" textColor="inherit" TabIndicatorProps={{
+                                sx: {
+                                    height: 2,
+                                    backgroundColor: '#084E77',
                                 },
-                                '& .MuiTab-root': {
-                                    textTransform: 'none',
-                                    fontSize: 14,
+                            }}
+                                sx={{
                                     minHeight: 'unset',
-                                    color: '#6B7280',
-                                    backgroundColor: '#084E770A',
-                                    // flex: 1,          
-                                    // minWidth: 0,      
-                                    // px: 2,
-                                    // whiteSpace: 'nowrap',
-                                },
-                                '& .Mui-selected': {
-                                    color: '#084E77',
-                                    fontWeight: 500,
-                                },
-                                '& .MuiTabs-scrollButtons': {
-                                    opacity: 1,
-                                },
-                                '& .MuiTabs-scrollButtons.Mui-disabled': {
-                                    opacity: 0.3,
-                                },
-                            }}>
-                            {tabs.map(label => (
-                                <Tab key={label} label={label} />
-                            ))}
-                        </Tabs>
-                    </Paper>
+                                    '& .MuiTabs-flexContainer': {
+                                        // gap: 1,
+                                        width: '100%',
+                                    },
+                                    '& .MuiTab-root': {
+                                        textTransform: 'none',
+                                        fontSize: 14,
+                                        minHeight: 'unset',
+                                        color: '#6B7280',
+                                        backgroundColor: '#084E770A',
+                                        // flex: 1,          
+                                        // minWidth: 0,      
+                                        // px: 2,
+                                        // whiteSpace: 'nowrap',
+                                    },
+                                    '& .Mui-selected': {
+                                        color: '#084E77',
+                                        fontWeight: 500,
+                                    },
+                                    '& .MuiTabs-scrollButtons': {
+                                        opacity: 1,
+                                    },
+                                    '& .MuiTabs-scrollButtons.Mui-disabled': {
+                                        opacity: 0.3,
+                                    },
+                                }}>
+                                {tabs.map(label => (
+                                    <Tab key={label} label={label} />
+                                ))}
+                            </Tabs>
+                        </Paper>
+                    )}
 
                     <Box mt={3}>
-                        {tabIndex === 0 && <GeneralProductMetadata handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />}
-                        {tabIndex === 1 && <ProductParameters handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />}
+                        {tabIndex === 0 && <GeneralProductMetadata handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} mode={mode} onEditSuccess={onEditSuccess} />}
+                        {tabIndex === 1 && <ProductParameters handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} mode={mode} onEditSuccess={onEditSuccess} />}
                         {/* {tabIndex === 2 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
                             {tabIndex === 3 && <TimelyRepaymentIncentives handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />} */}
-                        {tabIndex === 2 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />}
-                        {tabIndex === 3 && <EligibilityCriteria handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />}
+                        {tabIndex === 2 && <OtherCharges handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} mode={mode} onEditSuccess={onEditSuccess} />}
+                        {tabIndex === 3 && <EligibilityCriteria handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} mode={mode} onEditSuccess={onEditSuccess} />}
                         {/* {tabIndex === 4 && <CreditBureauParametersConfiguration handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />} */}
-                        {tabIndex === 4 && <CreditCriteria handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} />}
+                        {tabIndex === 4 && <CreditCriteria handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} totalTabs={totalTabs} status={status} mode={mode} onEditSuccess={onEditSuccess} />}
                         {/* {tabIndex === 5 && <AddFields handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />} */}
                         {/* {tabIndex === 5 && <BehavioralTransactionDataParameters handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
                         {tabIndex === 6 && <RiskScoringInputs handleTabChange={handleTabChange} tabIndex={tabIndex} setTabIndex={setTabIndex} />} */}

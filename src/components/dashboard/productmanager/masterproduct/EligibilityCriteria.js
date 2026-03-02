@@ -10,9 +10,9 @@ import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import Label from '../../../subcompotents/Label';
-import { useLocation } from 'react-router-dom';
 import { setEligibilityCriteria } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
 import { primaryBtnSx } from '../../../subcompotents/UtilityService';
+import { submitMasterProductUpdateRequest } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import {
 
     updateMasterProductDraft
@@ -68,11 +68,10 @@ const validationSchema = yup.object().shape({
         .required('Collateral is required'),
 });
 
-const EligibilityCriteria = ({ tabIndex, setTabIndex, totalTabs, status }) => {
+const EligibilityCriteria = ({ tabIndex, setTabIndex, totalTabs, status, mode: modeProp, onEditSuccess }) => {
     const dispatch = useDispatch();
-    const location = useLocation()
     const { enqueueSnackbar } = useSnackbar();
-    const mode = location?.state?.mode
+    const mode = modeProp ?? null;
     // const employmentTypes = useSelector((state) => state.employmentTypes.employmentTypes);
     const loading = useSelector((state) => state.employmentTypes.loading);
     const documents = useSelector((state) => state.employmentTypes.documents);
@@ -140,36 +139,58 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex, totalTabs, status }) => {
 
 
     const onSubmit = (data) => {
-        if (mode === "EDIT" && status === "Draft") {
-            dispatch(
-                updateMasterProductDraft({
-                    endpoint: 'updateEligibilityCriteriaDraft',
-                    payload: {
-                        masterProductId: productDetails?.id,
-                        eligibilityCriteria: data,
-                    },
-                })
-            )
-                .unwrap()
-                .then((res) => {
-                    enqueueSnackbar(
-                        res?.message || 'Draft saved successfully',
-                        { variant: 'success' }
-                    );
+        if (mode === "EDIT") {
+            const payload = {
+                masterProductId: productDetails?.id,
+                eligibilityCriteria: data,
+            };
 
-                  
-                    setTabIndex(prev => Math.min(prev + 1, 9));
-                })
-                .catch((err) => {
-                    enqueueSnackbar(
-                        err?.message || 'Failed to save draft',
-                        { variant: 'error' }
-                    );
-                });
-        }
-        else if (mode === "EDIT") {
-            dispatch(setEligibilityCriteria(data));
-            setTabIndex(prev => Math.min(prev + 1, 9));
+            if (productDetails?.status === 'Active') {
+                const updatePayload = {
+                    masterProductId: productDetails?.id,
+                    reason: "Product update",
+                    productCode: productDetails?.productCode,
+                    productName: productDetails?.productName,
+                    productDescription: productDetails?.productDescription,
+                    productCategoryId: productDetails?.productCategory?.id,
+                    loanTypeId: productDetails?.loanType?.id,
+                    partnerId: productDetails?.productPartner?.id,
+                    deliveryChannelIds: productDetails?.MasterProductDeliveryChannel?.map(d => d.deliveryChannel?.id),
+                    segments: productDetails?.MasterProductSegment?.map(s => s.productSegment?.id),
+                    purposeIds: productDetails?.MasterProductPurpose?.map(p => p.productPurpose?.id),
+                    eligibilityCriteriaUpdate: {
+                        minAge: data.minAge,
+                        maxAge: data.maxAge,
+                        coApplicantRequired: data.coApplicantRequired === 'yes',
+                        collateralRequired: data.collateralRequired === 'yes',
+                    }
+                };
+                dispatch(submitMasterProductUpdateRequest(updatePayload, () => {
+                    enqueueSnackbar('Update request submitted successfully', { variant: 'success' });
+                    onEditSuccess?.();
+                }));
+            } else {
+                dispatch(
+                    updateMasterProductDraft({
+                        endpoint: 'updateEligibilityCriteriaDraft',
+                        payload,
+                    })
+                )
+                    .unwrap()
+                    .then((res) => {
+                        enqueueSnackbar(
+                            res?.message || 'Draft saved successfully',
+                            { variant: 'success' }
+                        );
+                        onEditSuccess?.();
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar(
+                            err?.message || 'Failed to save draft',
+                            { variant: 'error' }
+                        );
+                    });
+            }
         }
         else {
             dispatch(
@@ -258,7 +279,9 @@ const EligibilityCriteria = ({ tabIndex, setTabIndex, totalTabs, status }) => {
                         </Button>
                     )
                 }
-                <Button variant="contained" sx={primaryBtnSx} type="submit">Next</Button>
+                <Button variant="contained" sx={primaryBtnSx} type="submit">
+                    {mode === "EDIT" ? 'Save' : 'Next'}
+                </Button>
             </Box>
         </FormProvider>
     );

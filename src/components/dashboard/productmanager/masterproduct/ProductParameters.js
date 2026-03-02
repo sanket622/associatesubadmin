@@ -10,9 +10,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFTextField from '../../../subcompotents/RHFTextField';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
-import { useLocation } from 'react-router-dom';
 import { setProductParameters } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
 import { primaryBtnSx } from '../../../subcompotents/UtilityService';
+import { submitMasterProductUpdateRequest } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import {
     updateMasterProductDraft
 } from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
@@ -73,11 +73,10 @@ export const emiFrequencyOptions = [
 //     { id: 'PayoutLinked', name: 'Payoutlinked' },
 // ];
 
-const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status }) => {
+const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status, mode: modeProp, onEditSuccess }) => {
     const dispatch = useDispatch();
-    const location = useLocation()
     const { enqueueSnackbar } = useSnackbar();
-    const mode = location?.state?.mode
+    const mode = modeProp ?? null;
     const repaymentModes = useSelector(state => state.financialTerms?.repaymentModes || []);
     const disbursementModes = useSelector(state => state.financialTerms?.disbursementModes || []);
     const editProductparameter = useSelector((state) => state.financialTerms?.editProductparameter);
@@ -240,36 +239,69 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
 
 
     const onSubmit = (data) => {
-        if (mode === "EDIT" && status === "Draft") {
-            dispatch(
-                updateMasterProductDraft({
-                    endpoint: 'updateFinancialTermsDraft',
-                    payload: {
-                        masterProductId: productDetails?.id,
-                        financialTerms: data,
-                    },
-                })
-            )
-                .unwrap()
-                .then((res) => {
-                    enqueueSnackbar(
-                        res?.message || 'Draft saved successfully',
-                        { variant: 'success' }
-                    );
+        if (mode === "EDIT") {
+            const payload = {
+                masterProductId: productDetails?.id,
+                financialTerms: data,
+            };
 
-
-                    setTabIndex(prev => Math.min(prev + 1, 9));
-                })
-                .catch((err) => {
-                    enqueueSnackbar(
-                        err?.message || 'Failed to save draft',
-                        { variant: 'error' }
-                    );
-                });
-        }
-        else if (mode === "EDIT") {
-            dispatch(setProductParameters(data));
-            setTabIndex(prev => Math.min(prev + 1, 9));
+            if (productDetails?.status === 'Active') {
+                const updatePayload = {
+                    masterProductId: productDetails?.id,
+                    reason: "Product update",
+                    productCode: productDetails?.productCode,
+                    productName: productDetails?.productName,
+                    productDescription: productDetails?.productDescription,
+                    productCategoryId: productDetails?.productCategory?.id,
+                    loanTypeId: productDetails?.loanType?.id,
+                    partnerId: productDetails?.productPartner?.id,
+                    deliveryChannelIds: productDetails?.MasterProductDeliveryChannel?.map(d => d.deliveryChannel?.id),
+                    segments: productDetails?.MasterProductSegment?.map(s => s.productSegment?.id),
+                    purposeIds: productDetails?.MasterProductPurpose?.map(p => p.productPurpose?.id),
+                    financialTermsUpdate: {
+                        minLoanAmount: data.minLoanAmount,
+                        maxLoanAmount: data.maxLoanAmount,
+                        minTenure: data.minTenure,
+                        maxTenure: data.maxTenure,
+                        interestRateType: data.interestRateType?.id,
+                        interestRateMin: data.interestMin,
+                        interestRateMax: data.interestMax,
+                        processingFeeType: data.processingFeeType?.id,
+                        processingFeeValue: data.processingFeeValue,
+                        latePaymentFeeType: data.latePaymentFeeType?.id,
+                        latePaymentFeeValue: data.latePaymentFeeValue,
+                        prepaymentFeeType: data.prepaymentFeeType?.id,
+                        prepaymentFeeValue: data.prepaymentFeeValue,
+                        emiFrequency: data.emiFrequency?.id,
+                        gracePeriod: data.gracePeriod,
+                    }
+                };
+                dispatch(submitMasterProductUpdateRequest(updatePayload, () => {
+                    enqueueSnackbar('Update request submitted successfully', { variant: 'success' });
+                    onEditSuccess?.();
+                }));
+            } else {
+                dispatch(
+                    updateMasterProductDraft({
+                        endpoint: 'updateFinancialTermsDraft',
+                        payload,
+                    })
+                )
+                    .unwrap()
+                    .then((res) => {
+                        enqueueSnackbar(
+                            res?.message || 'Draft saved successfully',
+                            { variant: 'success' }
+                        );
+                        onEditSuccess?.();
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar(
+                            err?.message || 'Failed to save draft',
+                            { variant: 'error' }
+                        );
+                    });
+            }
         }
         else {
             dispatch(
@@ -460,7 +492,7 @@ const ProductParameters = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, 
                     sx={primaryBtnSx}
                     type='submit'
                 >
-                    Next
+                    {mode === "EDIT" ? 'Save' : 'Next'}
                 </Button>
 
 

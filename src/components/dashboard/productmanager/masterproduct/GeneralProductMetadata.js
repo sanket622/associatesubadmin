@@ -13,7 +13,6 @@ import { useSnackbar } from 'notistack';
 import FormProvider from '../../../subcompotents/FormProvider';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
-import { useLocation } from 'react-router-dom';
 import { primaryBtnSx, replaceUnderscore } from '../../../subcompotents/UtilityService';
 import { setGeneralMetadata } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
 import {
@@ -21,10 +20,9 @@ import {
     updateMasterProductDraft
 } from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
 
-const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status }) => {
-    const location = useLocation()
+const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, totalTabs, handleNext, status, mode: modeProp, onEditSuccess }) => {
     const { enqueueSnackbar } = useSnackbar();
-    const mode = location?.state?.mode
+    const mode = modeProp ?? null;
     const dispatch = useDispatch();
     const productDetails = useSelector((state) => state.products.productDetails);
     const { loading } = useSelector(
@@ -178,31 +176,34 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, totalT
             // repaymentModeIds: data?.repaymentModes?.map(r => r.id),
         };
 
-        if (mode === "EDIT" && status === "Draft") {
-            dispatch(
-                updateMasterProductDraft({
-                    endpoint: 'updateMasterProductDraft',
-                    payload,
-                })
-            )
-                .unwrap()
-                .then((res) => {
-                    enqueueSnackbar(
-                        res?.message || 'Draft saved successfully',
-                        { variant: 'success' }
-                    );
-                    setTabIndex(prev => Math.min(prev + 1, 9));
-                })
-                .catch((err) => {
-                    enqueueSnackbar(
-                        err?.message || 'Failed to save draft',
-                        { variant: 'error' }
-                    );
-                });
-        }
-        else if (mode === "EDIT") {
-            dispatch(setGeneralMetadata(payload));
-            setTabIndex(prev => Math.min(prev + 1, 9));
+        if (mode === "EDIT") {
+            if (productDetails?.status === 'Active') {
+                dispatch(submitMasterProductUpdateRequest(payload, () => {
+                    enqueueSnackbar('Update request submitted successfully', { variant: 'success' });
+                    onEditSuccess?.();
+                }));
+            } else {
+                dispatch(
+                    updateMasterProductDraft({
+                        endpoint: 'updateMasterProductDraft',
+                        payload,
+                    })
+                )
+                    .unwrap()
+                    .then((res) => {
+                        enqueueSnackbar(
+                            res?.message || 'Draft saved successfully',
+                            { variant: 'success' }
+                        );
+                        onEditSuccess?.();
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar(
+                            err?.message || 'Failed to save draft',
+                            { variant: 'error' }
+                        );
+                    });
+            }
         }
         else {
             dispatch(
@@ -400,7 +401,7 @@ const GeneralProductMetadata = ({ handleTabChange, tabIndex, setTabIndex, totalT
                     sx={primaryBtnSx}
                     type='submit'
                 >
-                    Next
+                    {mode === "EDIT" ? 'Save' : 'Next'}
                 </Button>
 
 

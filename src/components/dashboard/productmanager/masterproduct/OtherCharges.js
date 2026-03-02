@@ -14,16 +14,15 @@ import * as yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setEditOtherChargesData, submitOtherCharges } from '../../../../redux/masterproduct/othercharges/otherChargesSlice';
-import { useLocation } from 'react-router-dom';
 import { setOtherCharges } from '../../../../redux/masterproduct/editmasterproduct/masterProductUpdateSlice';
 import { primaryBtnSx } from '../../../subcompotents/UtilityService';
+import { submitMasterProductUpdateRequest } from '../../../../redux/masterproduct/productmetadata/createProductSlice';
 import {
 
     updateMasterProductDraft
 } from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
-const OtherCharges = ({ tabIndex, setTabIndex, totalTabs, status }) => {
-    const location = useLocation()
-    const mode = location?.state?.mode
+const OtherCharges = ({ tabIndex, setTabIndex, totalTabs, status, mode: modeProp, onEditSuccess }) => {
+    const mode = modeProp ?? null;
     const dispatch = useDispatch();
     const { enqueueSnackbar } = useSnackbar();
     const productDetails = useSelector((state) => state.products.productDetails);
@@ -89,36 +88,53 @@ const OtherCharges = ({ tabIndex, setTabIndex, totalTabs, status }) => {
 
 
     const onSubmit = (data) => {
-        if (mode === "EDIT" && status === "Draft") {
-            dispatch(
-                updateMasterProductDraft({
-                    endpoint: 'updateMasterProductOtherChargesDraft',
-                    payload: {
-                        masterProductId: productDetails?.id,
-                        otherCharges: data,
-                    },
-                })
-            )
-                .unwrap()
-                .then((res) => {
-                    enqueueSnackbar(
-                        res?.message || 'Draft saved successfully',
-                        { variant: 'success' }
-                    );
+        if (mode === "EDIT") {
+            const payload = {
+                masterProductId: productDetails?.id,
+                otherCharges: data,
+            };
 
-
-                    setTabIndex(prev => Math.min(prev + 1, 9));
-                })
-                .catch((err) => {
-                    enqueueSnackbar(
-                        err?.message || 'Failed to save draft',
-                        { variant: 'error' }
-                    );
-                });
-        }
-        else if (mode === "EDIT") {
-            dispatch(setOtherCharges(data));
-            setTabIndex(prev => Math.min(prev + 1, 9));
+            if (productDetails?.status === 'Active') {
+                const updatePayload = {
+                    masterProductId: productDetails?.id,
+                    reason: "Product update",
+                    productCode: productDetails?.productCode,
+                    productName: productDetails?.productName,
+                    productDescription: productDetails?.productDescription,
+                    productCategoryId: productDetails?.productCategory?.id,
+                    loanTypeId: productDetails?.loanType?.id,
+                    partnerId: productDetails?.productPartner?.id,
+                    deliveryChannelIds: productDetails?.MasterProductDeliveryChannel?.map(d => d.deliveryChannel?.id),
+                    segments: productDetails?.MasterProductSegment?.map(s => s.productSegment?.id),
+                    purposeIds: productDetails?.MasterProductPurpose?.map(p => p.productPurpose?.id),
+                    otherChargesUpdate: data
+                };
+                dispatch(submitMasterProductUpdateRequest(updatePayload, () => {
+                    enqueueSnackbar('Update request submitted successfully', { variant: 'success' });
+                    onEditSuccess?.();
+                }));
+            } else {
+                dispatch(
+                    updateMasterProductDraft({
+                        endpoint: 'updateMasterProductOtherChargesDraft',
+                        payload,
+                    })
+                )
+                    .unwrap()
+                    .then((res) => {
+                        enqueueSnackbar(
+                            res?.message || 'Draft saved successfully',
+                            { variant: 'success' }
+                        );
+                        onEditSuccess?.();
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar(
+                            err?.message || 'Failed to save draft',
+                            { variant: 'error' }
+                        );
+                    });
+            }
         }
         else {
             dispatch(
@@ -203,7 +219,7 @@ const OtherCharges = ({ tabIndex, setTabIndex, totalTabs, status }) => {
                     sx={primaryBtnSx}
                     type="submit"
                 >
-                    Next
+                    {mode === "EDIT" ? 'Save' : 'Next'}
                 </Button>
             </Box>
         </FormProvider>

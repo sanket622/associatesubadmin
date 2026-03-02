@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useFieldArray } from 'react-hook-form';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Label from '../../../subcompotents/Label';
 import RHFAutocomplete from '../../../subcompotents/RHFAutocomplete';
 import RHFTextField from '../../../subcompotents/RHFTextField';
@@ -27,10 +27,9 @@ import {
     updateMasterProductDraft
 } from '../../../../redux/masterproduct/masterproductdraftslice/masterproductdraft';
 
-const CreditCriteria = ({ setTabIndex, tabIndex, totalTabs, status }) => {
-    const location = useLocation()
+const CreditCriteria = ({ setTabIndex, tabIndex, totalTabs, status, mode: modeProp, onEditSuccess }) => {
     const { enqueueSnackbar } = useSnackbar();
-    const mode = location?.state?.mode
+    const mode = modeProp ?? null;
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [creditManagers, setCreditManagers] = useState([]);
@@ -185,179 +184,63 @@ const CreditCriteria = ({ setTabIndex, tabIndex, totalTabs, status }) => {
 
     const onSubmit = (data) => {
 
-        if (mode === "EDIT" && status === "Draft") {
-            dispatch(
-                updateMasterProductDraft({
-                    endpoint: 'updateProductCreditAssignmentRuleDraft',
-                    payload: {
-                        masterProductId: localStorage.getItem('createdProductId'),
-                        creditAssignmentRules: data.rules.map(r => ({
-                            creditRole: r.creditManager,
-                            minScore: Number(r.minCreditScore),
-                            maxScore: Number(r.maxCreditScore),
-                        })),
-                    },
-                })
-            )
-                .unwrap()
-                .then((res) => {
-                    enqueueSnackbar(
-                        res?.message || 'Draft saved successfully',
-                        { variant: 'success' }
-                    );
-
-
-                    navigate('/product-manager');
-                })
-                .catch((err) => {
-                    enqueueSnackbar(
-                        err?.message || 'Failed to save draft',
-                        { variant: 'error' }
-                    );
-                });
-        }
-
-        else if (mode === "EDIT") {
-            dispatch(setCreditCriteria(data));
-
+        if (mode === "EDIT") {
             const payload = {
-                masterProductId: localStorage.getItem('createdProductId'),
-                reason: 'testing',
-
-                productCode: masterProductUpdate.generalMetadata.productCode,
-                productName: masterProductUpdate.generalMetadata.productName,
-                productDescription: masterProductUpdate.generalMetadata.productDescription,
-                productCategoryId: masterProductUpdate.generalMetadata.productCategoryId,
-                loanTypeId: masterProductUpdate.generalMetadata.loanTypeId,
-                partnerId: masterProductUpdate.generalMetadata.partnerId,
-
-                deliveryChannelIds: masterProductUpdate.generalMetadata.deliveryChannelIds,
-                purposeIds: masterProductUpdate.generalMetadata.purposeIds,
-                segmentIds: masterProductUpdate.generalMetadata.segments,
-                // disbursementModeIds: masterProductUpdate.generalMetadata.disbursementModeIds,
-                // repaymentModeIds: masterProductUpdate.generalMetadata.repaymentModeIds,
-
-                financialTermsUpdate: {
-                    minLoanAmount: masterProductUpdate.financialTermsUpdate.minLoanAmount,
-                    maxLoanAmount: masterProductUpdate.financialTermsUpdate.maxLoanAmount,
-                    minTenure: masterProductUpdate.financialTermsUpdate.minTenure,
-                    maxTenure: masterProductUpdate.financialTermsUpdate.maxTenure,
-
-                    interestRateType:
-                        masterProductUpdate.financialTermsUpdate.interestRateType?.id,
-                    interestRateMin: masterProductUpdate.financialTermsUpdate.interestMin,
-                    interestRateMax: masterProductUpdate.financialTermsUpdate.interestMax,
-
-                    processingFeeType:
-                        masterProductUpdate.financialTermsUpdate.processingFeeType?.id,
-                    processingFeeValue:
-                        masterProductUpdate.financialTermsUpdate.processingFeeValue,
-
-                    latePaymentFeeType:
-                        masterProductUpdate.financialTermsUpdate.latePaymentFeeType?.id,
-                    latePaymentFeeValue:
-                        masterProductUpdate.financialTermsUpdate.latePaymentFeeValue,
-
-                    // prepaymentAllowed:
-                    //     masterProductUpdate.financialTermsUpdate.prepaymentRulesAllowed === 'yes',
-                    prepaymentFeeType:
-                        masterProductUpdate.financialTermsUpdate.prepaymentFeeType?.id,
-                    prepaymentFeeValue:
-                        masterProductUpdate.financialTermsUpdate.prepaymentFeeValue,
-
-                    // overallGst: masterProductUpdate.financialTermsUpdate.overallGst,
-
-                    emiFrequency:
-                        masterProductUpdate.financialTermsUpdate.emiFrequency?.id,
-
-                    // penalApplicable:
-                    //     masterProductUpdate.financialTermsUpdate.penalApplicable === 'yes',
-                    // penalRate: masterProductUpdate.financialTermsUpdate.penalRate,
-
-                    gracePeriod: masterProductUpdate.financialTermsUpdate.gracePeriod,
-                    // renewalFee: masterProductUpdate.financialTermsUpdate.renewalFee,
-                },
-
-                eligibilityCriteriaUpdate: {
-                    minAge: masterProductUpdate.eligibilityCriteriaUpdate.minAge,
-                    maxAge: masterProductUpdate.eligibilityCriteriaUpdate.maxAge,
-                    // minMonthlyIncome:
-                    //     masterProductUpdate.eligibilityCriteriaUpdate.minMonthlyIncome,
-                    // minBusinessVintage:
-                    //     masterProductUpdate.eligibilityCriteriaUpdate.minBusinessVintage,
-                    // minBureauScore:
-                    //     masterProductUpdate.eligibilityCriteriaUpdate.minBureauScore,
-
-                    coApplicantRequired:
-                        masterProductUpdate.eligibilityCriteriaUpdate.coApplicantRequired ===
-                        'yes',
-                    collateralRequired:
-                        masterProductUpdate.eligibilityCriteriaUpdate.collateralRequired ===
-                        'yes',
-                },
-
-                // creditBureauConfigUpdate: {
-                //     creditBureauSources: [
-                //         masterProductUpdate.creditBureauConfigUpdate.creditBureauSource?.id,
-                //     ],
-                //     minScoreRequired:
-                //         masterProductUpdate.creditBureauConfigUpdate.minScoreRequired,
-                //     maxActiveLoans:
-                //         masterProductUpdate.creditBureauConfigUpdate.maxActiveLoans,
-                //     maxCreditUtilization:
-                //         masterProductUpdate.creditBureauConfigUpdate.maxCreditUtilRatio,
-                //     enquiriesLast6Months:
-                //         masterProductUpdate.creditBureauConfigUpdate.enquiriesLast6Months,
-                //     loanDelinquencyAllowed:
-                //         masterProductUpdate.creditBureauConfigUpdate.loanDelinquencyAllowed?.id,
-                //     bureauDataFreshnessDays:
-                //         masterProductUpdate.creditBureauConfigUpdate.bureauFreshnessDays,
-                //     scoreDecayTolerance:
-                //         masterProductUpdate.creditBureauConfigUpdate.scoreDecayTolerance,
-                // },
-
-                otherChargesUpdate: {
-                    bounceCharge:
-                        masterProductUpdate.otherChargesUpdate.bounceCharge,
-                    // dublicateNocCharge:
-                    //     masterProductUpdate.otherChargesUpdate.dublicateNocCharge,
-                    furnishingCharge:
-                        masterProductUpdate.otherChargesUpdate.furnishingCharge,
-                    // chequeSwapCharge:
-                    //     masterProductUpdate.otherChargesUpdate.chequeSwapCharge,
-                    revocation: masterProductUpdate.otherChargesUpdate.revocation,
-                    documentCharge:
-                        masterProductUpdate.otherChargesUpdate.documentCharge,
-                    stampDutyCharge:
-                        masterProductUpdate.otherChargesUpdate.stampDutyCharge,
-                    nocCharge: masterProductUpdate.otherChargesUpdate.nocCharge,
-                    incidentalCharge:
-                        masterProductUpdate.otherChargesUpdate.incidentalCharge,
-                },
-
-                masterProductFieldsUpdate: {
-                    fieldsJsonData: {},
-                },
-
-                creditAssignmentRulesUpdate: data.rules.map(r => ({
+                masterProductId: productDetails?.id,
+                creditAssignmentRules: data.rules.map(r => ({
                     creditRole: r.creditManager,
                     minScore: Number(r.minCreditScore),
                     maxScore: Number(r.maxCreditScore),
-                }))
-
-
-
+                })),
             };
 
-
-
-            dispatch(
-                submitMasterProductUpdateRequest(payload, () => {
-                    dispatch(resetMasterProductUpdate());
-                    navigate('/product-manager');
-                })
-            );
-
+            if (productDetails?.status === 'Active') {
+                const updatePayload = {
+                    masterProductId: productDetails?.id,
+                    reason: "Product update",
+                    productCode: productDetails?.productCode,
+                    productName: productDetails?.productName,
+                    productDescription: productDetails?.productDescription,
+                    productCategoryId: productDetails?.productCategory?.id,
+                    loanTypeId: productDetails?.loanType?.id,
+                    partnerId: productDetails?.productPartner?.id,
+                    deliveryChannelIds: productDetails?.MasterProductDeliveryChannel?.map(d => d.deliveryChannel?.id),
+                    segments: productDetails?.MasterProductSegment?.map(s => s.productSegment?.id),
+                    purposeIds: productDetails?.MasterProductPurpose?.map(p => p.productPurpose?.id),
+                    creditAssignmentRulesUpdate: data.rules.map(r => ({
+                        creditRole: r.creditManager,
+                        minScore: Number(r.minCreditScore),
+                        maxScore: Number(r.maxCreditScore),
+                    }))
+                };
+                dispatch(submitMasterProductUpdateRequest(updatePayload, () => {
+                    enqueueSnackbar('Update request submitted successfully', { variant: 'success' });
+                    if (onEditSuccess) onEditSuccess();
+                    else navigate('/product-manager');
+                }));
+            } else {
+                dispatch(
+                    updateMasterProductDraft({
+                        endpoint: 'updateProductCreditAssignmentRuleDraft',
+                        payload,
+                    })
+                )
+                    .unwrap()
+                    .then((res) => {
+                        enqueueSnackbar(
+                            res?.message || 'Draft saved successfully',
+                            { variant: 'success' }
+                        );
+                        if (onEditSuccess) onEditSuccess();
+                        else navigate('/product-manager');
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar(
+                            err?.message || 'Failed to save draft',
+                            { variant: 'error' }
+                        );
+                    });
+            }
         } else {
             const payload = {
                 masterProductId: localStorage.getItem('createdProductId'),
