@@ -3,8 +3,9 @@ import SendIcon from '@mui/icons-material/Send';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Box, Button, IconButton, Paper, Dialog,
-  DialogContent, Typography
+  DialogContent, Typography, DialogTitle
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import CategoryIcon from '@mui/icons-material/Category';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import EditIcon from '@mui/icons-material/Edit';
@@ -328,19 +329,55 @@ const MasterProductTable = () => {
         onClose={() => setRejectionDialogOpen(false)}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
       >
-        <DialogContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Rejection History</Typography>
-          {selectedRejections.map((rejection, idx) => (
-            <Box key={idx} sx={{ mb: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                {new Date(rejection.date).toLocaleString()}
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 1 }}>
-                {rejection.reason}
-              </Typography>
-            </Box>
-          ))}
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          pb: 1,
+          borderBottom: '1px solid #e0e0e0'
+        }}>
+          <Typography variant="h6" fontWeight={600}>Rejection History</Typography>
+          <IconButton 
+            onClick={() => setRejectionDialogOpen(false)}
+            size="small"
+            sx={{ color: '#666' }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          {selectedRejections.length === 0 ? (
+            <Typography color="text.secondary" textAlign="center" py={3}>
+              No rejection history found
+            </Typography>
+          ) : (
+            selectedRejections.map((rejection, idx) => (
+              <Box 
+                key={idx} 
+                sx={{ 
+                  mb: 2, 
+                  p: 2.5, 
+                  bgcolor: '#fef2f2', 
+                  borderRadius: 2,
+                  borderLeft: '4px solid #ef4444'
+                }}
+              >
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  {new Date(rejection.date).toLocaleString('en-US', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                  })}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 1, color: '#374151' }}>
+                  {rejection.reason}
+                </Typography>
+              </Box>
+            ))
+          )}
         </DialogContent>
       </Dialog>
 
@@ -349,8 +386,27 @@ const MasterProductTable = () => {
         onClose={() => setEditDialogOpen(false)}
         maxWidth="lg"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
       >
-        <DialogContent>
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          pb: 1,
+          borderBottom: '1px solid #e0e0e0'
+        }}>
+          <Typography variant="h6" fontWeight={600}>Edit Product</Typography>
+          <IconButton 
+            onClick={() => setEditDialogOpen(false)}
+            size="small"
+            sx={{ color: '#666' }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
           {editProduct && (
             <CreateProduct
               mode="EDIT"
