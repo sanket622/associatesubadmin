@@ -59,6 +59,8 @@ function Navbar() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const token = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
     const userRaw = localStorage.getItem('user');
@@ -67,10 +69,12 @@ function Navbar() {
 
     const isValid = isTokenValid(token);
     if (!token || !refreshToken || !userRaw || !isValid) {
-      dispatch(logout());
-      navigate('/login', { replace: true });
+      if (isMounted) {
+        dispatch(logout());
+        navigate('/login', { replace: true });
+      }
     } else {
-      if (!accessToken) {
+      if (!accessToken && isMounted) {
         const user = JSON.parse(userRaw);
         dispatch(setCredentials({ user, accessToken: token, refreshToken }));
 
@@ -84,6 +88,10 @@ function Navbar() {
         }
       }
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [dispatch, accessToken, navigate]);
 
 

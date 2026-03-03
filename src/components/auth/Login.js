@@ -27,6 +27,7 @@ const Login = () => {
 
   const auth = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
+  const isMountedRef = React.useRef(true);
 
 
   const methods = useForm({
@@ -51,12 +52,18 @@ const Login = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userId");
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
   const onError = (e) => console.log(e)
 
   const onSubmit = async (data) => {
     const result = await dispatch(loginUser(data.email, data.password));
+
+    if (!isMountedRef.current) return;
 
     if (result?.success === true) {
       enqueueSnackbar("Login successful!", {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import { Storefront, LocalShipping, ShoppingCart, Agriculture } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import {TotalNoOfFarmersbyFPO} from '../../Api_url'
@@ -10,35 +10,42 @@ const DashboardHome = () => {
 
   // State to store the total farmers count
   const [totalFarmers, setTotalFarmers] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Fetch total farmers from the API
   const fetchTotalFarmers = async () => {
     try {
-      const token = localStorage.getItem('access_token'); // Retrieve the token from localStorage
+      setLoading(true);
+      setError(false);
+      const token = localStorage.getItem('access_token');
       if (!token) {
         console.error('No token found');
+        setError(true);
+        setLoading(false);
         return;
       }
   
-      // Make the API call with the token in the Authorization header
       const response = await axios.get(
         TotalNoOfFarmersbyFPO,
-        { // This is the config object containing headers
+        {
           headers: {
             Authorization: `Bearer ${token}`,
-            
           },
         }
       );
   
-      // Handle the API response
       if (response.data && response?.data?.total_farmers !== undefined) {
         setTotalFarmers(response?.data.total_farmers);
       } else {
         console.error('Invalid API response:', response);
+        setError(true);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -63,14 +70,15 @@ const DashboardHome = () => {
           <Typography variant="h6" component="div" className="font-semibold text-center text-xl">
             Farmer
           </Typography>
-          {/* Display total farmers count */}
-          {totalFarmers !== null ? (
+          {loading ? (
+            <Skeleton variant="text" width={150} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.3)' }} />
+          ) : error ? (
             <Typography variant="body2" component="div" className="text-center mt-2">
-              Total Farmers : {totalFarmers}
+              Failed to load
             </Typography>
           ) : (
             <Typography variant="body2" component="div" className="text-center mt-2">
-              Loading farmers count...
+              Total Farmers: {totalFarmers || 0}
             </Typography>
           )}
         </CardContent>
@@ -89,13 +97,11 @@ const DashboardHome = () => {
           <Typography variant="h6" component="div" className="font-semibold text-center text-xl">
             Sales
           </Typography>
-          {totalFarmers !== null ? (
-            <Typography variant="body2" component="div" className="text-center mt-2">
-              Total Sales : {}
-            </Typography>
+          {loading ? (
+            <Skeleton variant="text" width={150} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.3)' }} />
           ) : (
             <Typography variant="body2" component="div" className="text-center mt-2">
-              Loading farmers count...
+              Total Sales: 0
             </Typography>
           )}
         </CardContent>
@@ -114,13 +120,11 @@ const DashboardHome = () => {
           <Typography variant="h6" component="div" className="font-semibold text-center text-xl">
             Orders
           </Typography>
-          {totalFarmers !== null ? (
-            <Typography variant="body2" component="div" className="text-center mt-2">
-              Total Order : {}
-            </Typography>
+          {loading ? (
+            <Skeleton variant="text" width={150} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.3)' }} />
           ) : (
             <Typography variant="body2" component="div" className="text-center mt-2">
-              Loading farmers count...
+              Total Orders: 0
             </Typography>
           )}
         </CardContent>
@@ -139,13 +143,11 @@ const DashboardHome = () => {
           <Typography variant="h6" component="div" className="font-semibold text-center text-xl">
             Purchase
           </Typography>
-          {totalFarmers !== null ? (
-            <Typography variant="body2" component="div" className="text-center mt-2">
-              Total Purchse : {}
-            </Typography>
+          {loading ? (
+            <Skeleton variant="text" width={150} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.3)' }} />
           ) : (
             <Typography variant="body2" component="div" className="text-center mt-2">
-              Loading farmers count...
+              Total Purchase: 0
             </Typography>
           )}
         </CardContent>

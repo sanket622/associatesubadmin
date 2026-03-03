@@ -542,6 +542,12 @@ const ViewDetailsOperationManager = () => {
     return `${MEDIA_BASE}${filePath}`;
   };
 
+  const openFileInNewTab = (filePath = '') => {
+    const fileUrl = getDocumentUrl(filePath);
+    if (!fileUrl) return;
+    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+  };
+
   const fetchCreditReportForCustomer = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -1895,39 +1901,11 @@ const ViewDetailsOperationManager = () => {
       const summary = account?.Summary;
       const holder = account?.Profile?.Holders?.Holder;
       const transactions = account?.Transactions?.Transaction || [];
+      const sixMonthStatementPath = selectedBankData?.lastSixMonthStatementPdf || LoanCreditData?.lastSixMonthStatementPdf;
+      const oneYearStatementPath = selectedBankData?.lastOneYearStatementPdf || LoanCreditData?.lastOneYearStatementPdf;
 
       return (
         <Box mt={2}>
-          <Box display="flex" gap={2} mb={2}>
-            {LoanCreditData?.lastSixMonthStatementPdf && (
-              <Button
-                sx={primaryBtnSx}
-                onClick={() =>
-                  window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${LoanCreditData.lastSixMonthStatementPdf}`,
-                    '_blank'
-                  )
-                }
-              >
-                View 6 Month Statement
-              </Button>
-            )}
-
-            {LoanCreditData?.lastOneYearStatementPdf && (
-              <Button
-                sx={primaryBtnSx}
-                onClick={() =>
-                  window.open(
-                    `${process.env.REACT_APP_BACKEND_MEDIA}${LoanCreditData.lastOneYearStatementPdf}`,
-                    '_blank'
-                  )
-                }
-              >
-                View 1 Year Statement
-              </Button>
-            )}
-          </Box>
-
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Box display="flex" gap={2} alignItems="center">
               <Button variant="contained" sx={primaryBtnSx} onClick={handleSendAARedirection} disabled={isSendRedirectionDisabled}>
@@ -1994,7 +1972,24 @@ const ViewDetailsOperationManager = () => {
           )}
 
           {selectedBankData && transactions?.length > 0 && (
-            <Paper sx={{ p: 2, borderRadius: 2 }}><ReusableTable title="Statement Transactions" columns={[{ key: 'txnId', label: 'Txn ID' }, { key: 'transactionTimestamp', label: 'Transaction Date', render: (v) => renderSafeValue(v) }, { key: 'mode', label: 'Mode' }, { key: 'narration', label: 'Narration' }, { key: 'type', label: 'Type' }, { key: 'amount', label: 'Amount' }, { key: 'currentBalance', label: 'Current Balance' }, { key: 'reference', label: 'Reference' }]} data={transactions} loading={false} showSearch={false} showFilter={false} /></Paper>
+            <Paper sx={{ p: 2, borderRadius: 2 }}>
+              <Box display="flex" justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} flexDirection={{ xs: 'column', md: 'row' }} gap={1.5} mb={1.5}>
+                <Typography variant="h6" fontWeight={700}>Statement Transactions</Typography>
+                <Box display="flex" gap={1} flexWrap="wrap">
+                  {sixMonthStatementPath && (
+                    <Button sx={primaryBtnSx} onClick={() => openFileInNewTab(sixMonthStatementPath)}>
+                      View 6 Months Statement
+                    </Button>
+                  )}
+                  {oneYearStatementPath && (
+                    <Button sx={primaryBtnSx} onClick={() => openFileInNewTab(oneYearStatementPath)}>
+                      View 1 Year Statement
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+              <ReusableTable title="" columns={[{ key: 'txnId', label: 'Txn ID' }, { key: 'transactionTimestamp', label: 'Transaction Date', render: (v) => renderSafeValue(v) }, { key: 'mode', label: 'Mode' }, { key: 'narration', label: 'Narration' }, { key: 'type', label: 'Type' }, { key: 'amount', label: 'Amount' }, { key: 'currentBalance', label: 'Current Balance' }, { key: 'reference', label: 'Reference' }]} data={transactions} loading={false} showSearch={false} showFilter={false} />
+            </Paper>
           )}
         </Box>
       );
