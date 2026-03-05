@@ -3050,10 +3050,11 @@ const ViewDetailsOperationManager = () => {
 
       const executeBre = async () => {
         try {
+          const breLoanId = loanData?.id || loanId;
 
-          if (!loanData?.variantId) {
+          if (!breLoanId) {
             enqueueSnackbar(
-              "Variant ID is missing. Unable to execute BRE for this loan.",
+              "Loan ID is missing. Unable to execute BRE for this loan.",
               { variant: "warning" }
             );
             return;
@@ -3062,7 +3063,7 @@ const ViewDetailsOperationManager = () => {
           const accessToken = localStorage.getItem("accessToken");
 
           const res = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/bre/executeBreForLoan/${loanData?.variantId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/bre/executeBreForLoan/${breLoanId}`,
             {},
             {
               headers: {
