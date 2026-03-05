@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchVariantsByProductId } from '../../../redux/varient/variantProductsSlice';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,6 +20,7 @@ import DeleteModal from '../productmanager/masterproduct/DeleteModal';
 import { primaryBtnSx } from '../../subcompotents/UtilityService';
 import { submitVariantProductForApproval } from '../../../redux/varient/createvariantproductrequest/variantProductCreateRequestSlice';
 import ApprovalModal from '../../subcompotents/ApprovalModal';
+import axios from 'axios';
 
 const VarientTable = () => {
     const dispatch = useDispatch();
@@ -29,6 +31,9 @@ const VarientTable = () => {
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [submitProductId, setSubmitProductId] = useState(null);
+    const [rejectionReasons, setRejectionReasons] = useState({});
+    const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+    const [selectedRejections, setSelectedRejections] = useState([]);
 
     const { variants = [], loading, error } = useSelector(
         (state) => state.variantProducts || {}
@@ -37,8 +42,44 @@ const VarientTable = () => {
     useEffect(() => {
         if (productId) {
             dispatch(fetchVariantsByProductId(productId));
+            fetchRejectionReasons();
         }
     }, [dispatch, productId]);
+
+    const fetchRejectionReasons = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const res = await axios.get(
+                `${process.env.REACT_APP_BACKEND_URL}/associate/variantProductUpdateRequest/getVariantProductUpdateRequestsForSubAdmin`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (res.data.success) {
+                const rejectedRequests = (res?.data?.data?.data || []).filter(
+                    (req) => req.status === 'REJECTED' && req.rejectionReason && req.variantProductId
+                );
+
+                const reasonsMap = {};
+                rejectedRequests.forEach((req) => {
+                    if (!reasonsMap[req.variantProductId]) {
+                        reasonsMap[req.variantProductId] = [];
+                    }
+                    reasonsMap[req.variantProductId].push({
+                        reason: req.rejectionReason,
+                        date: req.updatedAt || req.createdAt,
+                    });
+                });
+
+                Object.keys(reasonsMap).forEach((key) => {
+                    reasonsMap[key].sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
+
+                setRejectionReasons(reasonsMap);
+            }
+        } catch (err) {
+            console.error('Failed to fetch variant rejection reasons:', err);
+        }
+    };
 
     /* ===================== TABLE COLUMNS ===================== */
     const columns = [
@@ -52,6 +93,26 @@ const VarientTable = () => {
         { key: 'variantCode', label: 'Code' },
         { key: 'productType', label: 'Product Type' },
         { key: 'status', label: 'Status' },
+        {
+            key: 'rejection',
+            label: 'Rejection Reason',
+            render: (_, row) => {
+                const rejections = rejectionReasons[row.id];
+                if (!rejections || rejections.length === 0) return '-';
+                return (
+                    <Button
+                        size="small"
+                        sx={{ textTransform: 'none', color: '#d32f2f' }}
+                        onClick={() => {
+                            setSelectedRejections(rejections);
+                            setRejectionDialogOpen(true);
+                        }}
+                    >
+                        View ({rejections.length})
+                    </Button>
+                );
+            },
+        },
 
         {
             key: 'view',
@@ -253,6 +314,63 @@ const VarientTable = () => {
                     setSubmitProductId(null);
                 }}
             />
+
+            <Dialog
+                open={rejectionDialogOpen}
+                onClose={() => setRejectionDialogOpen(false)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: { borderRadius: 3 }
+                }}
+            >
+                <DialogTitle sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    pb: 1,
+                    borderBottom: '1px solid #e0e0e0'
+                }}>
+                    <Typography variant="h6" fontWeight={600}>Rejection History</Typography>
+                    <IconButton
+                        onClick={() => setRejectionDialogOpen(false)}
+                        size="small"
+                        sx={{ color: '#666' }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ mt: 2 }}>
+                    {selectedRejections.length === 0 ? (
+                        <Typography color="text.secondary" textAlign="center" py={3}>
+                            No rejection history found
+                        </Typography>
+                    ) : (
+                        selectedRejections.map((rejection, idx) => (
+                            <Box
+                                key={idx}
+                                sx={{
+                                    mb: 2,
+                                    p: 2.5,
+                                    bgcolor: '#fef2f2',
+                                    borderRadius: 2,
+                                    borderLeft: '4px solid #ef4444'
+                                }}
+                            >
+                                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                                    {new Date(rejection.date).toLocaleString('en-US', {
+                                        dateStyle: 'medium',
+                                        timeStyle: 'short'
+                                    })}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 1, color: '#374151' }}>
+                                    {rejection.reason}
+                                </Typography>
+                            </Box>
+                        ))
+                    )}
+                </DialogContent>
+            </Dialog>
 
         </Paper >
     );
