@@ -141,6 +141,14 @@ const ViewDetailsOperationManager = () => {
   const source = location.state?.source;
   const showAllTabs = location.state?.showAllTabs === true;
   const verifiedpage = location.state?.PageName === 'verifiedpage';
+  const isOperationManagerLogin = ['Operation_Manager', 'Ops_Manager'].includes(userRole);
+  const isOperationQueueView =
+    source === 'recheck' || location.pathname.includes('/recheck-loans');
+  const canShowBankDetailsTab =
+    isOperationManagerLogin &&
+    isOperationQueueView &&
+    (showAllTabs || canViewAddBankDetailsTab(userRole));
+  const canShowVerifyAccountButton = isOperationManagerLogin && isOperationQueueView;
 
   const [scForm, setScForm] = useState({
     assignTo: '',
@@ -577,7 +585,6 @@ const ViewDetailsOperationManager = () => {
 
   const handleFetchCreditReportAndOpenModal = () => {
     setScReassignOpen(true);
-    fetchCreditReportForCustomer();
   };
 
   const handleOpenAgreementModal = async () => {
@@ -1210,7 +1217,7 @@ const ViewDetailsOperationManager = () => {
           : []),
 
 
-        ...(showAllTabs || canViewAddBankDetailsTab(userRole)
+        ...(canShowBankDetailsTab
           ? [
             {
               label: 'Bank Details',
@@ -2736,14 +2743,16 @@ const ViewDetailsOperationManager = () => {
               >
                 Add Bank Details
               </Button>
-              <Button
-                variant="contained"
-                onClick={handleVerifyBankAccount}
-                disabled={!hasBankDetails || verifyAccountLoading || isBankVerified}
-                sx={primaryBtnSx}
-              >
-                {verifyAccountLoading ? <CircularProgress size={20} color="inherit" /> : (isBankVerified ? 'Verified' : 'Verify Account')}
-              </Button>
+              {canShowVerifyAccountButton && (
+                <Button
+                  variant="contained"
+                  onClick={handleVerifyBankAccount}
+                  disabled={!hasBankDetails || verifyAccountLoading || isBankVerified}
+                  sx={primaryBtnSx}
+                >
+                  {verifyAccountLoading ? <CircularProgress size={20} color="inherit" /> : (isBankVerified ? 'Verified' : 'Verify Account')}
+                </Button>
+              )}
             </Box>
           )}
 

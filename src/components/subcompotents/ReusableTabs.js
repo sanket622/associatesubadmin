@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 const ReusableTabs = ({ tabs, activeTab, setActiveTab }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const isScrollable = isMobile;
+    const isScrollable = true;
     return (
         <>
             <Tabs
@@ -21,17 +21,23 @@ const ReusableTabs = ({ tabs, activeTab, setActiveTab }) => {
                 }}
                 sx={{
                     minHeight: 'unset',
+                    '& .MuiTabs-scroller': {
+                        overflowX: 'auto !important',
+                    },
                     '& .MuiTabs-flexContainer': {
-                        width: '100%',
+                        width: isScrollable ? 'max-content' : '100%',
                     },
                     '& .MuiTab-root': {
                         textTransform: 'none',
                         fontSize: 16,
                         minHeight: 'unset',
-                        minWidth: 0,
+                        minWidth: isMobile ? 120 : 160,
+                        maxWidth: 'none',
                         flex: isScrollable ? '0 0 auto' : '1 1 0',
-                        whiteSpace: 'normal',
+                        whiteSpace: 'nowrap',
                         lineHeight: 1.2,
+                        px: 2,
+                        py: 1.25,
                         color: '#6B7280',
                         backgroundColor: '#084E770A',
                     },
