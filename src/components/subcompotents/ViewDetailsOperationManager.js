@@ -141,7 +141,7 @@ const ViewDetailsOperationManager = () => {
   const source = location.state?.source;
   const showAllTabs = location.state?.showAllTabs === true;
   const verifiedpage = location.state?.PageName === 'verifiedpage';
-  const isOperationManagerLogin = ['Operation_Manager', 'Ops_Manager'].includes(userRole);
+  const isOperationManagerLogin = ['Operation_Manager', 'Ops_Manager', 'Senior_Credit'].includes(userRole);
   const isOperationQueueView =
     source === 'recheck' || location.pathname.includes('/recheck-loans');
   const canShowBankDetailsTab =
@@ -232,7 +232,14 @@ const ViewDetailsOperationManager = () => {
     }
   }, [LoanFinancialData, selectedBank]);
   // console.log(creditApproved);
-  const bsaTxnData = loanData?.LoanCreditData || null;
+  const bsaTxnData = useMemo(() => {
+    // Keep backward-compatible BSA rendering while supporting new LoanBankBsaData key.
+    if (loanData?.LoanCreditData?.bsaTxnData) {
+      return loanData.LoanCreditData;
+    }
+
+    return LoanBankBsaData?.[0] || null;
+  }, [loanData, LoanBankBsaData]);
   const accountNumber =
     bsaTxnData?.bsaTxnData?.data?.entity?.[0]?.acc_no || '-';
 
@@ -1120,12 +1127,15 @@ const ViewDetailsOperationManager = () => {
           ]
           : []),
 
-        ...(LoanBankBsaData?.length > 0
+        ...(canViewBSATxn(userRole) && bsaTxnData
           ? [
             {
               label: 'BSA Data',
               type: 'bsaData',
-              data: { LoanBankBsaData },
+              data: {
+                profile: bsaProfileTable,
+                transactions: flattenBsaTxnTable(bsaTransactionData),
+              },
             },
           ]
           : []),
@@ -1254,17 +1264,17 @@ const ViewDetailsOperationManager = () => {
           ]
           : []),
 
-        ...(showAllTabs || canViewBrePolicyTab(userRole)
-          ? [
-            {
-              label: 'BRE Data',
-              type: 'bre-policy',
-              data: {
-                loanId: loanData?.id,
-              },
-            },
-          ]
-          : []),
+        // ...(showAllTabs || canViewBrePolicyTab(userRole)
+        //   ? [
+        //     {
+        //       label: 'BRE Data',
+        //       type: 'bre-policy',
+        //       data: {
+        //         loanId: loanData?.id,
+        //       },
+        //     },
+        //   ]
+        //   : []),
 
 
         {
@@ -2004,7 +2014,7 @@ const ViewDetailsOperationManager = () => {
       );
     }
 
-    if (activeTabData.type === 'bsaData') {
+    if (activeTabData.type === 'bsaData' && activeTabData.data?.LoanBankBsaData) {
       const bsaDataList = activeTabData.data?.LoanBankBsaData || [];
 
       return (
@@ -2197,7 +2207,7 @@ const ViewDetailsOperationManager = () => {
       );
     }
 
-    if (activeTabData.type === 'bsaTxnOnly') {
+    if (activeTabData.type === 'bsaTxnOnly' || activeTabData.type === 'bsaData') {
       const { profile, transactions } = activeTabData.data;
       const overallInflowRows = flattenOverallTransactions(overall, 'inflow');
       const overallExpenseRows = flattenOverallTransactions(overall, 'expense');

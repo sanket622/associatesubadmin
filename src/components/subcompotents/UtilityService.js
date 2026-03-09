@@ -341,12 +341,17 @@ export const canViewAgreementTab = (role, loan = {}) => {
 
 
 export const canViewBSATxn = (role) => {
-    return [
-        'Ops',
-        'Senior_Ops',
-        'Senior_Credit',
-        'Finance',
-    ].includes(role);
+    if (!role) return false;
+
+    return (
+        [
+            'Ops',
+            'Senior_Ops',
+            'Credit',
+            'Senior_Credit',
+            'Finance',
+        ].includes(role) || isCreditRole(role)
+    );
 };
 
 
