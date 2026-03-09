@@ -221,6 +221,7 @@ const ViewDetailsOperationManager = () => {
     LoanEmiDetails,
     LoanRepaymentSchedule = [],
     LoanFinancialData = [],
+    LoanBankBsaData = [],
   } = loanData || {};
   
   const [selectedBank, setSelectedBank] = useState(LoanFinancialData?.[0]?.id || null);
@@ -1115,15 +1116,12 @@ const ViewDetailsOperationManager = () => {
           ]
           : []),
 
-        ...(canViewBSATxn(userRole) && bsaTxnData
+        ...(LoanBankBsaData?.length > 0
           ? [
             {
               label: 'BSA Data',
-              type: 'bsaTxnOnly',
-              data: {
-                profile: bsaProfileTable,
-                transactions: flattenBsaTxnTable(bsaTransactionData),
-              },
+              type: 'bsaData',
+              data: { LoanBankBsaData },
             },
           ]
           : []),
@@ -1998,6 +1996,57 @@ const ViewDetailsOperationManager = () => {
               <ReusableTable title="" columns={[{ key: 'txnId', label: 'Txn ID' }, { key: 'transactionTimestamp', label: 'Transaction Date', render: (v) => renderSafeValue(v) }, { key: 'mode', label: 'Mode' }, { key: 'narration', label: 'Narration' }, { key: 'type', label: 'Type' }, { key: 'amount', label: 'Amount' }, { key: 'currentBalance', label: 'Current Balance' }, { key: 'reference', label: 'Reference' }]} data={transactions} loading={false} showSearch={false} showFilter={false} />
             </Paper>
           )}
+        </Box>
+      );
+    }
+
+    if (activeTabData.type === 'bsaData') {
+      const bsaDataList = activeTabData.data?.LoanBankBsaData || [];
+
+      return (
+        <Box mt={2}>
+          {bsaDataList.map((bsaItem, index) => {
+            const profile = bsaItem?.bsaJsonData?.custProfile || {};
+            const { CUID, ...filteredProfile } = profile;
+
+            return (
+              <Accordion key={bsaItem.id || index} sx={{ mb: 2 }} defaultExpanded>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    background: 'var(--theme-btn-bg)',
+                    color: '#fff',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <Typography fontWeight={600}>
+                    {bsaItem.fipName || `Bank ${index + 1}`}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Card>
+                    <CardHeader title="Customer Profile" />
+                    <CardContent>
+                      <Grid container spacing={2}>
+                        {Object.entries(filteredProfile).map(([key, value]) => (
+                          <Grid item xs={12} sm={6} md={4} key={key}>
+                            <Typography className="theme-label">
+                              {formatLabel(key)}
+                            </Typography>
+                            <Typography className="theme-values">
+                              {key === 'dob' || key === 'maxDate' || key === 'minDate' || key === 'openingDate'
+                                ? formatDateTime(value)
+                                : value ?? '-'}
+                            </Typography>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </AccordionDetails>
+              </Accordion>
+            );
+          })}
         </Box>
       );
     }
@@ -3343,7 +3392,7 @@ const ViewDetailsOperationManager = () => {
                     sx={primaryBtnSx}
                     onClick={() => setOpenENachModal(true)}
                   >
-                    Banking Activation
+                    Activating E-NACHE
                   </Button>
                 </>
               )

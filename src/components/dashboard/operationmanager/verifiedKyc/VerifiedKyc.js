@@ -78,7 +78,7 @@ const VerifiedKyc = () => {
                 />
             ),
         },
-        { key: 'processedBy', label: 'Processed By' },
+        { key: 'processedBy', label: 'Assigned To' },
         {
             key: 'action',
             label: 'Action',

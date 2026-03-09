@@ -62,6 +62,7 @@ import variantGoNoGoKeysReducer
     from "../redux/varient/variantGoNoGoKeysSlice";
 
 import geographyReducer from '../redux/varient/geographySlice';
+import customerManagementReducer from './customerManagement/customerManagementSlice';
 export const store = configureStore({
     reducer: {
 
@@ -117,6 +118,7 @@ export const store = configureStore({
         fieldManager: fieldManagerReducer,
         loanDetails: loanDetailsReducer,
         customerReviewDetails: customerReviewDetailsReducer,
-        recheckLoans: recheckLoanReducer
+        recheckLoans: recheckLoanReducer,
+        customerManagement: customerManagementReducer
     },
 });

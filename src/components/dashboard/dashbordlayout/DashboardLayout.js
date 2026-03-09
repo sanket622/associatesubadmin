@@ -48,6 +48,7 @@ import ProductGoNoGoPolicy from '../productmanager/masterproduct/ProductGoNoGoPo
 import ProductBrePolicy from '../productmanager/masterproduct/ProductBrePolicy';
 import VariantGoNoGoPolicy from '../varient/VariantGoNoGoPolicy';
 import VariantBrePolicy from '../varient/VariantBrePolicy';
+import CustomerManagement from '../customermanagement/CustomerManagement';
 
 // const SIDEBAR_WIDTH = 223;
 
@@ -56,6 +57,16 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const allModules = useSelector((state) => state.auth.allModules);
+  const sidebarModules =
+    location.pathname.startsWith('/customer-management')
+      ? [
+          {
+            id: 'customer-management',
+            path: 'customer-management',
+            moduleName: 'Ticket',
+          },
+        ]
+      : allModules || [];
 
 
   useEffect(() => {
@@ -94,7 +105,7 @@ const DashboardLayout = () => {
 
         <nav className="px-3 py-4">
           <ul className="space-y-1">
-            {allModules?.map((item) => {
+            {sidebarModules?.map((item) => {
               const isActive = location.pathname.includes(item.path);
               return (
                 <li
@@ -179,6 +190,7 @@ const DashboardLayout = () => {
 
           {/*++++++++++++++++++++++++++ Product manager +++++++++++++++++++++++++++++++ */}
           <Route path="/product-manager" element={<MasterProductTable />} />
+          <Route path="/customer-management" element={<CustomerManagement />} />
           <Route path="/add-fields/:productId" element={<LoanFieldBuilder />} />
           <Route path="/product-policy/:productId" element={<ProductGoNoGoPolicy />} />
           <Route path="/productbre-policy/:productId" element={<ProductBrePolicy />} />

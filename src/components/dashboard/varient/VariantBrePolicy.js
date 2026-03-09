@@ -17,7 +17,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useSnackbar } from "notistack";
 import { primaryBtnSx } from "../../subcompotents/UtilityService";
 import { useDispatch, useSelector } from "react-redux";
-import { updateMasterProductDraft } from "../../../redux/masterproduct/masterproductdraftslice/masterproductdraft";
+import { updateVariantProductDraft } from "../../../redux/varient/variantdraftupdateslice/variantdraftupdateslice";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchVariantProductDetail } from '../../../redux/varient/variantSingleSlice';
 const OP_OPTIONS = [">=", "<=", "BETWEEN"];
@@ -154,32 +154,31 @@ export default function VariantBrePolicy({ onSuccess }) {
             return;
         }
 
-        const payload = {
-            variantId: id,
-            rules: [
-                {
-                    category,
-                    maxScore: Number(maxScore),
-                    parameters: parameters.map((p) => ({
-                        key: p.key,
-                        rules: p.rules.map((r) => ({
-                            op: r.op,
-                            value: buildRuleValue(r),
-                            score: Number(r.score),
-                        })),
-                    })),
-                },
-            ],
-        };
-
         try {
             setLoading(true);
 
-
             if (isEditMode && status === "Draft") {
+                const payload = {
+                    variantProductId: id,
+                    rules: [
+                        {
+                            category,
+                            maxScore: Number(maxScore),
+                            parameters: parameters.map((p) => ({
+                                key: p.key,
+                                rules: p.rules.map((r) => ({
+                                    op: r.op,
+                                    value: buildRuleValue(r),
+                                    score: Number(r.score),
+                                })),
+                            })),
+                        },
+                    ],
+                };
+
                 const res = await dispatch(
-                    updateMasterProductDraft({
-                        endpoint: "updateBrePolicyDraft",
+                    updateVariantProductDraft({
+                        endpoint: "updateVariantProductDraft",
                         payload,
                     })
                 ).unwrap();
@@ -189,9 +188,25 @@ export default function VariantBrePolicy({ onSuccess }) {
                     { variant: "success" }
                 );
                 navigate(-1);
-            }
+            } else {
+                const payload = {
+                    variantId: id,
+                    rules: [
+                        {
+                            category,
+                            maxScore: Number(maxScore),
+                            parameters: parameters.map((p) => ({
+                                key: p.key,
+                                rules: p.rules.map((r) => ({
+                                    op: r.op,
+                                    value: buildRuleValue(r),
+                                    score: Number(r.score),
+                                })),
+                            })),
+                        },
+                    ],
+                };
 
-            else {
                 const accessToken = localStorage.getItem("accessToken");
 
                 const res = await axios.post(
