@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { logout, setCredentials, fetchAllModules, setFilteredModules, setAllModules } from './auth/redux/auth/authSlice';
 import { Avatar, Menu, MenuItem, IconButton, Box } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -38,6 +38,7 @@ const notifications = [
 function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const accessToken = useSelector((state) => state.auth.accessToken);
   const user = useSelector((state) => state.auth.user);
   // const [menuOpen, setMenuOpen] = useState(false);
@@ -103,7 +104,12 @@ function Navbar() {
   return (
     <div className="bg-brand w-full shadow-md fixed top-0 left-0 h-[70px] flex items-center px-6 z-[2000]">
       <div className="flex justify-between items-center w-full px-6">
-        <img src={logo} alt="logo" className="h-14 object-contain" />
+        <div className="flex items-center gap-4">
+          <img src={logo} alt="logo" className="h-14 object-contain" />
+          {location.pathname.startsWith('/customer-management') && (
+            <span className="text-black font-semibold text-lg ml-[150px]">Dashboard</span>
+          )}
+        </div>
 
         <Box className="flex items-center gap-8">
 
