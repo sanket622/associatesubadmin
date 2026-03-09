@@ -1032,11 +1032,15 @@ const ViewDetailsOperationManager = () => {
       //   payload.interestType = scForm.interestType;
       // }
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/loanApproval/processLoanApproval/${loanId}`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // Execute both API calls asynchronously
+      const [response] = await Promise.all([
+        axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/associateSubAdmin/loanApproval/processLoanApproval/${loanId}`,
+          payload,
+          { headers: { Authorization: `Bearer ${token}` } }
+        ),
+        fetchCreditReportForCustomer()
+      ]);
 
       enqueueSnackbar(response?.data?.message || 'Loan reassigned successfully', { variant: 'success' });
       setScReassignOpen(false);
@@ -2008,6 +2012,21 @@ const ViewDetailsOperationManager = () => {
           {bsaDataList.map((bsaItem, index) => {
             const profile = bsaItem?.bsaJsonData?.custProfile || {};
             const { CUID, ...filteredProfile } = profile;
+            const finalOutput = bsaItem?.bsaJsonData?.finalOutput || {};
+            const txnPayload = bsaItem?.bsaTxnData || {};
+            const txnData = txnPayload?.data || {};
+            const bsaAllTxnRows = flattenBsaTxnTable(txnData);
+
+            const handleDownloadReport = (path, fileName) => {
+              const url = getDocumentUrl(path);
+              if (!url) return;
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = fileName;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            };
 
             return (
               <Accordion key={bsaItem.id || index} sx={{ mb: 2 }} defaultExpanded>
@@ -2024,6 +2043,51 @@ const ViewDetailsOperationManager = () => {
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
+                  <Box display="flex" gap={1.5} flexWrap="wrap" mb={2}>
+                    {bsaItem?.lastOneYearBsaReport && (
+                      <>
+                        <Button
+                          sx={primaryBtnSx}
+                          onClick={() => openFileInNewTab(bsaItem.lastOneYearBsaReport)}
+                        >
+                          View 1 Year BSA Report
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            handleDownloadReport(
+                              bsaItem.lastOneYearBsaReport,
+                              'BSA_One_Year_Report.xlsx'
+                            )
+                          }
+                        >
+                          Download 1 Year Report
+                        </Button>
+                      </>
+                    )}
+                    {bsaItem?.lastSixMonthBsaReport && (
+                      <>
+                        <Button
+                          sx={primaryBtnSx}
+                          onClick={() => openFileInNewTab(bsaItem.lastSixMonthBsaReport)}
+                        >
+                          View 6 Months BSA Report
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            handleDownloadReport(
+                              bsaItem.lastSixMonthBsaReport,
+                              'BSA_Six_Month_Report.xlsx'
+                            )
+                          }
+                        >
+                          Download 6 Months Report
+                        </Button>
+                      </>
+                    )}
+                  </Box>
+
                   <Card>
                     <CardHeader title="Customer Profile" />
                     <CardContent>
@@ -2043,6 +2107,88 @@ const ViewDetailsOperationManager = () => {
                       </Grid>
                     </CardContent>
                   </Card>
+
+                  <Accordion sx={{ mt: 2 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography fontWeight={600}>Final Output - Overall</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Paper sx={{ p: 2, maxHeight: 420, overflow: 'auto', background: '#f8fafc' }}>
+                        <Box component="pre" sx={{ m: 0, fontSize: 12, whiteSpace: 'pre-wrap' }}>
+                          {JSON.stringify(finalOutput?.overall || {}, null, 2)}
+                        </Box>
+                      </Paper>
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion sx={{ mt: 2 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography fontWeight={600}>Final Output - Entities</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Paper sx={{ p: 2, maxHeight: 420, overflow: 'auto', background: '#f8fafc' }}>
+                        <Box component="pre" sx={{ m: 0, fontSize: 12, whiteSpace: 'pre-wrap' }}>
+                          {JSON.stringify(finalOutput?.entities || [], null, 2)}
+                        </Box>
+                      </Paper>
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion sx={{ mt: 2 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography fontWeight={600}>BSA Transaction Summary</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Typography className="theme-label">Total Inflow</Typography>
+                          <Typography className="theme-values">{txnData?.overall?.totalInflow ?? '-'}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Typography className="theme-label">Total Expense</Typography>
+                          <Typography className="theme-values">{txnData?.overall?.totalExpense ?? '-'}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Typography className="theme-label">Bank Name</Typography>
+                          <Typography className="theme-values">{txnData?.entity?.[0]?.bank_name ?? bsaItem?.fipName ?? '-'}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Typography className="theme-label">Account</Typography>
+                          <Typography className="theme-values">{txnData?.entity?.[0]?.acc_no ?? '-'}</Typography>
+                        </Grid>
+                      </Grid>
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion sx={{ mt: 2 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography fontWeight={600}>BSA Transaction Data (All)</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Paper sx={{ p: 2, borderRadius: 2 }}>
+                        <ReusableTable
+                          title=""
+                          columns={[
+                            { key: 'account', label: 'Account' },
+                            { key: 'category', label: 'Category' },
+                            { key: 'type', label: 'Type' },
+                            { key: 'amount', label: 'Amount' },
+                            { key: 'mode', label: 'Mode' },
+                            { key: 'instrument', label: 'Instrument' },
+                            { key: 'counterParty', label: 'Counter Party' },
+                            { key: 'narration', label: 'Narration' },
+                            { key: 'balance', label: 'Current Balance' },
+                            { key: 'txnId', label: 'Txn ID' },
+                            { key: 'txnTime', label: 'Transaction Time' },
+                          ]}
+                          data={bsaAllTxnRows}
+                          loading={false}
+                          showSearch={false}
+                          showFilter={false}
+                        />
+                      </Paper>
+                    </AccordionDetails>
+                  </Accordion>
                 </AccordionDetails>
               </Accordion>
             );
