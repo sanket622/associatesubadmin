@@ -148,7 +148,7 @@ const initialState = {
   error: null,
   rows: mockTickets,
   page: 1,
-  rowsPerPage: 5,
+  rowsPerPage: 10,
 };
 
 const customerManagementSlice = createSlice({
@@ -162,12 +162,17 @@ const customerManagementSlice = createSlice({
       state.rowsPerPage = action.payload;
       state.page = 1;
     },
+    addCustomerTicket: (state, action) => {
+      state.rows.unshift(action.payload);
+      state.page = 1;
+    },
   },
 });
 
 export const {
   setCustomerManagementPage,
   setCustomerManagementRowsPerPage,
+  addCustomerTicket,
 } = customerManagementSlice.actions;
 
 export default customerManagementSlice.reducer;

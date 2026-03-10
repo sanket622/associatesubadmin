@@ -49,6 +49,9 @@ import ProductBrePolicy from '../productmanager/masterproduct/ProductBrePolicy';
 import VariantGoNoGoPolicy from '../varient/VariantGoNoGoPolicy';
 import VariantBrePolicy from '../varient/VariantBrePolicy';
 import CustomerManagement from '../customermanagement/CustomerManagement';
+import DialerPage from '../customermanagement/pages/DialerPage';
+import MailPage from '../customermanagement/pages/MailPage';
+import WhatsAppPage from '../customermanagement/pages/WhatsAppPage';
 
 // const SIDEBAR_WIDTH = 223;
 
@@ -191,6 +194,9 @@ const DashboardLayout = () => {
           {/*++++++++++++++++++++++++++ Product manager +++++++++++++++++++++++++++++++ */}
           <Route path="/product-manager" element={<MasterProductTable />} />
           <Route path="/customer-management" element={<CustomerManagement />} />
+          <Route path="/customer-management/dialer" element={<DialerPage />} />
+          <Route path="/customer-management/mail" element={<MailPage />} />
+          <Route path="/customer-management/whatsapp" element={<WhatsAppPage />} />
           <Route path="/add-fields/:productId" element={<LoanFieldBuilder />} />
           <Route path="/product-policy/:productId" element={<ProductGoNoGoPolicy />} />
           <Route path="/productbre-policy/:productId" element={<ProductBrePolicy />} />
