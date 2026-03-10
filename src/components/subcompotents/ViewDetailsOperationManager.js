@@ -141,14 +141,15 @@ const ViewDetailsOperationManager = () => {
   const source = location.state?.source;
   const showAllTabs = location.state?.showAllTabs === true;
   const verifiedpage = location.state?.PageName === 'verifiedpage';
-  const isOperationManagerLogin = ['Operation_Manager', 'Ops_Manager', 'Senior_Credit'].includes(userRole);
+  const isOperationManagerLogin = ['Ops', 'Operation_Manager', 'Ops_Manager', 'Senior_Ops'].includes(userRole);
+  const isCreditManagerLogin = ['Credit', 'Credit_1', 'Senior_Credit'].includes(userRole);
   const isOperationQueueView =
     source === 'recheck' || location.pathname.includes('/recheck-loans');
   const canShowBankDetailsTab =
-    isOperationManagerLogin &&
-    isOperationQueueView &&
-    (showAllTabs || canViewAddBankDetailsTab(userRole));
-  const canShowVerifyAccountButton = isOperationManagerLogin && isOperationQueueView;
+    (isOperationManagerLogin || isCreditManagerLogin) &&
+    (showAllTabs || canViewAddBankDetailsTab(userRole) || isCreditManagerLogin);
+  const canShowVerifyAccountButton =
+    (isOperationManagerLogin && isOperationQueueView) || isCreditManagerLogin;
 
   const [scForm, setScForm] = useState({
     assignTo: '',

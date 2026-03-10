@@ -23,39 +23,47 @@ const CustomerManagement = () => {
   }, [rows, page, rowsPerPage]);
 
   const ticketStats = useMemo(() => {
-    const openCount = rows.filter((item) => item.status === 'Open').length;
+    const totalOpenCount = rows.filter((item) => item.status === 'Open').length;
     const inProgressCount = rows.filter(
       (item) => item.status === 'In Progress'
     ).length;
-    const resolvedCount = rows.filter((item) => item.status === 'Resolved').length;
-    const highPriorityCount = rows.filter(
-      (item) => item.priority === 'High'
-    ).length;
-    const mediumPriorityCount = rows.filter(
-      (item) => item.priority === 'Medium'
-    ).length;
-    const lowPriorityCount = rows.filter((item) => item.priority === 'Low').length;
+    const escalatedCount = rows.filter((item) => item.status === 'Escalated').length;
+    const resolvedTodayCount = rows.filter((item) => item.resolvedToday).length;
+    const slaBreachedCount = rows.filter((item) => item.slaBreached).length;
+    const closedTodayCount = rows.filter((item) => item.closedToday).length;
 
     return [
-      { label: 'Total Open', value: rows.length },
-      { label: 'Open', value: openCount },
+      { label: 'Total Open', value: totalOpenCount },
       { label: 'In Progress', value: inProgressCount },
-      { label: 'Resolved', value: resolvedCount },
-      { label: 'High Priority', value: highPriorityCount },
-      { label: 'Medium Priority', value: mediumPriorityCount + lowPriorityCount },
+      { label: 'Escalated', value: escalatedCount },
+      { label: 'Resolved Today', value: resolvedTodayCount },
+      { label: 'SLA Breached', value: slaBreachedCount },
+      { label: 'Closed Today', value: closedTodayCount },
     ];
   }, [rows]);
 
   const columns = [
-    {
-      key: 'sno',
-      label: 'S.No.',
-      render: (_, __, index) => (page - 1) * rowsPerPage + index + 1,
-    },
-    { key: 'id', label: 'Ticket ID' },
+    { key: 'ticketNumber', label: 'Ticket #' },
     { key: 'subject', label: 'Subject' },
-    { key: 'category', label: 'Category' },
-    { key: 'priority', label: 'Priority' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'platform', label: 'Platform' },
+    {
+      key: 'priority',
+      label: 'Priority',
+      render: (value) => (
+        <Chip
+          size="small"
+          label={value}
+          sx={{
+            fontWeight: 500,
+            backgroundColor:
+              value === 'High' ? '#FDECEA' : value === 'Medium' ? '#FFF3E0' : '#E8F5E9',
+            color:
+              value === 'High' ? '#C62828' : value === 'Medium' ? '#E65100' : '#2E7D32',
+          }}
+        />
+      ),
+    },
     {
       key: 'status',
       label: 'Status',
@@ -70,18 +78,38 @@ const CustomerManagement = () => {
                 ? '#E8F5E9'
                 : value === 'In Progress'
                   ? '#FFF3E0'
-                  : '#ECEFF1',
+                  : value === 'Escalated'
+                    ? '#FDECEA'
+                    : '#ECEFF1',
             color:
               value === 'Open'
                 ? '#2E7D32'
                 : value === 'In Progress'
                   ? '#E65100'
-                  : '#546E7A',
+                  : value === 'Escalated'
+                    ? '#C62828'
+                    : '#546E7A',
           }}
         />
       ),
     },
-    { key: 'createdOn', label: 'Created On' },
+    { key: 'assignedTo', label: 'Assigned To' },
+    {
+      key: 'slaRemaining',
+      label: 'SLA Remaining',
+      render: (value, row) => (
+        <Typography
+          sx={{
+            fontSize: '13px',
+            fontWeight: 600,
+            color: row.slaBreached ? '#C62828' : '#2E7D32',
+          }}
+        >
+          {value}
+        </Typography>
+      ),
+    },
+    { key: 'createdAt', label: 'Created At' },
   ];
 
   return (
